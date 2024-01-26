@@ -1,0 +1,20 @@
+app:
+  version: @project.version@
+  name: @project.name@
+
+spring:
+  main:
+    web-application-type: reactive
+  cloud:
+    gateway:
+      routes:
+        - id: employeeModule
+          uri: http://capability-backend-dev-eafdmmart.apps.yd-m6-kt22.vimpelcom.ru
+          predicates:
+            - Path=/api/admin/v1/roles
+          filters:
+            - RewritePath=/filter(?<segment>/?.*), $\{segment}
+        - id: consumerModule
+          uri: http://localhost:8082/
+          predicates:
+            - Path=/consumer/**
