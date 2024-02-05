@@ -24,6 +24,7 @@ import static ru.beeline.fdmgateway.utils.jwt.JwtUtils.getUserData;
 @Component
 public class ValidateTokenFilter implements WebFilter {
     private static final String USER_ID_HEADER = "USER_ID";
+    private static final String USER_PERMISSION = "USER_PERMISSION";
     private static final String USER_PRODUCTS_IDS_HEADER = "USER_PRODUCTS_IDS";
     private static final String USER_ROLES_HEADER = "USER_ROLES";
     private final UserService userService;
@@ -47,6 +48,7 @@ public class ValidateTokenFilter implements WebFilter {
             exchange.getResponse().getHeaders().add(USER_ID_HEADER, userInfo.getId());
             exchange.getResponse().getHeaders().addAll(USER_PRODUCTS_IDS_HEADER, userInfo.getProductIds().stream().map(Objects::toString).collect(Collectors.toList()));
             exchange.getResponse().getHeaders().addAll(USER_ROLES_HEADER, userInfo.getRoles());
+            exchange.getResponse().getHeaders().addAll(USER_PERMISSION, userInfo.getPermission());
         }
         return chain.filter(exchange);
     }

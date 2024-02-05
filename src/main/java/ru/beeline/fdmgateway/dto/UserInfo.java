@@ -15,4 +15,5 @@ public class UserInfo {
     private String id;
     private List<Long> productIds;
     private List<String> roles;
+    private List<String> permission;
 }
