@@ -1,0 +1,4 @@
+env:
+  SPRING_PROFILES_ACTIVE: test
+  JWKS: "vault:eafdmmart/data/test/fdm#jwks"
+
