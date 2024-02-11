@@ -35,6 +35,13 @@ public class ValidateTokenFilter implements WebFilter {
 
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {
+        if(exchange.getRequest().getPath().toString().contains("swagger")
+                || exchange.getRequest().getPath().toString().contains("/api-docs")
+                || exchange.getRequest().getPath().toString().contains("/eauthkey"))
+        {
+            return chain.filter(exchange);
+        }
+
         String token = exchange.getRequest().getHeaders().getFirst("Authorization");
         try {
             validate(token);
