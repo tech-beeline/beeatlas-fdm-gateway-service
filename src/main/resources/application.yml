@@ -8,16 +8,10 @@ spring:
   cloud:
     gateway:
       routes:
-        - id: roles
-          uri: http://capability-backend-dev-eafdmmart.apps.yd-m6-kt22.vimpelcom.ru
+        - id: localhostRedirect
+          uri: http://localhost:8082
           predicates:
-            - Path=/api/admin/v1/roles
-          filters:
-            - RewritePath=/filter(?<segment>/?.*), $\{segment}
-        - id: consumerModule
-          uri: http://capability-backend-dev-eafdmmart.apps.yd-m6-kt22.vimpelcom.ru
-          predicates:
-            - Path=/api/admin/v1/consumerModule
+            - Path=/api/cx/v1/product/cj/1
           filters:
             - RewritePath=/filter(?<segment>/?.*), $\{segment}
 
