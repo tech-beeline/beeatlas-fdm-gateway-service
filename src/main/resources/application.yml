@@ -8,12 +8,45 @@ spring:
   cloud:
     gateway:
       routes:
-        - id: localhostRedirect
+        - id: cxBi
           uri: http://localhost:8082
           predicates:
-            - Path=/api/cx/v1/product/cj/1
+            - Path=/api/cx/v1/bi/**
           filters:
-            - RewritePath=/filter(?<segment>/?.*), $\{segment}
+            - RewritePath=/api/cx/v1/bi/(?<RID>.*), /api/cx/v1/library/business-interactions/$\{RID}
+        - id: cxRefference
+          uri: http://localhost:8082
+          predicates:
+            - Path=/api/cx/v1/references/**
+          filters:
+            - RewritePath=/api/cx/v1/references/(?<RID>.*), /api/cx/v1/references/$\{RID}
+        - id: cxCj
+          uri: http://localhost:8082
+          predicates:
+            - Path=/api/cx/v1/cj/**
+          filters:
+            - RewritePath=/api/cx/v1/cj/(?<RID>.*), /api/cx/v1/product/cj/$\{RID}
+        - id: cxProduct
+          uri: http://localhost:8082
+          predicates:
+            - Path=/api/cx/v1/product/**
+          filters:
+            - RewritePath=/api/cx/v1/product/(?<RID>.*), /api/cx/v1/product/$\{RID}
+        - id: userService
+          uri: http://localhost:8083
+          predicates:
+            - Path=api/auth/v1/**
+          filters:
+            - RewritePath=/api/auth/v1/(?<RID>.*), /api/admin/v1/$\{RID}
+            - RewritePath=/api/auth/v1/user/(?<login>.+), /api/admin/v1/user/$\{login}
+            - RewritePath=/api/auth/v1/user/(?<id>.*?)/product, /api/user/$\{id}/product
+        - id: technoradar
+          uri: http://localhost:8084
+          predicates:
+            - Path=api/techradar/v1/**
+          filters:
+            - RewritePath=/api/techradar/v1/(?<RID>.*), /api/v1/$\{RID}
+            - RewritePath=/api/techradar/v1/tech, /api/v1/tech
 
 integration:
   user-server-url: http://user-backend-dev-eafdmmart.apps.yd-m6-kt22.vimpelcom.ru
