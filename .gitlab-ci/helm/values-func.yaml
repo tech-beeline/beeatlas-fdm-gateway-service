@@ -1,6 +1,8 @@
 env:
   SPRING_PROFILES_ACTIVE: test
   JWKS: "vault:eafdmmart/data/test/fdm#jwks"
+integration:
+  user-server-url: http://fdm-auth-func-eafdmmart.apps.yd-m6-kt22.vimpelcom.ru
 
 spring:
   main:

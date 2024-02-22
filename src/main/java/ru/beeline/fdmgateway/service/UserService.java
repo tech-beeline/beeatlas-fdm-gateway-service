@@ -18,7 +18,7 @@ public class UserService {
 
     public UserInfo getUserInfo(String login) {
         return webClient.get()
-                .uri(userServerUrl + "/user/{login}/info", login)
+                .uri(userServerUrl + "/api/admin/v1/user/find?text=1&filter=1")
                 .retrieve()
                 .bodyToMono(UserInfo.class)
                 .block();
