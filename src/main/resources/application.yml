@@ -1,6 +1,9 @@
 app:
   version: @project.version@
   name: @project.name@
+logging:
+  level:
+    root: trace
 
 spring:
   main:
