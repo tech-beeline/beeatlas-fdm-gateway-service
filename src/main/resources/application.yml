@@ -51,6 +51,4 @@ spring:
             - RewritePath=/api/techradar/v1/(?<RID>.*), /api/v1/$\{RID}
             - RewritePath=/api/techradar/v1/tech, /api/v1/tech
 
-integration:
-  user-server-url: http://user-backend-dev-eafdmmart.apps.yd-m6-kt22.vimpelcom.ru
 JWKS: https://eauth-dev.apps.yd-kt05.vimpelcom.ru/.well-known/jwks/
