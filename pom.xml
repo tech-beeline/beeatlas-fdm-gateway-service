@@ -19,7 +19,8 @@
         <sonar.dynamicAnalysis>reuseReports</sonar.dynamicAnalysis>
         <sonar.jacoco.reportPath>${project.basedir}/target/jacoco_analysis/jacoco.exec</sonar.jacoco.reportPath>
         <sonar.language>java</sonar.language>
-        <sonar.coverage.jacoco.xmlReportPaths>${project.basedir}/target/jacoco_analysis/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
+        <sonar.coverage.jacoco.xmlReportPaths>${project.basedir}/target/jacoco_analysis/jacoco.xml
+        </sonar.coverage.jacoco.xmlReportPaths>
         <java.version>17</java.version>
         <spring-cloud.version>2021.0.3</spring-cloud.version>
     </properties>

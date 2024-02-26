@@ -3,7 +3,7 @@ package ru.beeline.fdmgateway.service;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
-import ru.beeline.fdmgateway.dto.UserInfo;
+import ru.beeline.fdmgateway.dto.UserInfoDTO;
 
 @Service
 public class UserService {
@@ -16,11 +16,12 @@ public class UserService {
         this.userServerUrl = userServerUrl;
     }
 
-    public UserInfo getUserInfo(String login) {
+    public UserInfoDTO getUserInfo(String email, String fullName, String idExt) {
+        String login = email.substring(0, email.indexOf(","));
         return webClient.get()
-                .uri(userServerUrl + "/api/admin/v1/user/find?text=1&filter=1")
+                .uri(userServerUrl + "/api/admin/v1/user/" + login + "/info?&email=" + email + "&fullname=" + fullName + "&idExt=" + idExt)
                 .retrieve()
-                .bodyToMono(UserInfo.class)
+                .bodyToMono(UserInfoDTO.class)
                 .block();
     }
 }

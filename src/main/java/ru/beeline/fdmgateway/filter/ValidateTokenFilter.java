@@ -8,11 +8,13 @@ import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.server.WebFilter;
 import org.springframework.web.server.WebFilterChain;
 import reactor.core.publisher.Mono;
-import ru.beeline.fdmgateway.dto.UserInfo;
+import ru.beeline.fdmgateway.dto.UserInfoDTO;
 import ru.beeline.fdmgateway.exception.InvalidTokenException;
 import ru.beeline.fdmgateway.exception.TokenExpiredException;
 import ru.beeline.fdmgateway.service.UserService;
+import ru.beeline.fdmgateway.utils.jwt.JwtUserData;
 import ru.beeline.fdmgateway.utils.jwt.JwtUtils;
+
 
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -35,10 +37,9 @@ public class ValidateTokenFilter implements WebFilter {
 
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {
-        if(exchange.getRequest().getPath().toString().contains("swagger")
+        if (exchange.getRequest().getPath().toString().contains("swagger")
                 || exchange.getRequest().getPath().toString().contains("/api-docs")
-                || exchange.getRequest().getPath().toString().contains("/eauthkey"))
-        {
+                || exchange.getRequest().getPath().toString().contains("/eauthkey")) {
             return chain.filter(exchange);
         }
 
@@ -50,12 +51,13 @@ public class ValidateTokenFilter implements WebFilter {
             exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
             return exchange.getResponse().setComplete();
         }
-        UserInfo userInfo = userService.getUserInfo(Objects.requireNonNull(getUserData(token)).getName());
+        JwtUserData tokenData = getUserData(token);
+        UserInfoDTO userInfo = userService.getUserInfo(tokenData.getEmail(), tokenData.getFullName(), tokenData.getEmployeeNumber());
         if (userInfo != null) {
-            exchange.getResponse().getHeaders().add(USER_ID_HEADER, userInfo.getId());
-            exchange.getResponse().getHeaders().addAll(USER_PRODUCTS_IDS_HEADER, userInfo.getProductIds().stream().map(Objects::toString).collect(Collectors.toList()));
-            exchange.getResponse().getHeaders().addAll(USER_ROLES_HEADER, userInfo.getRoles());
-            exchange.getResponse().getHeaders().addAll(USER_PERMISSION, userInfo.getPermission());
+            exchange.getResponse().getHeaders().add(USER_ID_HEADER, userInfo.getId().toString());
+            exchange.getResponse().getHeaders().addAll(USER_PRODUCTS_IDS_HEADER, userInfo.getProductsIds().stream().map(Objects::toString).collect(Collectors.toList()));
+            exchange.getResponse().getHeaders().addAll(USER_ROLES_HEADER, userInfo.getRoles().stream().map(Objects::toString).collect(Collectors.toList()));
+            exchange.getResponse().getHeaders().addAll(USER_PERMISSION, userInfo.getPermissions().stream().map(Objects::toString).collect(Collectors.toList()));
         }
         return chain.filter(exchange);
     }
