@@ -52,6 +52,7 @@ public class ValidateTokenFilter implements WebFilter {
             return exchange.getResponse().setComplete();
         }
         JwtUserData tokenData = getUserData(token);
+        log.info("token is:" + tokenData.toString());
         UserInfoDTO userInfo = userService.getUserInfo(tokenData.getEmail(), tokenData.getFullName(), tokenData.getEmployeeNumber());
         if (userInfo != null) {
             exchange.getResponse().getHeaders().add(USER_ID_HEADER, userInfo.getId().toString());
