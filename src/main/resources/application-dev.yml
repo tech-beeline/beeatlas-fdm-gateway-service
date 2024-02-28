@@ -1,6 +1,6 @@
 JWKS: https://eauth-dev.apps.yd-kt05.vimpelcom.ru/.well-known/jwks/
 integration:
-  user-server-url: http://fdm-auth-dev-eafdmmart.apps.yd-m6-kt22.vimpelcom.ru
+  user-server-url: https://fdm-auth-dev-eafdmmart.apps.yd-m6-kt22.vimpelcom.ru
 
 spring:
   main:

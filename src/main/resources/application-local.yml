@@ -1,6 +1,6 @@
 JWKS: https://eauth-dev.apps.yd-kt05.vimpelcom.ru/.well-known/jwks/
 integration:
-  user-server-url: http://fdm-auth-dev-eafdmmart.apps.yd-m6-kt22.vimpelcom.ru
+  user-server-url: https://fdm-auth-dev-eafdmmart.apps.yd-m6-kt22.vimpelcom.ru
 
 spring:
   main:
@@ -9,13 +9,13 @@ spring:
     gateway:
       routes:
         - id: cxBi
-          uri: http://localhost:8082
+          uri: https://localhost:8082
           predicates:
             - Path=/api/cx/v1/bi/**
           filters:
             - RewritePath=/api/cx/v1/bi/(?<RID>.*), /api/cx/v1/library/business-interactions/$\{RID}
         - id: cxRefference
-          uri: http://localhost:8082
+          uri: https://localhost:8082
           predicates:
             - Path=/api/cx/v1/references/**
           filters:
