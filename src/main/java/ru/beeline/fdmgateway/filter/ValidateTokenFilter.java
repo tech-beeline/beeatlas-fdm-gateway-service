@@ -55,18 +55,18 @@ public class ValidateTokenFilter implements WebFilter {
         log.info("token is:" + tokenData.toString());
         UserInfoDTO userInfo = userService.getUserInfo(tokenData.getEmail(), tokenData.getFullName(), tokenData.getEmployeeNumber());
         if (userInfo != null) {
-            log.info("userInfo First: " + "getId:" + exchange.getRequest().getHeaders().getFirst(USER_ID_HEADER));
-            log.info("userInfo ALL: " + "getId:" + exchange.getRequest().getHeaders().get(USER_ID_HEADER));
-            log.info("userInfo: "  +"getProductsIds:" + exchange.getRequest().getHeaders().getFirst(USER_PRODUCTS_IDS_HEADER));
-            log.info("userInfo: "  + "getRoles:" + exchange.getRequest().getHeaders().getFirst(USER_ROLES_HEADER));
-            log.info("userInfo: "  + "getPermissions:" + exchange.getRequest().getHeaders().getFirst(USER_PERMISSION));
+            log.info("userInfo First: " + "getId:" + userInfo.getId().toString());
+            log.info("userInfo: "  +"getProductsIds:" + userInfo.getProductsIds().stream().map(Objects::toString).collect(Collectors.toList()).toString());
+            log.info("userInfo: "  + "getRoles:" + userInfo.getRoles().stream().map(Objects::toString).collect(Collectors.toList()).toString());
+            log.info("userInfo: "  + "getPermissions:" + userInfo.getPermissions().stream().map(Objects::toString).collect(Collectors.toList()).toString());
 
             exchange.getResponse().getHeaders().add(USER_ID_HEADER, userInfo.getId().toString());
             exchange.getResponse().getHeaders().addAll(USER_PRODUCTS_IDS_HEADER, userInfo.getProductsIds().stream().map(Objects::toString).collect(Collectors.toList()));
             exchange.getResponse().getHeaders().addAll(USER_ROLES_HEADER, userInfo.getRoles().stream().map(Objects::toString).collect(Collectors.toList()));
             exchange.getResponse().getHeaders().addAll(USER_PERMISSION, userInfo.getPermissions().stream().map(Objects::toString).collect(Collectors.toList()));
         }
-        log.info("USER_ID_HEADER: " + USER_ID_HEADER +":" + exchange.getRequest().getHeaders().getFirst(USER_ID_HEADER));
+        log.info("USER_ID_HEADER FIRST: " + USER_ID_HEADER +":" + exchange.getRequest().getHeaders().getFirst(USER_ID_HEADER));
+        log.info("USER_ID_HEADER FIRST ALL: " + USER_ID_HEADER +":" + exchange.getRequest().getHeaders().get(USER_ID_HEADER));
         log.info("USER_PRODUCTS_IDS_HEADER: "  + USER_PRODUCTS_IDS_HEADER +":" + exchange.getRequest().getHeaders().getFirst(USER_PRODUCTS_IDS_HEADER));
         log.info("USER_ROLES_HEADER: "  + USER_ROLES_HEADER +":" + exchange.getRequest().getHeaders().getFirst(USER_ROLES_HEADER));
         log.info("USER_PERMISSION: "  + USER_PERMISSION +":" + exchange.getRequest().getHeaders().getFirst(USER_PERMISSION));
