@@ -3,6 +3,7 @@ package ru.beeline.fdmgateway.filter;
 import com.auth0.jwt.exceptions.JWTDecodeException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.stereotype.Component;
 import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.server.WebFilter;
@@ -59,11 +60,15 @@ public class ValidateTokenFilter implements WebFilter {
             log.info("userInfo: "  +"getProductsIds:" + userInfo.getProductsIds().stream().map(Objects::toString).collect(Collectors.toList()).toString());
             log.info("userInfo: "  + "getRoles:" + userInfo.getRoles().stream().map(Objects::toString).collect(Collectors.toList()).toString());
             log.info("userInfo: "  + "getPermissions:" + userInfo.getPermissions().stream().map(Objects::toString).collect(Collectors.toList()).toString());
+            ServerHttpRequest request = exchange.getRequest()
+                    .mutate()
+                    .header(USER_ID_HEADER, userInfo.getId().toString())
+                    .header(USER_PRODUCTS_IDS_HEADER, userInfo.getProductsIds().stream().map(Objects::toString).collect(Collectors.toList()).toString())
+                    .header(USER_ROLES_HEADER, userInfo.getRoles().stream().map(Objects::toString).collect(Collectors.toList()).toString())
+                    .header(USER_PERMISSION, userInfo.getPermissions().stream().map(Objects::toString).collect(Collectors.toList()).toString())
+                    .build();
 
-            exchange.getRequest().getHeaders().add(USER_ID_HEADER, userInfo.getId().toString());
-            exchange.getRequest().getHeaders().addAll(USER_PRODUCTS_IDS_HEADER, userInfo.getProductsIds().stream().map(Objects::toString).collect(Collectors.toList()));
-            exchange.getRequest().getHeaders().addAll(USER_ROLES_HEADER, userInfo.getRoles().stream().map(Objects::toString).collect(Collectors.toList()));
-            exchange.getRequest().getHeaders().addAll(USER_PERMISSION, userInfo.getPermissions().stream().map(Objects::toString).collect(Collectors.toList()));
+            exchange = exchange.mutate().request(request).build();
         }
         log.info("USER_ID_HEADER FIRST: " + USER_ID_HEADER +":" + exchange.getRequest().getHeaders().getFirst(USER_ID_HEADER));
         log.info("USER_ID_HEADER FIRST ALL: " + USER_ID_HEADER +":" + exchange.getRequest().getHeaders().get(USER_ID_HEADER));
