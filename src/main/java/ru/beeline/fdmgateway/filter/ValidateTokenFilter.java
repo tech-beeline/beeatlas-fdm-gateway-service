@@ -60,6 +60,11 @@ public class ValidateTokenFilter implements WebFilter {
             exchange.getResponse().getHeaders().addAll(USER_ROLES_HEADER, userInfo.getRoles().stream().map(Objects::toString).collect(Collectors.toList()));
             exchange.getResponse().getHeaders().addAll(USER_PERMISSION, userInfo.getPermissions().stream().map(Objects::toString).collect(Collectors.toList()));
         }
+        log.info("USER_ID_HEADER: " + USER_ID_HEADER +":" + exchange.getRequest().getHeaders().getFirst(USER_ID_HEADER));
+        log.info("USER_PRODUCTS_IDS_HEADER: "  + USER_PRODUCTS_IDS_HEADER +":" + exchange.getRequest().getHeaders().getFirst(USER_PRODUCTS_IDS_HEADER));
+        log.info("USER_ROLES_HEADER: "  + USER_ROLES_HEADER +":" + exchange.getRequest().getHeaders().getFirst(USER_ROLES_HEADER));
+        log.info("USER_PERMISSION: "  + USER_PERMISSION +":" + exchange.getRequest().getHeaders().getFirst(USER_PERMISSION));
+
         return chain.filter(exchange);
     }
 
