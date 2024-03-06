@@ -25,10 +25,10 @@ import static ru.beeline.fdmgateway.utils.jwt.JwtUtils.getUserData;
 @Slf4j
 @Component
 public class ValidateTokenFilter implements WebFilter {
-    private static final String USER_ID_HEADER = "USER_ID";
-    private static final String USER_PERMISSION = "USER_PERMISSION";
-    private static final String USER_PRODUCTS_IDS_HEADER = "USER_PRODUCTS_IDS";
-    private static final String USER_ROLES_HEADER = "USER_ROLES";
+    private static final String USER_ID_HEADER = "user-id";
+    private static final String USER_PERMISSION = "user-permission";
+    private static final String USER_PRODUCTS_IDS_HEADER = "user-products-ids";
+    private static final String USER_ROLES_HEADER = "user-roles";
     private final UserService userService;
 
     public ValidateTokenFilter(UserService userService) {
