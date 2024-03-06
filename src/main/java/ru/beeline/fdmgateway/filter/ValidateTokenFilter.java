@@ -55,6 +55,12 @@ public class ValidateTokenFilter implements WebFilter {
         log.info("token is:" + tokenData.toString());
         UserInfoDTO userInfo = userService.getUserInfo(tokenData.getEmail(), tokenData.getFullName(), tokenData.getEmployeeNumber());
         if (userInfo != null) {
+            log.info("userInfo First: " + "getId:" + exchange.getRequest().getHeaders().getFirst(USER_ID_HEADER));
+            log.info("userInfo ALL: " + "getId:" + exchange.getRequest().getHeaders().get(USER_ID_HEADER));
+            log.info("userInfo: "  +"getProductsIds:" + exchange.getRequest().getHeaders().getFirst(USER_PRODUCTS_IDS_HEADER));
+            log.info("userInfo: "  + "getRoles:" + exchange.getRequest().getHeaders().getFirst(USER_ROLES_HEADER));
+            log.info("userInfo: "  + "getPermissions:" + exchange.getRequest().getHeaders().getFirst(USER_PERMISSION));
+
             exchange.getResponse().getHeaders().add(USER_ID_HEADER, userInfo.getId().toString());
             exchange.getResponse().getHeaders().addAll(USER_PRODUCTS_IDS_HEADER, userInfo.getProductsIds().stream().map(Objects::toString).collect(Collectors.toList()));
             exchange.getResponse().getHeaders().addAll(USER_ROLES_HEADER, userInfo.getRoles().stream().map(Objects::toString).collect(Collectors.toList()));
