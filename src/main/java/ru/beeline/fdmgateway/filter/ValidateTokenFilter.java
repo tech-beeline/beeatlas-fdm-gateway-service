@@ -60,10 +60,10 @@ public class ValidateTokenFilter implements WebFilter {
             log.info("userInfo: "  + "getRoles:" + userInfo.getRoles().stream().map(Objects::toString).collect(Collectors.toList()).toString());
             log.info("userInfo: "  + "getPermissions:" + userInfo.getPermissions().stream().map(Objects::toString).collect(Collectors.toList()).toString());
 
-            exchange.getResponse().getHeaders().add(USER_ID_HEADER, userInfo.getId().toString());
-            exchange.getResponse().getHeaders().addAll(USER_PRODUCTS_IDS_HEADER, userInfo.getProductsIds().stream().map(Objects::toString).collect(Collectors.toList()));
-            exchange.getResponse().getHeaders().addAll(USER_ROLES_HEADER, userInfo.getRoles().stream().map(Objects::toString).collect(Collectors.toList()));
-            exchange.getResponse().getHeaders().addAll(USER_PERMISSION, userInfo.getPermissions().stream().map(Objects::toString).collect(Collectors.toList()));
+            exchange.getRequest().getHeaders().add(USER_ID_HEADER, userInfo.getId().toString());
+            exchange.getRequest().getHeaders().addAll(USER_PRODUCTS_IDS_HEADER, userInfo.getProductsIds().stream().map(Objects::toString).collect(Collectors.toList()));
+            exchange.getRequest().getHeaders().addAll(USER_ROLES_HEADER, userInfo.getRoles().stream().map(Objects::toString).collect(Collectors.toList()));
+            exchange.getRequest().getHeaders().addAll(USER_PERMISSION, userInfo.getPermissions().stream().map(Objects::toString).collect(Collectors.toList()));
         }
         log.info("USER_ID_HEADER FIRST: " + USER_ID_HEADER +":" + exchange.getRequest().getHeaders().getFirst(USER_ID_HEADER));
         log.info("USER_ID_HEADER FIRST ALL: " + USER_ID_HEADER +":" + exchange.getRequest().getHeaders().get(USER_ID_HEADER));
