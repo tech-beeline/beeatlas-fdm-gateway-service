@@ -37,9 +37,8 @@ spring:
           predicates:
             - Path=/api/auth/v1/**
           filters:
-            - RewritePath=/api/auth/v1/(?<RID>.*), /api/admin/v1/$\{RID}
-            - RewritePath=/api/auth/v1/user/(?<login>.+), /api/admin/v1/user/$\{login}
-            - RewritePath=/api/auth/v1/user/(?<id>.*?)/product, /api/user/$\{id}/product
+            - RewritePath=/api/auth/v1/user/(?<RID>.*)/product, /api/user/$\{RID}/product
+            - RewritePath=/api/auth/v1, /api/admin/v1
         - id: technoradar
           uri: https://techradar-backend-func-eafdmmart.apps.yd-m6-kt22.vimpelcom.ru
           predicates:
