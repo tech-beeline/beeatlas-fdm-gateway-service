@@ -1,6 +1,6 @@
 JWKS: https://eafdmmart--test-yd-wiremock.apps.yd-m6-kt22.vimpelcom.ru/.well-known/jwks/
 integration:
-  user-server-url: https://fdm-auth-dev-eafdmmart.apps.yd-m6-kt22.vimpelcom.ru
+  user-server-url: http://localhost:8083
 
 spring:
   main:
@@ -9,13 +9,13 @@ spring:
     gateway:
       routes:
         - id: cxBi
-          uri: https://localhost:8082
+          uri: http://localhost:8082
           predicates:
             - Path=/api/cx/v1/bi/**
           filters:
             - RewritePath=/api/cx/v1/bi, /api/cx/v1/library/business-interactions
         - id: cxRefference
-          uri: https://localhost:8082
+          uri: http://localhost:8082
           predicates:
             - Path=/api/cx/v1/references/**
           filters:
@@ -37,9 +37,8 @@ spring:
           predicates:
             - Path=/api/auth/v1/**
           filters:
-            - RewritePath=/api/auth/v1/(?<RID>.*), /api/admin/v1/$\{RID}
-            - RewritePath=/api/auth/v1/user/(?<login>.+), /api/admin/v1/user/$\{login}
-            - RewritePath=/api/auth/v1/user/(?<id>.*?)/product, /api/user/$\{id}/product
+            - RewritePath=/api/auth/v1/user/(?<RID>.*)/product, /api/user/$\{RID}/product
+            - RewritePath=/api/auth/v1, /api/admin/v1
         - id: technoradar
           uri: http://localhost:8084
           predicates:
