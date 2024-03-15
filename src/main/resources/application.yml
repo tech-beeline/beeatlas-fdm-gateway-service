@@ -51,8 +51,7 @@ spring:
           predicates:
             - Path=${path.techradar}/**
           filters:
-            - RewritePath=${path.techradar}/(?<RID>.*), /api/v1/$\{RID}
-            - RewritePath=${path.techradar}/tech, /api/v1/tech
+            - RewritePath=${path.techradar}, /api/v1
 
 path:
   cx:
