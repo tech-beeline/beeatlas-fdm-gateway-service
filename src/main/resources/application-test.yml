@@ -1,9 +1,0 @@
-JWKS: https://eafdmmart--test-yd-wiremock.apps.yd-m6-kt22.vimpelcom.ru/.well-known/jwks/
-
-integration:
-  user-server-url: https://fdm-auth-func-eafdmmart.apps.yd-m6-kt22.vimpelcom.ru
-
-service-url:
-  cx: https://cx-backend-func-eafdmmart.apps.yd-m6-kt22.vimpelcom.ru
-  auth: https://fdm-auth-func-eafdmmart.apps.yd-m6-kt22.vimpelcom.ru
-  techradar: https://techradar-backend-func-eafdmmart.apps.yd-m6-kt22.vimpelcom.ru

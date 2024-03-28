@@ -1,9 +1,0 @@
-JWKS: https://eauth-dev.apps.yd-kt05.vimpelcom.ru/.well-known/jwks/
-
-integration:
-  user-server-url: https://fdm-auth-dev-eafdmmart.apps.yd-m6-kt22.vimpelcom.ru
-
-service-url:
-  cx: https://cx-backend-dev-eafdmmart.apps.yd-m6-kt22.vimpelcom.ru
-  auth: https://fdm-auth-dev-eafdmmart.apps.yd-m6-kt22.vimpelcom.ru
-  techradar: https://techradar-backend-dev-eafdmmart.apps.yd-m6-kt22.vimpelcom.ru

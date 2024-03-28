@@ -1,9 +1,9 @@
 JWKS: https://eafdmmart--test-yd-wiremock.apps.yd-m6-kt22.vimpelcom.ru/.well-known/jwks/
 
 integration:
-  user-server-url: http://localhost:8083
+  user-server-url: https://fdm-auth-func-eafdmmart.apps.yd-m6-kt22.vimpelcom.ru
 
 service-url:
   cx: http://localhost:8082
-  auth: http://localhost:8083
+  auth: https://fdm-auth-func-eafdmmart.apps.yd-m6-kt22.vimpelcom.ru
   techradar: http://localhost:8084

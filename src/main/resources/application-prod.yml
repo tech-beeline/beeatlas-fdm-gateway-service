@@ -1,9 +1,0 @@
-JWKS: https://eauth.beeline.ru/.well-known/jwks/
-
-integration:
-  user-server-url: https://fdm-auth-prod-eafdmmart.apps.yd-m6-kt22.vimpelcom.ru
-
-service-url:
-  cx: https://cx-backend-prod-eafdmmart.apps.yd-m6-kt22.vimpelcom.ru
-  auth: https://fdm-auth-prod-eafdmmart.apps.yd-m6-kt22.vimpelcom.ru
-  techradar: https://techradar-backend-prod-eafdmmart.apps.yd-m6-kt22.vimpelcom.ru

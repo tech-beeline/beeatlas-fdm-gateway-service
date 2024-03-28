@@ -5,10 +5,6 @@ logging:
   level:
     root: trace
 
-JWKS: ${JWKS}
-integration:
-  user-server-url: ${integration.user-server-url}
-
 spring:
   main:
     web-application-type: reactive
@@ -16,38 +12,38 @@ spring:
     gateway:
       routes:
         - id: cxBi
-          uri: ${service-url.cx}
+          uri: ${integration.cx-server-url}
           predicates:
             - Path=${path.cx.bi}/**
           filters:
             - RewritePath=${path.cx.bi}, /api/cx/v1/library/business-interactions
         - id: cxRefference
-          uri: ${service-url.cx}
+          uri: ${integration.cx-server-url}
           predicates:
             - Path=${path.cx.references}/**
           filters:
             - RewritePath=${path.cx.references}/(?<RID>.*), /api/cx/v1/references/$\{RID}
         - id: cxCj
-          uri: ${service-url.cx}
+          uri: ${integration.cx-server-url}
           predicates:
             - Path=${path.cx.cj}/**
           filters:
             - RewritePath=${path.cx.cj}, /api/cx/v1/product/cj
         - id: cxProduct
-          uri: ${service-url.cx}
+          uri: ${integration.cx-server-url}
           predicates:
             - Path=${path.cx.product}/**
           filters:
             - RewritePath=${path.cx.product}/(?<RID>.*), /api/cx/v1/product/$\{RID}
         - id: userService
-          uri: ${service-url.auth}
+          uri: ${integration.auth-server-url}
           predicates:
             - Path=${path.auth}/**
           filters:
             - RewritePath=${path.auth}/user/(?<RID>.*)/product, /api/user/$\{RID}/product
             - RewritePath=${path.auth}, /api/admin/v1
         - id: technoradar
-          uri: ${service-url.techradar}
+          uri: ${integration.techradar-server-url}
           predicates:
             - Path=${path.techradar}/**
           filters:

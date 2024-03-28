@@ -1,6 +1,9 @@
 env:
   SPRING_PROFILES_ACTIVE: e2e
   JWKS: "vault:eafdmmart/data/test/e2e/fdm#jwks"
+  INTEGRATION_CX_SERVER_URL: "vault:eafdmmart/data/test/e2e/fdm#cxserverurl"
+  INTEGRATION_AUTH_SERVER_URL: "vault:eafdmmart/data/test/e2e/fdm#authserverurl"
+  INTEGRATION_TECHRADAR_SERVER_URL: "vault:eafdmmart/data/test/e2e/fdm#techradarserverurl"
 
 ingress:
   annotations:

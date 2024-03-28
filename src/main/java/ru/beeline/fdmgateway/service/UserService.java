@@ -20,7 +20,7 @@ public class UserService {
     private final WebClient webClient;
     private final String userServerUrl;
 
-    public UserService(@Value("${integration.user-server-url}") String userServerUrl) {
+    public UserService(@Value("${integration.auth-server-url}") String userServerUrl) {
         this.webClient = WebClient.create();
         this.userServerUrl = userServerUrl;
     }
