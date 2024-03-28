@@ -1,6 +1,6 @@
 env:
-  SPRING_PROFILES_ACTIVE: test
-  JWKS: "vault:eafdmmart/data/test/fdm#jwks"
+  SPRING_PROFILES_ACTIVE: e2e
+  JWKS: "vault:eafdmmart/data/test/e2e/fdm#jwks"
 
 ingress:
   annotations:
