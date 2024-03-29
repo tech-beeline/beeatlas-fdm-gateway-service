@@ -64,3 +64,10 @@ path:
 
   auth: /api-gateway/auth/v1
   techradar: /api-gateway/techradar/v1
+management:
+  endpoints:
+    web:
+      exposure:
+        include: *
+    prometheus:
+      enabled: true
