@@ -9,12 +9,12 @@ import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.server.WebFilter;
 import org.springframework.web.server.WebFilterChain;
 import reactor.core.publisher.Mono;
-import ru.beeline.fdmgateway.dto.UserInfoDTO;
 import ru.beeline.fdmgateway.exception.InvalidTokenException;
 import ru.beeline.fdmgateway.exception.TokenExpiredException;
 import ru.beeline.fdmgateway.service.UserService;
 import ru.beeline.fdmgateway.utils.jwt.JwtUserData;
 import ru.beeline.fdmgateway.utils.jwt.JwtUtils;
+import ru.beeline.fdmlib.dto.auth.*;
 
 
 import java.util.Objects;
