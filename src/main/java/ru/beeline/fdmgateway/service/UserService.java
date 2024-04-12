@@ -31,7 +31,6 @@ public class UserService {
             HttpEntity<String> entity = new HttpEntity<>(headers);
 
             final RestTemplate restTemplate = getRestTemplate();
-
             userInfoDto = restTemplate.exchange(userServerUrl + "/api/admin/v1/user/" + login + "/info?&email=" + email + "&fullName=" + fullName + "&idExt=" + idExt,
                     HttpMethod.GET, entity, UserInfoDTO.class).getBody();
         } catch (Exception e) {
