@@ -8,20 +8,16 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
-import org.springframework.web.reactive.function.client.WebClient;
-import ru.beeline.fdmgateway.dto.UserInfoDTO;
+import ru.beeline.fdmlib.dto.auth.UserInfoDTO;
 
 import static ru.beeline.fdmgateway.utils.RestHelper.getRestTemplate;
 
 @Slf4j
 @Service
 public class UserService {
-
-    private final WebClient webClient;
     private final String userServerUrl;
 
-    public UserService(@Value("${integration.user-server-url}") String userServerUrl) {
-        this.webClient = WebClient.create();
+    public UserService(@Value("${integration.auth-server-url}") String userServerUrl) {
         this.userServerUrl = userServerUrl;
     }
 
@@ -35,7 +31,6 @@ public class UserService {
             HttpEntity<String> entity = new HttpEntity<>(headers);
 
             final RestTemplate restTemplate = getRestTemplate();
-
             userInfoDto = restTemplate.exchange(userServerUrl + "/api/admin/v1/user/" + login + "/info?&email=" + email + "&fullName=" + fullName + "&idExt=" + idExt,
                     HttpMethod.GET, entity, UserInfoDTO.class).getBody();
         } catch (Exception e) {

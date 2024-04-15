@@ -9,12 +9,12 @@ import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.server.WebFilter;
 import org.springframework.web.server.WebFilterChain;
 import reactor.core.publisher.Mono;
-import ru.beeline.fdmgateway.dto.UserInfoDTO;
 import ru.beeline.fdmgateway.exception.InvalidTokenException;
 import ru.beeline.fdmgateway.exception.TokenExpiredException;
 import ru.beeline.fdmgateway.service.UserService;
 import ru.beeline.fdmgateway.utils.jwt.JwtUserData;
 import ru.beeline.fdmgateway.utils.jwt.JwtUtils;
+import ru.beeline.fdmlib.dto.auth.*;
 
 
 import java.util.Objects;
@@ -40,6 +40,7 @@ public class ValidateTokenFilter implements WebFilter {
     public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {
         if (exchange.getRequest().getPath().toString().contains("swagger")
                 || exchange.getRequest().getPath().toString().contains("/api-docs")
+                || exchange.getRequest().getPath().toString().contains("/actuator/prometheus")
                 || exchange.getRequest().getPath().toString().contains("/eauthkey")) {
             return chain.filter(exchange);
         }

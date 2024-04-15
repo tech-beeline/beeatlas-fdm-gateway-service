@@ -4,5 +4,70 @@ app:
 logging:
   level:
     root: trace
+    org:
+      apache:
+        tomcat:
+          util:
+            net: WARN
+    sun:
+      rmi: info
+spring:
+  main:
+    web-application-type: reactive
+  cloud:
+    gateway:
+      routes:
+        - id: cxBi
+          uri: ${integration.cx-server-url}
+          predicates:
+            - Path=${path.cx.bi}/**
+          filters:
+            - RewritePath=${path.cx.bi}, /api/cx/v1/library/business-interactions
+        - id: cxRefference
+          uri: ${integration.cx-server-url}
+          predicates:
+            - Path=${path.cx.references}/**
+          filters:
+            - RewritePath=${path.cx.references}/(?<RID>.*), /api/cx/v1/references/$\{RID}
+        - id: cxCj
+          uri: ${integration.cx-server-url}
+          predicates:
+            - Path=${path.cx.cj}/**
+          filters:
+            - RewritePath=${path.cx.cj}, /api/cx/v1/product/cj
+        - id: cxProduct
+          uri: ${integration.cx-server-url}
+          predicates:
+            - Path=${path.cx.product}/**
+          filters:
+            - RewritePath=${path.cx.product}/(?<RID>.*), /api/cx/v1/product/$\{RID}
+        - id: userService
+          uri: ${integration.auth-server-url}
+          predicates:
+            - Path=${path.auth}/**
+          filters:
+            - RewritePath=${path.auth}/user/(?<RID>.*)/product, /api/user/$\{RID}/product
+            - RewritePath=${path.auth}, /api/admin/v1
+        - id: technoradar
+          uri: ${integration.techradar-server-url}
+          predicates:
+            - Path=${path.techradar}/**
+          filters:
+            - RewritePath=${path.techradar}, /api/v1
 
-JWKS: https://eauth-dev.apps.yd-kt05.vimpelcom.ru/.well-known/jwks/
+path:
+  cx:
+    bi: /api-gateway/cx/v1/bi
+    references: /api-gateway/cx/v1/references
+    cj: /api-gateway/cx/v1/cj
+    product: /api-gateway/cx/v1/product
+
+  auth: /api-gateway/auth/v1
+  techradar: /api-gateway/techradar/v1
+management:
+  endpoints:
+    web:
+      exposure:
+        include: '*'
+    prometheus:
+      enabled: true

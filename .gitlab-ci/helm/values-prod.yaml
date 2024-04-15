@@ -1,3 +1,6 @@
 env:
   SPRING_PROFILES_ACTIVE: prod
   JWKS: "vault:eafdmmart/data/prod/fdm#jwks"
+  INTEGRATION_CX_SERVER_URL: "vault:eafdmmart/data/prod/fdm#cxserverurl"
+  INTEGRATION_AUTH_SERVER_URL: "vault:eafdmmart/data/prod/fdm#authserverurl"
+  INTEGRATION_TECHRADAR_SERVER_URL: "vault:eafdmmart/data/prod/fdm#techradarserverurl"
