@@ -2,6 +2,7 @@ package ru.beeline.fdmgateway.service;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -21,8 +22,10 @@ public class UserService {
         this.userServerUrl = userServerUrl;
     }
 
+    @Cacheable(value = "userInfoCache", key = "#email")
     public UserInfoDTO getUserInfo(String email, String fullName, String idExt) {
         String login = email.substring(0, email.indexOf("@"));
+
         UserInfoDTO userInfoDto = null;
         try {
             HttpHeaders headers = new HttpHeaders();
