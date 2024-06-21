@@ -2,41 +2,40 @@ package ru.beeline.fdmgateway.service;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
+import ru.beeline.fdmgateway.client.UserClient;
 import ru.beeline.fdmlib.dto.auth.UserInfoDTO;
 
-import static ru.beeline.fdmgateway.utils.RestHelper.getRestTemplate;
+import java.util.Date;
+import java.util.HashMap;
 
 @Slf4j
 @Service
 public class UserService {
-    private final String userServerUrl;
+    private final static HashMap<String, UserInfoDTO> userInfoCache = new HashMap<>();
+    private final UserClient userClient;
+    private final Long cacheExpiration;
+    private Date lastInvalidate = new Date();
 
-    public UserService(@Value("${integration.auth-server-url}") String userServerUrl) {
-        this.userServerUrl = userServerUrl;
+    public UserService(UserClient userClient,
+                       @Value("${spring.cache.expiration}") Long cacheExpiration) {
+        this.userClient = userClient;
+        this.cacheExpiration = cacheExpiration;
     }
 
     public UserInfoDTO getUserInfo(String email, String fullName, String idExt) {
-        String login = email.substring(0, email.indexOf("@"));
-        UserInfoDTO userInfoDto = null;
-        try {
-            HttpHeaders headers = new HttpHeaders();
-            headers.setContentType(MediaType.APPLICATION_JSON);
-
-            HttpEntity<String> entity = new HttpEntity<>(headers);
-
-            final RestTemplate restTemplate = getRestTemplate();
-            userInfoDto = restTemplate.exchange(userServerUrl + "/api/admin/v1/user/" + login + "/info?&email=" + email + "&fullName=" + fullName + "&idExt=" + idExt,
-                    HttpMethod.GET, entity, UserInfoDTO.class).getBody();
-        } catch (Exception e) {
-            log.error(e.getMessage());
+        if (isExpired()) {
+            userInfoCache.clear();
+            lastInvalidate = new Date();
         }
-        return userInfoDto;
+
+        if (!userInfoCache.containsKey(email)) {
+            userInfoCache.put(email, userClient.getUserInfo(email, fullName, idExt));
+        }
+        return userInfoCache.get(email);
     }
 
+    private boolean isExpired() {
+        return new Date().getTime() > lastInvalidate.getTime() + cacheExpiration;
+    }
 }

@@ -12,6 +12,8 @@ logging:
     sun:
       rmi: info
 spring:
+  cache:
+    expiration: 604800000
   main:
     web-application-type: reactive
   cloud:
@@ -35,6 +37,12 @@ spring:
             - Path=${path.cx.cj}/**
           filters:
             - RewritePath=${path.cx.cj}, /api/cx/v1/product/cj
+        - id: CjStep
+          uri: ${integration.cx-server-url}
+          predicates:
+            - Path=${path.cx.step}/**
+          filters:
+            - RewritePath=${path.cx.step}, /api/cx/v1/product/step
         - id: cxProduct
           uri: ${integration.cx-server-url}
           predicates:
@@ -60,6 +68,7 @@ path:
     bi: /api-gateway/cx/v1/bi
     references: /api-gateway/cx/v1/references
     cj: /api-gateway/cx/v1/cj
+    step: /api-gateway/cx/v1/step
     product: /api-gateway/cx/v1/product
 
   auth: /api-gateway/auth/v1
