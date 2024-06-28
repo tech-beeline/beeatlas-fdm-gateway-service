@@ -13,7 +13,6 @@ logging:
       rmi: info
 spring:
   cache:
-    type: ehcache
     expiration: 604800000
   main:
     web-application-type: reactive
