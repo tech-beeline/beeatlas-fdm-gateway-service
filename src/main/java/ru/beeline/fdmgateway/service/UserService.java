@@ -23,6 +23,15 @@ public class UserService {
         this.cacheExpiration = cacheExpiration;
     }
 
+    public void removeFromCacheByLogin() {
+        userInfoCache.clear();
+        lastInvalidate = new Date();
+    }
+
+    public void removeFromCacheByLogin(String login) {
+        userInfoCache.remove(login);
+    }
+
     public UserInfoDTO getUserInfo(String email, String fullName, String idExt) {
         if (isExpired()) {
             userInfoCache.clear();
