@@ -41,7 +41,7 @@ public class UserService {
         }
 
         if (!userInfoCache.containsKey(login)) {
-            userInfoCache.put(email, userClient.getUserInfo(login, fullName, idExt));
+            userInfoCache.put(login, userClient.getUserInfo(email, fullName, idExt));
         }
         return userInfoCache.get(login);
     }
