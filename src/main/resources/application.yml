@@ -3,7 +3,7 @@ app:
   name: @project.name@
 logging:
   level:
-    root: trace
+    root: debug
     org:
       apache:
         tomcat:
