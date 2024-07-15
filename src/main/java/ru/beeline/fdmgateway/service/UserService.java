@@ -29,19 +29,21 @@ public class UserService {
     }
 
     public void removeFromCacheByLogin(String login) {
-        userInfoCache.remove(login);
+        userInfoCache.remove(login.toLowerCase());
     }
 
     public UserInfoDTO getUserInfo(String email, String fullName, String idExt) {
+        String login = email.substring(0 , email.indexOf("@")).toLowerCase();
+
         if (isExpired()) {
             userInfoCache.clear();
             lastInvalidate = new Date();
         }
 
-        if (!userInfoCache.containsKey(email)) {
-            userInfoCache.put(email, userClient.getUserInfo(email, fullName, idExt));
+        if (!userInfoCache.containsKey(login)) {
+            userInfoCache.put(email, userClient.getUserInfo(login, fullName, idExt));
         }
-        return userInfoCache.get(email);
+        return userInfoCache.get(login);
     }
 
     private boolean isExpired() {
