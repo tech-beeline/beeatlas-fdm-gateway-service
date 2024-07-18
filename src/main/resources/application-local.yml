@@ -4,5 +4,5 @@ integration:
   cx-server-url: http://cx-backend-dev-eafdmmart.apps.yd-m6-kt22.vimpelcom.ru
   auth-server-url:  https://fdm-auth-dev-eafdmmart.apps.yd-m6-kt22.vimpelcom.ru
   techradar-server-url: http://localhost:8086
-  pack-loader-server-url: http://localhost:8082
-  capability-server-url: http://localhost:8083
+  pack-loader-server: http://localhost:8082
+  capability-server: http://localhost:8083

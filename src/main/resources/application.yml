@@ -63,19 +63,19 @@ spring:
           filters:
             - RewritePath=${path.techradar}, /api/v1
         - id: packloaderPackage
-          uri: ${integration.pack-loader-server-url}
+          uri: ${integration.pack-loader-server}
           predicates:
             - Path=${path.pack-loader.package}/**
           filters:
             - RewritePath=${path.pack-loader.package}/(?<RID>.*), /api/v1/package/$\{RID}
         - id: packloaderPackages
-          uri: ${integration.pack-loader-server-url}
+          uri: ${integration.pack-loader-server}
           predicates:
             - Path=${path.pack-loader.packages}
           filters:
             - RewritePath=${path.pack-loader.packages}, /api/v1/packages-list
         - id: capabilityService
-          uri: ${integration.capability-server-url}
+          uri: ${integration.capability-server}
           predicates:
             - Path=${path.capability}/**
           filters:
