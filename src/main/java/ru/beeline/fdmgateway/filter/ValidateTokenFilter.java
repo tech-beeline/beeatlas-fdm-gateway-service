@@ -40,6 +40,7 @@ public class ValidateTokenFilter implements WebFilter {
     public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {
         String requestId = exchange.getRequest().getId();
         if (exchange.getRequest().getPath().toString().contains("swagger")
+                || exchange.getRequest().getPath().toString().contains("/cache")
                 || exchange.getRequest().getPath().toString().contains("/api-docs")
                 || exchange.getRequest().getPath().toString().contains("/actuator/prometheus")
                 || exchange.getRequest().getPath().toString().contains("/eauthkey")) {

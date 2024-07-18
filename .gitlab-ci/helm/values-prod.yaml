@@ -4,3 +4,5 @@ env:
   INTEGRATION_CX_SERVER_URL: "vault:eafdmmart/data/prod/fdm#cxserverurl"
   INTEGRATION_AUTH_SERVER_URL: "vault:eafdmmart/data/prod/fdm#authserverurl"
   INTEGRATION_TECHRADAR_SERVER_URL: "vault:eafdmmart/data/prod/fdm#techradarserverurl"
+  PACK_LOADER_SERVER_URL: "vault:eafdmmart/data/prod/fdm#packloaderserver"
+  CAPABILITY_SERVER_URL: "vault:eafdmmart/data/prod/fdm#capbailityserver"
