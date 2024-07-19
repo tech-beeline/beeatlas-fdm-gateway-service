@@ -2,6 +2,7 @@ package ru.beeline.fdmgateway.filter;
 
 import com.auth0.jwt.exceptions.JWTDecodeException;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.stereotype.Component;
@@ -14,8 +15,7 @@ import ru.beeline.fdmgateway.exception.TokenExpiredException;
 import ru.beeline.fdmgateway.service.UserService;
 import ru.beeline.fdmgateway.utils.jwt.JwtUserData;
 import ru.beeline.fdmgateway.utils.jwt.JwtUtils;
-import ru.beeline.fdmlib.dto.auth.*;
-
+import ru.beeline.fdmlib.dto.auth.UserInfoDTO;
 
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -41,6 +41,8 @@ public class ValidateTokenFilter implements WebFilter {
         String requestId = exchange.getRequest().getId();
         if (exchange.getRequest().getPath().toString().contains("swagger")
                 || exchange.getRequest().getPath().toString().contains("/cache")
+                || ((exchange.getRequest().getPath().toString().contains("/api-gateway/capability/v1/tech/")
+                    && Objects.equals(exchange.getRequest().getMethod(), HttpMethod.PUT)))
                 || exchange.getRequest().getPath().toString().contains("/api-docs")
                 || exchange.getRequest().getPath().toString().contains("/actuator/prometheus")
                 || exchange.getRequest().getPath().toString().contains("/eauthkey")) {
@@ -61,9 +63,9 @@ public class ValidateTokenFilter implements WebFilter {
         UserInfoDTO userInfo = userService.getUserInfo(tokenData.getEmail(), tokenData.getFullName(), tokenData.getEmployeeNumber());
         if (userInfo != null) {
             log.info(requestId + " DEBUG: userInfo First: " + "getId:" + userInfo.getId().toString());
-            log.info(requestId + " DEBUG: userInfo: "  +"getProductsIds:" + userInfo.getProductsIds().stream().map(Objects::toString).collect(Collectors.toList()).toString());
-            log.info(requestId + " DEBUG: userInfo: "  + "getRoles:" + userInfo.getRoles().stream().map(Objects::toString).collect(Collectors.toList()).toString());
-            log.info(requestId + " DEBUG: userInfo: "  + "getPermissions:" + userInfo.getPermissions().stream().map(Objects::toString).collect(Collectors.toList()).toString());
+            log.info(requestId + " DEBUG: userInfo: " + "getProductsIds:" + userInfo.getProductsIds().stream().map(Objects::toString).collect(Collectors.toList()).toString());
+            log.info(requestId + " DEBUG: userInfo: " + "getRoles:" + userInfo.getRoles().stream().map(Objects::toString).collect(Collectors.toList()).toString());
+            log.info(requestId + " DEBUG: userInfo: " + "getPermissions:" + userInfo.getPermissions().stream().map(Objects::toString).collect(Collectors.toList()).toString());
             ServerHttpRequest request = exchange.getRequest()
                     .mutate()
                     .header(USER_ID_HEADER, userInfo.getId().toString())
@@ -74,11 +76,11 @@ public class ValidateTokenFilter implements WebFilter {
 
             exchange = exchange.mutate().request(request).build();
         }
-        log.info(requestId + " DEBUG: USER_ID_HEADER FIRST: " + USER_ID_HEADER +":" + exchange.getRequest().getHeaders().getFirst(USER_ID_HEADER));
-        log.info(requestId + " DEBUG: USER_ID_HEADER FIRST ALL: " + USER_ID_HEADER +":" + exchange.getRequest().getHeaders().get(USER_ID_HEADER));
-        log.info(requestId + " DEBUG: USER_PRODUCTS_IDS_HEADER: "  + USER_PRODUCTS_IDS_HEADER +":" + exchange.getRequest().getHeaders().getFirst(USER_PRODUCTS_IDS_HEADER));
-        log.info(requestId + " DEBUG: USER_ROLES_HEADER: "  + USER_ROLES_HEADER +":" + exchange.getRequest().getHeaders().getFirst(USER_ROLES_HEADER));
-        log.info(requestId + " DEBUG: USER_PERMISSION: "  + USER_PERMISSION +":" + exchange.getRequest().getHeaders().getFirst(USER_PERMISSION));
+        log.info(requestId + " DEBUG: USER_ID_HEADER FIRST: " + USER_ID_HEADER + ":" + exchange.getRequest().getHeaders().getFirst(USER_ID_HEADER));
+        log.info(requestId + " DEBUG: USER_ID_HEADER FIRST ALL: " + USER_ID_HEADER + ":" + exchange.getRequest().getHeaders().get(USER_ID_HEADER));
+        log.info(requestId + " DEBUG: USER_PRODUCTS_IDS_HEADER: " + USER_PRODUCTS_IDS_HEADER + ":" + exchange.getRequest().getHeaders().getFirst(USER_PRODUCTS_IDS_HEADER));
+        log.info(requestId + " DEBUG: USER_ROLES_HEADER: " + USER_ROLES_HEADER + ":" + exchange.getRequest().getHeaders().getFirst(USER_ROLES_HEADER));
+        log.info(requestId + " DEBUG: USER_PERMISSION: " + USER_PERMISSION + ":" + exchange.getRequest().getHeaders().getFirst(USER_PERMISSION));
 
         return chain.filter(exchange);
     }
