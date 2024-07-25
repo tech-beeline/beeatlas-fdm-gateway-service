@@ -84,6 +84,12 @@ spring:
             - RewritePath=${path.capability}/tech, /api/v1/tech-capabilities
             - RewritePath=${path.capability}/tech/(?<RID>.*), /api/v1/tech-capabilities/$\{RID}
             - RewritePath=${path.capability}/search, /api/v1/find
+        - id: dashboardService
+          uri: ${integration.dashboard-server}
+          predicates:
+            - Path=${path.dashboard}/**
+          filters:
+            - RewritePath=${path.dashboard}/tech/(?<RID>.*), /api/tech-capabilities/$\{RID}
 path:
   cx:
     bi: /api-gateway/cx/v1/bi
@@ -97,6 +103,7 @@ path:
   auth: /api-gateway/auth/v1
   techradar: /api-gateway/techradar/v1
   capability: /api-gateway/capability/v1
+  dashboard: /api-gateway/capability/v2
 management:
   endpoints:
     web:
