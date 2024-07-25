@@ -81,11 +81,13 @@ spring:
           filters:
             - RewritePath=${path.capability}/business, /api/v1/business-capability
             - RewritePath=${path.capability}/business/(?<RID>.*), /api/v1/business-capability/$\{RID}
+            - RewritePath=${path.capability}/business/(?<RID>.*)/parent, /api/v1/business-capability/$\{RID}/parent
             - RewritePath=${path.capability}/tech, /api/v1/tech-capabilities
             - RewritePath=${path.capability}/tech/(?<RID>.*), /api/v1/tech-capabilities/$\{RID}
+            - RewritePath=${path.capability}/tech/(?<RID>.*)/parent, /api/v1/tech-capabilities/$\{RID}/parent
             - RewritePath=${path.capability}/search, /api/v1/find
         - id: dashboardService
-          uri: ${integration.dashboard-server}
+          uri: ${integration.dashboard-server-url}
           predicates:
             - Path=${path.dashboard}/**
           filters:
