@@ -41,7 +41,7 @@ public class ValidateTokenFilter implements WebFilter {
         String requestId = exchange.getRequest().getId();
         if (exchange.getRequest().getPath().toString().contains("swagger")
                 || exchange.getRequest().getPath().toString().contains("/cache")
-                || ((exchange.getRequest().getPath().toString().contains("/api-gateway/capability/v1/tech/")
+                || ((exchange.getRequest().getPath().toString().contains("/api-gateway/capability/v2/tech/")
                     && Objects.equals(exchange.getRequest().getMethod(), HttpMethod.PUT)))
                 || exchange.getRequest().getPath().toString().contains("/api-docs")
                 || exchange.getRequest().getPath().toString().contains("/actuator/prometheus")
