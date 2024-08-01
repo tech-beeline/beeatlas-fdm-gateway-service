@@ -4,6 +4,9 @@ env:
   INTEGRATION_CX_SERVER_URL: "vault:eafdmmart/data/test/e2e/fdm#cxserverurl"
   INTEGRATION_AUTH_SERVER_URL: "vault:eafdmmart/data/test/e2e/fdm#authserverurl"
   INTEGRATION_TECHRADAR_SERVER_URL: "vault:eafdmmart/data/test/e2e/fdm#techradarserverurl"
+  INTEGRATION_PACK_LOADER_SERVER_URL: "vault:eafdmmart/data/test/e2e/fdm#packloaderserver"
+  INTEGRATION_CAPABILITY_SERVER_URL: "vault:eafdmmart/data/test/e2e/fdm#capabilityserver"
+  INTEGRATION_DASHBOARD_SERVER_URL: "vault:eafdmmart/data/test/e2e/fdm#dashboardserver"
 
 ingress:
   annotations:

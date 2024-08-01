@@ -3,7 +3,7 @@ app:
   name: @project.name@
 logging:
   level:
-    root: trace
+    root: debug
     org:
       apache:
         tomcat:
@@ -12,6 +12,8 @@ logging:
     sun:
       rmi: info
 spring:
+  cache:
+    expiration: 604800000
   main:
     web-application-type: reactive
   cloud:
@@ -35,6 +37,12 @@ spring:
             - Path=${path.cx.cj}/**
           filters:
             - RewritePath=${path.cx.cj}, /api/cx/v1/product/cj
+        - id: CjStep
+          uri: ${integration.cx-server-url}
+          predicates:
+            - Path=${path.cx.step}/**
+          filters:
+            - RewritePath=${path.cx.step}, /api/cx/v1/product/step
         - id: cxProduct
           uri: ${integration.cx-server-url}
           predicates:
@@ -54,16 +62,50 @@ spring:
             - Path=${path.techradar}/**
           filters:
             - RewritePath=${path.techradar}, /api/v1
-
+        - id: packloaderPackage
+          uri: ${integration.pack-loader-server-url}
+          predicates:
+            - Path=${path.pack-loader.package}/**
+          filters:
+            - RewritePath=${path.pack-loader.package}/(?<RID>.*), /api/v1/package/$\{RID}
+        - id: packloaderPackages
+          uri: ${integration.pack-loader-server-url}
+          predicates:
+            - Path=${path.pack-loader.packages}
+          filters:
+            - RewritePath=${path.pack-loader.packages}, /api/v1/packages-list
+        - id: capabilityService
+          uri: ${integration.capability-server-url}
+          predicates:
+            - Path=${path.capability}/**
+          filters:
+            - RewritePath=${path.capability}/business, /api/v1/business-capability
+            - RewritePath=${path.capability}/business/(?<RID>.*), /api/v1/business-capability/$\{RID}
+            - RewritePath=${path.capability}/business/(?<RID>.*)/parent, /api/v1/business-capability/$\{RID}/parent
+            - RewritePath=${path.capability}/tech, /api/v1/tech-capabilities
+            - RewritePath=${path.capability}/tech/(?<RID>.*), /api/v1/tech-capabilities/$\{RID}
+            - RewritePath=${path.capability}/tech/(?<RID>.*)/parent, /api/v1/tech-capabilities/$\{RID}/parent
+            - RewritePath=${path.capability}/search, /api/v1/find
+        - id: dashboardService
+          uri: ${integration.dashboard-server-url}
+          predicates:
+            - Path=${path.dashboard}/**
+          filters:
+            - RewritePath=${path.dashboard}/tech/(?<RID>.*), /api/tech-capabilities/$\{RID}
 path:
   cx:
     bi: /api-gateway/cx/v1/bi
     references: /api-gateway/cx/v1/references
     cj: /api-gateway/cx/v1/cj
+    step: /api-gateway/cx/v1/step
     product: /api-gateway/cx/v1/product
-
+  pack-loader:
+    package: /api-gateway/pack-loader/v1/package
+    packages: /api-gateway/pack-loader/v1/packages
   auth: /api-gateway/auth/v1
   techradar: /api-gateway/techradar/v1
+  capability: /api-gateway/capability/v1
+  dashboard: /api-gateway/capability/v2
 management:
   endpoints:
     web:
