@@ -88,7 +88,7 @@ public class ValidateTokenFilter implements WebFilter {
 
     private void validate(String bearerToken, String requestId) throws InvalidTokenException, TokenExpiredException {
         if (bearerToken == null || bearerToken.trim().isEmpty() ||
-                JwtUtils.isValid(bearerToken)) {
+                !JwtUtils.isValid(bearerToken)) {
             log.info(requestId + " DEBUG: Invalid token");
             throw new InvalidTokenException("Invalid token");
         } else {
