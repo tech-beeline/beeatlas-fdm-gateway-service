@@ -8,11 +8,17 @@ import net.minidev.json.JSONObject;
 import ru.beeline.fdmgateway.utils.eauth.EAuthKey;
 
 import java.math.BigInteger;
-import java.nio.charset.StandardCharsets;
 import java.security.KeyFactory;
 import java.security.PublicKey;
-import java.security.Signature;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.security.Keys;
+
+import java.security.PublicKey;
+import java.security.interfaces.RSAPublicKey;
 import java.security.spec.RSAPublicKeySpec;
+import java.util.Base64;import java.security.spec.RSAPublicKeySpec;
 import java.util.Base64;
 import java.util.Date;
 import java.util.Map;
@@ -57,23 +63,20 @@ public class JwtUtils {
         EAuthKey jwk = getEAuthKey();
         if (jwk != null) {
             try {
-                String[] parts = token.split("\\.");
+                token = token.split(" ")[1];
                 Base64.Decoder decoder = Base64.getUrlDecoder();
-
                 BigInteger modulus = new BigInteger(1, decoder.decode(jwk.getN()));
                 BigInteger exponent = new BigInteger(1, decoder.decode(jwk.getE()));
-                byte[] signingInfo = String.join(".", parts[0], parts[1]).getBytes(StandardCharsets.UTF_8);
-                byte[] b64DecodedSig = decoder.decode(parts[2]);
 
-                PublicKey pub = KeyFactory.getInstance(jwk.getKty()).generatePublic(new RSAPublicKeySpec(modulus, exponent));
+                RSAPublicKeySpec keySpec = new RSAPublicKeySpec(modulus, exponent);
+                PublicKey pubKey = KeyFactory.getInstance("RSA").generatePublic(keySpec);
 
-                Signature verifier = Signature.getInstance("SHA256withRSA");
-
-                verifier.initVerify(pub);
-                verifier.update(signingInfo);
-                return verifier.verify(b64DecodedSig);
+                Jwts
+                        .parser().verifyWith(pubKey).build()
+                        .parseSignedClaims(token);
+                return true;
             } catch (Exception e) {
-                log.error(e.getMessage());
+                log.error("Token validation failed: " + e.getMessage());
                 return false;
             }
         } else {
