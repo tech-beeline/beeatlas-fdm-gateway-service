@@ -7,6 +7,7 @@ env:
   INTEGRATION_PACK_LOADER_SERVER_URL: "vault:eafdmmart/data/dev/fdm#packloaderserver"
   INTEGRATION_CAPABILITY_SERVER_URL: "vault:eafdmmart/data/dev/fdm#capabilityserver"
   INTEGRATION_DASHBOARD_SERVER_URL: "vault:eafdmmart/data/dev/fdm#dashboardserver"
+  INTEGRATION_NOTIFICATION_SERVER_URL: "vault:eafdmmart/data/dev/fdm#notificationserver"
 
 ingress:
   annotations:

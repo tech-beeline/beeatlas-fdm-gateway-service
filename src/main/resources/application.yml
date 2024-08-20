@@ -62,6 +62,12 @@ spring:
             - Path=${path.techradar}/**
           filters:
             - RewritePath=${path.techradar}, /api/v1
+        - id: notification
+          uri: ${integration.notification-server-url}
+          predicates:
+            - Path=${path.notification}/**
+          filters:
+            - RewritePath=${path.notification}, /api/v1
         - id: packloaderPackage
           uri: ${integration.pack-loader-server-url}
           predicates:
@@ -106,6 +112,7 @@ path:
   techradar: /api-gateway/techradar/v1
   capability: /api-gateway/capability/v1
   dashboard: /api-gateway/capability/v2
+  notification: /api-gateway/notify/v1
 management:
   endpoints:
     web:
