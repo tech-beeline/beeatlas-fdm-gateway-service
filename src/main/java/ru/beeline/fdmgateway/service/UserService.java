@@ -23,24 +23,24 @@ public class UserService {
         this.cacheExpiration = cacheExpiration;
     }
 
-    public void removeFromCacheByLogin() {
+    public void removeFromCache() {
         userInfoCache.clear();
         lastInvalidate = new Date();
     }
 
-    public void removeFromCacheByLogin(String login) {
+    public void removeFromCache(String login) {
         userInfoCache.remove(login.toLowerCase());
     }
 
     public UserInfoDTO getUserInfo(String email, String fullName, String idExt) {
-        String login = email.substring(0 , email.indexOf("@")).toLowerCase();
+        String login = email.substring(0, email.indexOf("@")).toLowerCase();
 
         if (isExpired()) {
             userInfoCache.clear();
             lastInvalidate = new Date();
         }
 
-        if (!userInfoCache.containsKey(login)) {
+        if (!userInfoCache.containsKey(login) || userInfoCache.get(login).getId() == null) {
             userInfoCache.put(login, userClient.getUserInfo(email, fullName, idExt));
         }
         return userInfoCache.get(login);

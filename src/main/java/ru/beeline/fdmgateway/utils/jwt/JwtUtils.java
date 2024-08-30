@@ -3,6 +3,7 @@ package ru.beeline.fdmgateway.utils.jwt;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.jsonwebtoken.Jwts;
 import lombok.extern.slf4j.Slf4j;
 import net.minidev.json.JSONObject;
 import ru.beeline.fdmgateway.utils.eauth.EAuthKey;
@@ -10,15 +11,7 @@ import ru.beeline.fdmgateway.utils.eauth.EAuthKey;
 import java.math.BigInteger;
 import java.security.KeyFactory;
 import java.security.PublicKey;
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
-import io.jsonwebtoken.security.Keys;
-
-import java.security.PublicKey;
-import java.security.interfaces.RSAPublicKey;
 import java.security.spec.RSAPublicKeySpec;
-import java.util.Base64;import java.security.spec.RSAPublicKeySpec;
 import java.util.Base64;
 import java.util.Date;
 import java.util.Map;
@@ -47,11 +40,6 @@ public class JwtUtils {
         }
 
         return null;
-    }
-
-    public static String getEmail(String token) {
-        Map<String, String> data = JwtUtils.encodeJWT(token.substring(token.indexOf(" ")));
-        return data != null ? data.getOrDefault("email", null) : null;
     }
 
     public static JwtUserData getUserData(String token) {

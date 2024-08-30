@@ -36,13 +36,13 @@ public class ApplicationController {
 
     @DeleteMapping("/cache")
     public ResponseEntity clearCache() {
-        userService.removeFromCacheByLogin();
+        userService.removeFromCache();
         return new ResponseEntity(HttpStatus.OK);
     }
 
     @DeleteMapping("/cache/{login}")
     public ResponseEntity removeFromCacheByLogin(@PathVariable String login) {
-        userService.removeFromCacheByLogin(login);
+        userService.removeFromCache(login);
         return new ResponseEntity(HttpStatus.OK);
     }
 }

@@ -21,20 +21,30 @@ import ru.beeline.fdmlib.dto.auth.UserInfoDTO;
 
 import java.util.Arrays;
 import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
 
+import static ru.beeline.fdmgateway.utils.Constants.USER_ID_HEADER;
+import static ru.beeline.fdmgateway.utils.Constants.USER_PERMISSION_HEADER;
+import static ru.beeline.fdmgateway.utils.Constants.USER_PRODUCTS_IDS_HEADER;
+import static ru.beeline.fdmgateway.utils.Constants.USER_ROLES_HEADER;
 import static ru.beeline.fdmgateway.utils.jwt.JwtUtils.getUserData;
 
 
 @Slf4j
 @Component
 public class ValidateTokenFilter implements WebFilter {
+    private static final Set<String> EXCLUDED_PATHS = Set.of(
+            "/swagger",
+            "/cache",
+            "/api-gateway/capability/v2/tech/",
+            "/api-docs",
+            "/actuator/prometheus",
+            "/eauthkey"
+    );
+
     @Autowired
     private Environment environment;
-    private static final String USER_ID_HEADER = "user-id";
-    private static final String USER_PERMISSION = "user-permission";
-    private static final String USER_PRODUCTS_IDS_HEADER = "user-products-ids";
-    private static final String USER_ROLES_HEADER = "user-roles";
     private final UserService userService;
 
     public ValidateTokenFilter(UserService userService) {
@@ -44,20 +54,17 @@ public class ValidateTokenFilter implements WebFilter {
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {
         String requestId = exchange.getRequest().getId();
-        if (exchange.getRequest().getPath().toString().contains("swagger")
-                || exchange.getRequest().getPath().toString().contains("/cache")
-                || ((exchange.getRequest().getPath().toString().contains("/api-gateway/capability/v2/tech/")
-                && Objects.equals(exchange.getRequest().getMethod(), HttpMethod.PUT)))
-                || exchange.getRequest().getPath().toString().contains("/api-docs")
-                || exchange.getRequest().getPath().toString().contains("/actuator/prometheus")
-                || exchange.getRequest().getPath().toString().contains("/eauthkey")) {
-            return chain.filter(exchange);
+
+        for (String excludedPath : EXCLUDED_PATHS) {
+            if (exchange.getRequest().getPath().toString().contains(excludedPath)) {
+                return chain.filter(exchange);
+            }
         }
 
         String token = exchange.getRequest().getHeaders().getFirst("Authorization");
         log.info(requestId + " DEBUG: Try validateToken");
         try {
-            if (!Arrays.stream(environment.getActiveProfiles()).anyMatch(
+            if (Arrays.stream(environment.getActiveProfiles()).noneMatch(
                     env -> (env.equalsIgnoreCase("func")))) {
                 validate(token, requestId);
             }
@@ -67,7 +74,7 @@ public class ValidateTokenFilter implements WebFilter {
             return exchange.getResponse().setComplete();
         }
         JwtUserData tokenData = getUserData(token);
-        log.info(requestId + " DEBUG: token is:" + tokenData.toString());
+        log.info(requestId + "DEBUG: token is:" + tokenData.toString());
         UserInfoDTO userInfo = userService.getUserInfo(tokenData.getEmail(), tokenData.getFullName(), tokenData.getEmployeeNumber());
         if (userInfo != null) {
             log.info(requestId + " DEBUG: userInfo First: " + "getId:" + userInfo.getId().toString());
@@ -79,20 +86,13 @@ public class ValidateTokenFilter implements WebFilter {
                     .header(USER_ID_HEADER, userInfo.getId().toString())
                     .header(USER_PRODUCTS_IDS_HEADER, userInfo.getProductsIds().stream().map(Objects::toString).collect(Collectors.toList()).toString())
                     .header(USER_ROLES_HEADER, userInfo.getRoles().stream().map(Objects::toString).collect(Collectors.toList()).toString())
-                    .header(USER_PERMISSION, userInfo.getPermissions().stream().map(Objects::toString).collect(Collectors.toList()).toString())
+                    .header(USER_PERMISSION_HEADER, userInfo.getPermissions().stream().map(Objects::toString).collect(Collectors.toList()).toString())
                     .build();
 
             exchange = exchange.mutate().request(request).build();
         }
-        log.info(requestId + " DEBUG: USER_ID_HEADER FIRST: " + USER_ID_HEADER + ":" + exchange.getRequest().getHeaders().getFirst(USER_ID_HEADER));
-        log.info(requestId + " DEBUG: USER_ID_HEADER FIRST ALL: " + USER_ID_HEADER + ":" + exchange.getRequest().getHeaders().get(USER_ID_HEADER));
-        log.info(requestId + " DEBUG: USER_PRODUCTS_IDS_HEADER: " + USER_PRODUCTS_IDS_HEADER + ":" + exchange.getRequest().getHeaders().getFirst(USER_PRODUCTS_IDS_HEADER));
-        log.info(requestId + " DEBUG: USER_ROLES_HEADER: " + USER_ROLES_HEADER + ":" + exchange.getRequest().getHeaders().getFirst(USER_ROLES_HEADER));
-        log.info(requestId + " DEBUG: USER_PERMISSION: " + USER_PERMISSION + ":" + exchange.getRequest().getHeaders().getFirst(USER_PERMISSION));
-
         return chain.filter(exchange);
     }
-
 
     private void validate(String bearerToken, String requestId) throws InvalidTokenException, TokenExpiredException {
         if (bearerToken == null || bearerToken.trim().isEmpty() ||
