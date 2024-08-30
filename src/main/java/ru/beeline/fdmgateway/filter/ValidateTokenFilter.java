@@ -2,6 +2,8 @@ package ru.beeline.fdmgateway.filter;
 
 import com.auth0.jwt.exceptions.JWTDecodeException;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.Environment;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.server.reactive.ServerHttpRequest;
@@ -17,6 +19,7 @@ import ru.beeline.fdmgateway.utils.jwt.JwtUserData;
 import ru.beeline.fdmgateway.utils.jwt.JwtUtils;
 import ru.beeline.fdmlib.dto.auth.UserInfoDTO;
 
+import java.util.Arrays;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
@@ -26,6 +29,8 @@ import static ru.beeline.fdmgateway.utils.jwt.JwtUtils.getUserData;
 @Slf4j
 @Component
 public class ValidateTokenFilter implements WebFilter {
+    @Autowired
+    private Environment environment;
     private static final String USER_ID_HEADER = "user-id";
     private static final String USER_PERMISSION = "user-permission";
     private static final String USER_PRODUCTS_IDS_HEADER = "user-products-ids";
@@ -42,7 +47,7 @@ public class ValidateTokenFilter implements WebFilter {
         if (exchange.getRequest().getPath().toString().contains("swagger")
                 || exchange.getRequest().getPath().toString().contains("/cache")
                 || ((exchange.getRequest().getPath().toString().contains("/api-gateway/capability/v2/tech/")
-                    && Objects.equals(exchange.getRequest().getMethod(), HttpMethod.PUT)))
+                && Objects.equals(exchange.getRequest().getMethod(), HttpMethod.PUT)))
                 || exchange.getRequest().getPath().toString().contains("/api-docs")
                 || exchange.getRequest().getPath().toString().contains("/actuator/prometheus")
                 || exchange.getRequest().getPath().toString().contains("/eauthkey")) {
@@ -52,7 +57,10 @@ public class ValidateTokenFilter implements WebFilter {
         String token = exchange.getRequest().getHeaders().getFirst("Authorization");
         log.info(requestId + " DEBUG: Try validateToken");
         try {
-            validate(token, requestId);
+            if (!Arrays.stream(environment.getActiveProfiles()).anyMatch(
+                    env -> (env.equalsIgnoreCase("func")))) {
+                validate(token, requestId);
+            }
         } catch (Exception e) {
             log.error(e.getMessage());
             exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
