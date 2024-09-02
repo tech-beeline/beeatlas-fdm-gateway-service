@@ -17,6 +17,9 @@ public class ApplicationController {
     @Autowired
     UserService userService;
 
+    @Autowired
+    EAuthHelper eAuthHelper;
+
     @Value("${app.version}")
     private String appVersion;
 
@@ -31,7 +34,7 @@ public class ApplicationController {
 
     @GetMapping("/api/runtime/v1/eauthkey")
     public EAuthKey getEAuthKey() {
-        return EAuthHelper.getEAuthKey();
+        return eAuthHelper.getEAuthKey();
     }
 
     @DeleteMapping("/cache")

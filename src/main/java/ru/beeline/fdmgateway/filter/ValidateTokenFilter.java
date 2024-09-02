@@ -46,9 +46,11 @@ public class ValidateTokenFilter implements WebFilter {
     @Autowired
     private Environment environment;
     private final UserService userService;
+    private final JwtUtils jwtUtils;
 
-    public ValidateTokenFilter(UserService userService) {
+    public ValidateTokenFilter(JwtUtils jwtUtils, UserService userService) {
         this.userService = userService;
+        this.jwtUtils = jwtUtils;
     }
 
     @Override
@@ -96,7 +98,7 @@ public class ValidateTokenFilter implements WebFilter {
 
     private void validate(String bearerToken, String requestId) throws InvalidTokenException, TokenExpiredException {
         if (bearerToken == null || bearerToken.trim().isEmpty() ||
-                !JwtUtils.isValid(bearerToken)) {
+                !jwtUtils.isValid(bearerToken)) {
             log.info(requestId + " DEBUG: Invalid token");
             throw new InvalidTokenException("Invalid token");
         } else {
