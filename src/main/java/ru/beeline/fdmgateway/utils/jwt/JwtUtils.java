@@ -6,9 +6,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.Jwts;
 import lombok.extern.slf4j.Slf4j;
 import net.minidev.json.JSONObject;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-import ru.beeline.fdmgateway.utils.eauth.EAuthHelper;
 import ru.beeline.fdmgateway.utils.eauth.EAuthKey;
 
 import java.math.BigInteger;
@@ -19,13 +16,10 @@ import java.util.Base64;
 import java.util.Date;
 import java.util.Map;
 
+import static ru.beeline.fdmgateway.utils.eauth.EAuthHelper.getEAuthKey;
 
 @Slf4j
-@Component
 public class JwtUtils {
-    @Autowired
-    EAuthHelper eAuthHelper;
-
     public static Map<String, String> encodeJWT(String token) {
         try {
             String[] parts = token.split("\\.");
@@ -53,8 +47,8 @@ public class JwtUtils {
         return data != null ? new JwtUserData(data) : null;
     }
 
-    public boolean isValid(String token) {
-        EAuthKey jwk = eAuthHelper.getEAuthKey();
+    public static boolean isValid(String token) {
+        EAuthKey jwk = getEAuthKey();
         if (jwk != null) {
             try {
                 token = token.split(" ")[1];

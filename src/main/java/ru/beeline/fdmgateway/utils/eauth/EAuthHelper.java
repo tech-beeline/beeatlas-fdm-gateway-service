@@ -2,24 +2,21 @@ package ru.beeline.fdmgateway.utils.eauth;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
+import static ru.beeline.fdmgateway.utils.RestHelper.getRestTemplate;
 
 
 @Slf4j
-@Component
 public class EAuthHelper {
 
-    @Autowired
-    RestTemplate restTemplate;
     private static String keyUrl = "";
     private static EAuthKey eAuthKey;
 
-    public EAuthKey getAndSavePublicKey(String url) {
+    public static EAuthKey getAndSavePublicKey(String url) {
         keyUrl = url;
         try {
+            final RestTemplate restTemplate = getRestTemplate();
             final String key = restTemplate.getForObject(url, String.class);
             if (key != null) {
                 ObjectMapper mapper = new ObjectMapper();
@@ -36,7 +33,7 @@ public class EAuthHelper {
         return eAuthKey;
     }
 
-    public EAuthKey getEAuthKey() {
+    public static EAuthKey getEAuthKey() {
         if (!keyUrl.isEmpty() && eAuthKey == null) {
             eAuthKey = getAndSavePublicKey(keyUrl);
         }
