@@ -96,6 +96,7 @@ spring:
             - RewritePath=${path.capability}/tech/(?<RID>.*)/parent, /api/v1/tech-capabilities/$\{RID}/parent
             - RewritePath=${path.capability}/search, /api/v1/find
             - RewritePath=${path.capability}/criterias, /api/v1/criterias
+            - RewritePath=${path.capability}/maps, /api/v1/maps
         - id: dashboardService
           uri: ${integration.dashboard-server-url}
           predicates:
