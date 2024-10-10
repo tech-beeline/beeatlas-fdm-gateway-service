@@ -55,6 +55,7 @@ spring:
             - Path=${path.auth}/**
           filters:
             - RewritePath=${path.auth}/user/(?<RID>.*)/product, /api/user/$\{RID}/product
+            - RewritePath=${path.auth}/user/(?<RID>.*)/roles, /api/user/$\{RID}/roles
             - RewritePath=${path.auth}, /api/admin/v1
         - id: technoradar
           uri: ${integration.techradar-server-url}
