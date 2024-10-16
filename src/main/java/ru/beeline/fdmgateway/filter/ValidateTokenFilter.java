@@ -4,7 +4,6 @@ import com.auth0.jwt.exceptions.JWTDecodeException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
-import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.stereotype.Component;
@@ -65,7 +64,7 @@ public class ValidateTokenFilter implements WebFilter {
         log.info(requestId + " DEBUG: Try validateToken");
         try {
             if (Arrays.stream(environment.getActiveProfiles()).noneMatch(
-                    env -> (env.equalsIgnoreCase("func")))) {
+                    env -> (env.equalsIgnoreCase("func")) || (env.equalsIgnoreCase("e2e")))) {
                 validate(token, requestId);
             }
         } catch (Exception e) {
