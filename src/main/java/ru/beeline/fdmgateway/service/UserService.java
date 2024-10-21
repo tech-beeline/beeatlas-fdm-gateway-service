@@ -41,6 +41,7 @@ public class UserService {
         }
 
         if (!userInfoCache.containsKey(login)
+                || userInfoCache.get(login) == null
                 || userInfoCache.get(login).getId() == null
                 || userInfoCache.get(login).getPermissions() == null
                 || userInfoCache.get(login).getPermissions().isEmpty()) {
