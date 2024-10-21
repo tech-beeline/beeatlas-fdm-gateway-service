@@ -40,7 +40,10 @@ public class UserService {
             lastInvalidate = new Date();
         }
 
-        if (!userInfoCache.containsKey(login) || userInfoCache.get(login).getId() == null) {
+        if (!userInfoCache.containsKey(login)
+                || userInfoCache.get(login).getId() == null
+                || userInfoCache.get(login).getPermissions() == null
+                || userInfoCache.get(login).getPermissions().isEmpty()) {
             userInfoCache.put(login, userClient.getUserInfo(email, fullName, idExt));
         }
         return userInfoCache.get(login);
