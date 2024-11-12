@@ -98,6 +98,7 @@ spring:
             - RewritePath=${path.capability}/criterias, /api/v1/criterias
             - RewritePath=${path.capability}/maps, /api/v1/maps
             - RewritePath=${path.capability}/maps/(?<RID>.*), /api/v1/maps/$\{RID}
+            - RewritePath=${path.capability}/maps/groups/(?<RID>.*), /api/v1/maps/groups/$\{RID}
             - RewritePath=${path.capability}/capability/type, /api/v1/capability/type
         - id: dashboardService
           uri: ${integration.dashboard-server-url}
