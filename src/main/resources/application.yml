@@ -49,6 +49,7 @@ spring:
             - Path=${path.cx.product}/**
           filters:
             - RewritePath=${path.cx.product}/(?<RID>.*), /api/cx/v1/product/$\{RID}
+            - RewritePath=${path.cx.product}/tech/(?<RID>.*)/product, /api/v1/tech/$\{RID}/product
         - id: userService
           uri: ${integration.auth-server-url}
           predicates:
