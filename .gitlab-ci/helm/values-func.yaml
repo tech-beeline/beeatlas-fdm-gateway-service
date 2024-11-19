@@ -8,6 +8,7 @@ env:
   INTEGRATION_CAPABILITY_SERVER_URL: "vault:eafdmmart/data/test/func/fdm#capabilityserver"
   INTEGRATION_DASHBOARD_SERVER_URL: "vault:eafdmmart/data/test/func/fdm#dashboardserver"
   INTEGRATION_NOTIFICATION_SERVER_URL: "vault:eafdmmart/data/test/func/fdm#notificationserver"
+  INTEGRATION_PRODUCTS_SERVER_URL: "vault:eafdmmart/data/test/func/fdm#productsserver"
 
 ingress:
   annotations:
