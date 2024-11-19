@@ -49,7 +49,6 @@ spring:
             - Path=${path.cx.product}/**
           filters:
             - RewritePath=${path.cx.product}/(?<RID>.*), /api/cx/v1/product/$\{RID}
-            - RewritePath=${path.cx.product}/tech/(?<RID>.*)/product, /api/v1/tech/$\{RID}/product
         - id: userService
           uri: ${integration.auth-server-url}
           predicates:
@@ -107,6 +106,12 @@ spring:
             - Path=${path.dashboard}/**
           filters:
             - RewritePath=${path.dashboard}/tech/(?<RID>.*), /api/tech-capabilities/$\{RID}
+        - id: productsService
+          uri: ${integration.products-server-url}
+          predicates:
+            - Path=${path.products}/**
+          filters:
+            - RewritePath=${path.products}/tech/(?<RID>.*)/product, /api/v1/tech/$\{RID}/product
 path:
   cx:
     bi: /api-gateway/cx/v1/bi
@@ -121,6 +126,7 @@ path:
   techradar: /api-gateway/techradar/v1
   capability: /api-gateway/capability/v1
   dashboard: /api-gateway/capability/v2
+  products: /api-gateway/product/v1
   notification: /api-gateway/notify/v1
 management:
   endpoints:
