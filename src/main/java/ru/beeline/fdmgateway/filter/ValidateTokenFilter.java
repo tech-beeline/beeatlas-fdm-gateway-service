@@ -1,10 +1,15 @@
 package ru.beeline.fdmgateway.filter;
 
 import com.auth0.jwt.exceptions.JWTDecodeException;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
+import org.springframework.core.io.buffer.DataBuffer;
+import org.springframework.core.io.buffer.DataBufferFactory;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.stereotype.Component;
 import org.springframework.web.server.ServerWebExchange;
@@ -90,6 +95,23 @@ public class ValidateTokenFilter implements WebFilter {
 
             exchange = exchange.mutate().request(request).build();
         }
+        String currentPath = exchange.getRequest().getPath().toString();
+        if (currentPath.matches(".*user/[^/]+/info.*")) {
+            exchange.getResponse().setStatusCode(HttpStatus.OK);
+            exchange.getResponse().getHeaders().setContentType(MediaType.APPLICATION_JSON);
+
+            ObjectMapper objectMapper = new ObjectMapper();
+            DataBufferFactory dataBufferFactory = exchange.getResponse().bufferFactory();
+            try {
+                DataBuffer dataBuffer = dataBufferFactory.wrap(objectMapper.writeValueAsBytes(userInfo));
+                return exchange.getResponse().writeWith(Mono.just(dataBuffer));
+            } catch (JsonProcessingException e) {
+                log.error("Error processing JSON");
+                exchange.getResponse().setStatusCode(HttpStatus.INTERNAL_SERVER_ERROR);
+                return exchange.getResponse().setComplete();
+            }
+        }
+
         return chain.filter(exchange);
     }
 
