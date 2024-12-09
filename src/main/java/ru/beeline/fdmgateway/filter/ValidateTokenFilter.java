@@ -16,9 +16,11 @@ import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.server.WebFilter;
 import org.springframework.web.server.WebFilterChain;
 import reactor.core.publisher.Mono;
-import ru.beeline.fdmgateway.exception.InvalidTokenException;
-import ru.beeline.fdmgateway.exception.TokenExpiredException;
+import ru.beeline.fdmgateway.client.ProductClient;
+import ru.beeline.fdmgateway.dto.ApiSecretDto;
+import ru.beeline.fdmgateway.exception.*;
 import ru.beeline.fdmgateway.service.UserService;
+import ru.beeline.fdmgateway.utils.AuthUtils;
 import ru.beeline.fdmgateway.utils.jwt.JwtUserData;
 import ru.beeline.fdmgateway.utils.jwt.JwtUtils;
 import ru.beeline.fdmlib.dto.auth.UserInfoDTO;
@@ -28,10 +30,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static ru.beeline.fdmgateway.utils.Constants.USER_ID_HEADER;
-import static ru.beeline.fdmgateway.utils.Constants.USER_PERMISSION_HEADER;
-import static ru.beeline.fdmgateway.utils.Constants.USER_PRODUCTS_IDS_HEADER;
-import static ru.beeline.fdmgateway.utils.Constants.USER_ROLES_HEADER;
+import static ru.beeline.fdmgateway.utils.Constants.*;
 import static ru.beeline.fdmgateway.utils.jwt.JwtUtils.getUserData;
 
 
@@ -50,9 +49,14 @@ public class ValidateTokenFilter implements WebFilter {
     @Autowired
     private Environment environment;
     private final UserService userService;
+    private final ProductClient productClient;
+    private final AuthUtils authUtils;
 
-    public ValidateTokenFilter(UserService userService) {
+
+    public ValidateTokenFilter(UserService userService, ProductClient productClient, AuthUtils authUtils) {
         this.userService = userService;
+        this.productClient = productClient;
+        this.authUtils = authUtils;
     }
 
     @Override
@@ -66,10 +70,29 @@ public class ValidateTokenFilter implements WebFilter {
         }
 
         String token = exchange.getRequest().getHeaders().getFirst("Authorization");
+        if (token == null) {
+            token = exchange.getRequest().getHeaders().getFirst("X-Authorization");
+            try {
+                validateXAuthorizationToken(exchange);
+            } catch (UnauthorizedException e) {
+                log.error(e.getMessage());
+                exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
+                return exchange.getResponse().setComplete();
+            } catch (BadRequestException e) {
+                log.error(e.getMessage());
+                exchange.getResponse().setStatusCode(HttpStatus.BAD_REQUEST);
+                return exchange.getResponse().setComplete();
+            } catch (ServerErrorException e) {
+                log.error(e.getMessage());
+                exchange.getResponse().setStatusCode(HttpStatus.SERVICE_UNAVAILABLE);
+                return exchange.getResponse().setComplete();
+            }
+        }
+
         log.info(requestId + " DEBUG: Try validateToken");
         try {
             if (Arrays.stream(environment.getActiveProfiles()).noneMatch(
-                    env -> (env.equalsIgnoreCase("func")) || (env.equalsIgnoreCase("e2e")))) {
+                    env -> (env.equalsIgnoreCase("local")) || (env.equalsIgnoreCase("func")) || (env.equalsIgnoreCase("e2e")))) {
                 validate(token, requestId);
             }
         } catch (Exception e) {
@@ -115,9 +138,55 @@ public class ValidateTokenFilter implements WebFilter {
         return chain.filter(exchange);
     }
 
+    private void validateXAuthorizationToken(ServerWebExchange exchange) {
+        String token = exchange.getRequest().getHeaders().getFirst("X-Authorization");
+
+        if (token == null || token.trim().isEmpty()) {
+            throw new UnauthorizedException("Invalid X-Authorization token");
+        }
+
+        // Разделяем токен на API key и base64 строку
+        String[] parts = token.split(":");
+
+        // Проверяем, что токен содержит ровно две части
+        if (parts.length != 2) {
+            throw new UnauthorizedException("Invalid X-Authorization token");
+        }
+
+        String apiKey = parts[0];
+        String base64String = parts[1];
+
+        try {
+            byte[] decodedBytes = java.util.Base64.getDecoder().decode(base64String);
+        } catch (IllegalArgumentException e) {
+            throw new UnauthorizedException("Invalid X-Authorization token");
+        }
+
+        String nonceHeader = exchange.getRequest().getHeaders().getFirst("Nonce");
+        if (nonceHeader == null || nonceHeader.trim().isEmpty()) {
+            throw new BadRequestException("Invalid nonce header");
+        }
+        Boolean serviceAuth = Boolean.valueOf(exchange.getRequest().getHeaders().getFirst("Service-Auth"));
+        ApiSecretDto apiSecretDto = serviceAuth ? productClient.getServiceKey(apiKey) : productClient.getProductKey(apiKey);
+        boolean isValid = false;
+        try {
+            String message = authUtils.buildMessage(exchange.getRequest().getMethod().name(),
+                    exchange.getRequest().getPath().value(),
+                    exchange.getRequest().getBody().toString(),
+                    exchange.getRequest().getHeaders().getFirst("Content-Type")
+                    , nonceHeader);
+            isValid = AuthUtils.validateAuthorization(message, apiSecretDto.getApiSecret(), base64String);
+        } catch (Exception e) {
+            log.error(e.getMessage());
+        }
+        if (isValid) {
+            throw new UnauthorizedException("Invalid X-Authorization token");
+        }
+
+    }
+
     private void validate(String bearerToken, String requestId) throws InvalidTokenException, TokenExpiredException {
-        if (bearerToken == null || bearerToken.trim().isEmpty() ||
-                !JwtUtils.isValid(bearerToken)) {
+        if (!JwtUtils.isValid(bearerToken)) {
             log.info(requestId + " DEBUG: Invalid token");
             throw new InvalidTokenException("Invalid token");
         } else {

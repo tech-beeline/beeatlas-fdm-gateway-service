@@ -7,12 +7,12 @@ import ru.beeline.fdmgateway.client.UserClient;
 import ru.beeline.fdmlib.dto.auth.UserInfoDTO;
 
 import java.util.Date;
-import java.util.HashMap;
+import java.util.Hashtable;
 
 @Slf4j
 @Service
 public class UserService {
-    private final static HashMap<String, UserInfoDTO> userInfoCache = new HashMap<>();
+    private final static Hashtable<String, UserInfoDTO> userInfoCache = new Hashtable<>();
     private final UserClient userClient;
     private final Long cacheExpiration;
     private Date lastInvalidate = new Date();
