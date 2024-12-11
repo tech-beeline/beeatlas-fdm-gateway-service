@@ -3,15 +3,14 @@ package ru.beeline.fdmgateway.utils.jwt;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.jsonwebtoken.Jwts;
 import lombok.extern.slf4j.Slf4j;
 import net.minidev.json.JSONObject;
 import ru.beeline.fdmgateway.utils.eauth.EAuthKey;
 
 import java.math.BigInteger;
-import java.nio.charset.StandardCharsets;
 import java.security.KeyFactory;
 import java.security.PublicKey;
-import java.security.Signature;
 import java.security.spec.RSAPublicKeySpec;
 import java.util.Base64;
 import java.util.Date;
@@ -43,11 +42,6 @@ public class JwtUtils {
         return null;
     }
 
-    public static String getEmail(String token) {
-        Map<String, String> data = JwtUtils.encodeJWT(token.substring(token.indexOf(" ")));
-        return data != null ? data.getOrDefault("email", null) : null;
-    }
-
     public static JwtUserData getUserData(String token) {
         Map<String, String> data = JwtUtils.encodeJWT(token.substring(token.indexOf(" ")));
         return data != null ? new JwtUserData(data) : null;
@@ -57,23 +51,20 @@ public class JwtUtils {
         EAuthKey jwk = getEAuthKey();
         if (jwk != null) {
             try {
-                String[] parts = token.split("\\.");
+                token = token.split(" ")[1];
                 Base64.Decoder decoder = Base64.getUrlDecoder();
-
                 BigInteger modulus = new BigInteger(1, decoder.decode(jwk.getN()));
                 BigInteger exponent = new BigInteger(1, decoder.decode(jwk.getE()));
-                byte[] signingInfo = String.join(".", parts[0], parts[1]).getBytes(StandardCharsets.UTF_8);
-                byte[] b64DecodedSig = decoder.decode(parts[2]);
 
-                PublicKey pub = KeyFactory.getInstance(jwk.getKty()).generatePublic(new RSAPublicKeySpec(modulus, exponent));
+                RSAPublicKeySpec keySpec = new RSAPublicKeySpec(modulus, exponent);
+                PublicKey pubKey = KeyFactory.getInstance("RSA").generatePublic(keySpec);
 
-                Signature verifier = Signature.getInstance("SHA256withRSA");
-
-                verifier.initVerify(pub);
-                verifier.update(signingInfo);
-                return verifier.verify(b64DecodedSig);
+                Jwts
+                        .parser().verifyWith(pubKey).build()
+                        .parseSignedClaims(token);
+                return true;
             } catch (Exception e) {
-                log.error(e.getMessage());
+                log.error("Token validation failed: " + e.getMessage());
                 return false;
             }
         } else {

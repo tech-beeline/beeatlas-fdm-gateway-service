@@ -56,12 +56,19 @@ spring:
           filters:
             - RewritePath=${path.auth}/user/(?<RID>.*)/product, /api/user/$\{RID}/product
             - RewritePath=${path.auth}, /api/admin/v1
+            - RewritePath=${path.auth}/user/(?<RID>.*)/info, /api/admin/v1/user/$\{RID}/info
         - id: technoradar
           uri: ${integration.techradar-server-url}
           predicates:
             - Path=${path.techradar}/**
           filters:
             - RewritePath=${path.techradar}, /api/v1
+        - id: notification
+          uri: ${integration.notification-server-url}
+          predicates:
+            - Path=${path.notification}/**
+          filters:
+            - RewritePath=${path.notification}, /api/v1
         - id: packloaderPackage
           uri: ${integration.pack-loader-server-url}
           predicates:
@@ -82,16 +89,30 @@ spring:
             - RewritePath=${path.capability}/business, /api/v1/business-capability
             - RewritePath=${path.capability}/business/(?<RID>.*), /api/v1/business-capability/$\{RID}
             - RewritePath=${path.capability}/business/(?<RID>.*)/parent, /api/v1/business-capability/$\{RID}/parent
+            - RewritePath=${path.capability}/business/tree, /api/v1/business-capability/tree
+            - RewritePath=${path.capability}/business/tree/(?<RID>.*), /api/v1/business-capability/tree/$\{RID}
             - RewritePath=${path.capability}/tech, /api/v1/tech-capabilities
             - RewritePath=${path.capability}/tech/(?<RID>.*), /api/v1/tech-capabilities/$\{RID}
+            - RewritePath=${path.capability}/capabilities-subscribed, /api/v1/capabilities-subscribed
             - RewritePath=${path.capability}/tech/(?<RID>.*)/parent, /api/v1/tech-capabilities/$\{RID}/parent
             - RewritePath=${path.capability}/search, /api/v1/find
+            - RewritePath=${path.capability}/criterias, /api/v1/criterias
+            - RewritePath=${path.capability}/maps, /api/v1/maps
+            - RewritePath=${path.capability}/maps/(?<RID>.*), /api/v1/maps/$\{RID}
+            - RewritePath=${path.capability}/maps/groups/(?<RID>.*), /api/v1/maps/groups/$\{RID}
+            - RewritePath=${path.capability}/capability/type, /api/v1/capability/type
         - id: dashboardService
           uri: ${integration.dashboard-server-url}
           predicates:
             - Path=${path.dashboard}/**
           filters:
             - RewritePath=${path.dashboard}/tech/(?<RID>.*), /api/tech-capabilities/$\{RID}
+        - id: productsService
+          uri: ${integration.products-server-url}
+          predicates:
+            - Path=${path.products}/**
+          filters:
+            - RewritePath=${path.products}/tech/(?<RID>.*)/product, /api/v1/tech/$\{RID}/product
 path:
   cx:
     bi: /api-gateway/cx/v1/bi
@@ -106,6 +127,8 @@ path:
   techradar: /api-gateway/techradar/v1
   capability: /api-gateway/capability/v1
   dashboard: /api-gateway/capability/v2
+  products: /api-gateway/product/v1
+  notification: /api-gateway/notify/v1
 management:
   endpoints:
     web:

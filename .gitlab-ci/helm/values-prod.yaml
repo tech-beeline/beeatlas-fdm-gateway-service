@@ -7,3 +7,5 @@ env:
   INTEGRATION_PACK_LOADER_SERVER_URL: "vault:eafdmmart/data/prod/fdm#packloaderserver"
   INTEGRATION_CAPABILITY_SERVER_URL: "vault:eafdmmart/data/prod/fdm#capabilityserver"
   INTEGRATION_DASHBOARD_SERVER_URL: "vault:eafdmmart/data/prod/fdm#dashboardserver"
+  INTEGRATION_NOTIFICATION_SERVER_URL: "vault:eafdmmart/data/prod/fdm#notificationserver"
+  INTEGRATION_PRODUCTS_SERVER_URL: "vault:eafdmmart/data/prod/fdm#productsserver"

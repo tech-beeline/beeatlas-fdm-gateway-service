@@ -20,7 +20,6 @@ public class UserClient {
     public UserClient(@Value("${integration.auth-server-url}") String userServerUrl) {
         this.userServerUrl = userServerUrl;
     }
-
     public UserInfoDTO getUserInfo(String email, String fullName, String idExt) {
         String login = email.substring(0, email.indexOf("@"));
         UserInfoDTO userInfoDto = null;

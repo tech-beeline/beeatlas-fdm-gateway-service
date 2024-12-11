@@ -1,8 +1,11 @@
-JWKS: https://eafdmmart--test-yd-wiremock.apps.yd-m6-kt22.vimpelcom.ru/.well-known/jwks/
+JWKS: https://eauth-dev.ess-test.vimpelcom.ru/.well-known/jwks/
 
 integration:
-  cx-server-url: http://cx-backend-dev-eafdmmart.apps.yd-m6-kt22.vimpelcom.ru
-  auth-server-url:  https://fdm-auth-dev-eafdmmart.apps.yd-m6-kt22.vimpelcom.ru
+  products-server-url: http://localhost:8083
+  cx-server-url: https://cx-backend-func-eafdmmart.apps.yd-m6-kt22.vimpelcom.ru
+  auth-server-url:  http://localhost:8082
   techradar-server-url: http://localhost:8086
-  pack-loader-server: http://localhost:8082
-  capability-server: http://localhost:8083
+  pack-loader-server-url: http://localhost:8083
+  capability-server-url: http://localhost:8083
+  dashboard-server-url: https://dashboard-dev-eafdmmart.apps.yd-m6-kt22.vimpelcom.ru
+  notification-server-url: http://localhost:8082
