@@ -156,6 +156,10 @@ public class ValidateTokenFilter implements WebFilter {
         String apiKey = parts[0];
         String base64String = parts[1];
 
+        if (apiKey == null || apiKey.isEmpty() || base64String == null || base64String.isEmpty()) {
+            throw new UnauthorizedException("Invalid X-Authorization token");
+        }
+
         try {
             byte[] decodedBytes = java.util.Base64.getDecoder().decode(base64String);
         } catch (IllegalArgumentException e) {
