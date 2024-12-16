@@ -37,5 +37,4 @@ public class UserClient {
         }
         return userInfoDto;
     }
-
 }
