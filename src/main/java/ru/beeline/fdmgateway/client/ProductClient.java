@@ -38,7 +38,7 @@ public class ProductClient {
             headers.setContentType(MediaType.APPLICATION_JSON);
             headers.add("SOURCE", "Sparx");
             final RestTemplate restTemplate = getRestTemplate();
-            return restTemplate.exchange(productServerUrl + "/service/key/" + apiKey,
+            return restTemplate.exchange(productServerUrl + "api/v1/service/key/" + apiKey,
                     HttpMethod.GET, new HttpEntity(headers), ApiSecretDto.class).getBody();
         } catch (HttpClientErrorException.NotFound e) {
             log.error("API key not found: {}", e.getMessage());
@@ -55,7 +55,7 @@ public class ProductClient {
             headers.setContentType(MediaType.APPLICATION_JSON);
             headers.add("SOURCE", "Sparx");
             final RestTemplate restTemplate = getRestTemplate();
-            return restTemplate.exchange(productServerUrl + "/product/key/" + apiKey,
+            return restTemplate.exchange(productServerUrl + "api/v1/product/key/" + apiKey,
                     HttpMethod.GET, new HttpEntity(headers), ApiSecretDto.class).getBody();
         } catch (HttpClientErrorException.NotFound e) {
             log.error("API key not found: {}", e.getMessage());
