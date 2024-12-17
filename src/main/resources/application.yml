@@ -92,8 +92,11 @@ spring:
             - RewritePath=${path.capability}/business/(?<RID>.*)/parent, /api/v1/business-capability/$\{RID}/parent
             - RewritePath=${path.capability}/business/tree, /api/v1/business-capability/tree
             - RewritePath=${path.capability}/business/tree/(?<RID>.*), /api/v1/business-capability/tree/$\{RID}
+            - RewritePath=${path.capability}/business/history/(?<RID>.*), /api/v1/business-capability/history/$\{RID}
+            - RewritePath=${path.capability}/business/history/compare/(?<RID>.*)/(?<version>.*)/, /api/v1/business-capability/history/compare/$\{RID}/$\{version}
             - RewritePath=${path.capability}/tech, /api/v1/tech-capabilities
             - RewritePath=${path.capability}/tech/(?<RID>.*), /api/v1/tech-capabilities/$\{RID}
+            - RewritePath=${path.capability}/tech/history/(?<RID>.*), /api/v1/tech-capability/history/$\{RID}
             - RewritePath=${path.capability}/capabilities-subscribed, /api/v1/capabilities-subscribed
             - RewritePath=${path.capability}/tech/(?<RID>.*)/parent, /api/v1/tech-capabilities/$\{RID}/parent
             - RewritePath=${path.capability}/search, /api/v1/find
