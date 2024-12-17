@@ -64,6 +64,7 @@ spring:
           filters:
             - RewritePath=${path.techradar}, /api/v1
             - RewritePath=${path.techradar}, /api/v1/rings
+            - RewritePath=${path.techradar}/sectors, /api/v1/sectors
         - id: notification
           uri: ${integration.notification-server-url}
           predicates:

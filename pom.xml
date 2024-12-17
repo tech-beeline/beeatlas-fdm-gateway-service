@@ -10,7 +10,7 @@
     </parent>
     <groupId>ru.beeline</groupId>
     <artifactId>fdm-gateway</artifactId>
-    <version>0.0.17</version>
+    <version>0.0.18</version>
     <name>fdm-gateway</name>
     <description>fdm-gateway</description>
     <properties>
