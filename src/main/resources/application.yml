@@ -121,6 +121,7 @@ spring:
           filters:
             - RewritePath=${path.products}/tech/(?<RID>.*)/product, /api/v1/tech/$\{RID}/product
             - RewritePath=${path.products}/user/product, /api/v1/user/product
+            - RewritePath=${path.products}/user/product/admin, /api/v1/user/product/admin
 path:
   cx:
     bi: /api-gateway/cx/v1/bi
