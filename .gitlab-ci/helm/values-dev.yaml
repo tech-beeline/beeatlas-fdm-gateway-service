@@ -9,6 +9,7 @@ env:
   INTEGRATION_DASHBOARD_SERVER_URL: "vault:eafdmmart/data/dev/fdm#dashboardserver"
   INTEGRATION_NOTIFICATION_SERVER_URL: "vault:eafdmmart/data/dev/fdm#notificationserver"
   INTEGRATION_PRODUCTS_SERVER_URL: "vault:eafdmmart/data/dev/fdm#productsserver"
+  INTEGRATION_DOCUMENT_SERVER_URL: "vault:eafdmmart/data/dev/fdm#documentserverurl"
 
 ingress:
   annotations:

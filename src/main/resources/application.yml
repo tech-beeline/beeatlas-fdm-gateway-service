@@ -124,6 +124,12 @@ spring:
             - RewritePath=${path.products}/tech/(?<RID>.*)/product, /api/v1/tech/$\{RID}/product
             - RewritePath=${path.products}/user/product, /api/v1/user/product
             - RewritePath=${path.products}/user/product/admin, /api/v1/user/product/admin
+        - id: documentService
+          uri: ${integration.document-server-url}
+          predicates:
+          - Path=${path.document}/**
+          filters:
+           - RewritePath=${path.document}/documents/import, /api/v1/documents/import
 path:
   cx:
     bi: /api-gateway/cx/v1/bi
@@ -140,6 +146,7 @@ path:
   dashboard: /api-gateway/capability/v2
   products: /api-gateway/product/v1
   notification: /api-gateway/notify/v1
+  document: /api-gateway/document/v1
 management:
   endpoints:
     web:
