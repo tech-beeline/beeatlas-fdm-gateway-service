@@ -129,6 +129,7 @@ spring:
           predicates:
           - Path=${path.document}/**
           filters:
+           - RewritePath=${path.document}/documents/import/(?<RID>.*), /api/v1/documents/import/$\{RID}
            - RewritePath=${path.document}/documents/import, /api/v1/documents/import
            - RewritePath=${path.document}/documents/export, /api/v1/documents/export
 path:
