@@ -18,12 +18,6 @@ spring:
     web-application-type: reactive
   cloud:
     gateway:
-      globalcors:
-        cors-configurations:
-          '[/**]':
-            allowedHeaders:
-              - Content-Type
-              - Content-Disposition
       routes:
         - id: cxBi
           uri: ${integration.cx-server-url}
