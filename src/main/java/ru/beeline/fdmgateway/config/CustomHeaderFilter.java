@@ -13,7 +13,7 @@ public class CustomHeaderFilter implements GlobalFilter {
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
         return chain.filter(exchange).then(Mono.fromRunnable(() -> {
             ServerHttpResponse response = exchange.getResponse();
-            response.getHeaders().add("Access-Control-Expose-Headers", "Content-Disposition");
+            response.getHeaders().add("Access-Control-Allow-Headers", "Content-Disposition");
         }));
     }
 }
