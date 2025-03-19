@@ -10,6 +10,7 @@ env:
   INTEGRATION_NOTIFICATION_SERVER_URL: "vault:eafdmmart/data/test/func/fdm#notificationserver"
   INTEGRATION_PRODUCTS_SERVER_URL: "vault:eafdmmart/data/test/func/fdm#productsserver"
   INTEGRATION_DOCUMENT_SERVER_URL: "vault:eafdmmart/data/test/func/fdm#documentserverurl"
+  INTEGRATION_CAMUNDA_SERVER_URL: "vault:eafdmmart/data/test/func/fdm#camundaserverurl"
 
 ingress:
   annotations:

@@ -74,6 +74,7 @@ spring:
             - Path=${path.notification}/**
           filters:
             - RewritePath=${path.notification}, /api/v1
+            - RewritePath=${path.notification}/business/notify, /api/v1/business/notify
         - id: packloaderPackage
           uri: ${integration.pack-loader-server-url}
           predicates:
@@ -127,11 +128,19 @@ spring:
         - id: documentService
           uri: ${integration.document-server-url}
           predicates:
-          - Path=${path.document}/**
+            - Path=${path.document}/**
           filters:
-           - RewritePath=${path.document}/import/(?<RID>.*), /api/v1/import/$\{RID}
-           - RewritePath=${path.document}/documents/import, /api/v1/documents/import
-           - RewritePath=${path.document}/documents/export, /api/v1/documents/export
+            - RewritePath=${path.document}/import/(?<RID>.*), /api/v1/import/$\{RID}
+            - RewritePath=${path.document}/documents/import, /api/v1/documents/import
+            - RewritePath=${path.document}/documents/export, /api/v1/documents/export
+            - RewritePath=${path.document}/export/(?<RID>.*), /api/v1/export/$\{RID}
+            - RewritePath=${path.document}/documents/(?<RID>.*), /api/v1/documents/$\{RID}
+        - id: bpmService
+          uri: ${integration.camunda-server-url}
+          predicates:
+            - Path=${path.bpm}/**
+          filters:
+            - RewritePath=${path.bpm}/status/(?<RID>.*)/(?<ID>.*)/now, /camunda-process/api/v1/status/$\{RID}/$\{ID}/now
 path:
   cx:
     bi: /api-gateway/cx/v1/bi
@@ -149,6 +158,7 @@ path:
   products: /api-gateway/product/v1
   notification: /api-gateway/notify/v1
   document: /api-gateway/document/v1
+  bpm: /api-gateway/camunda-process/v1
 management:
   endpoints:
     web:
