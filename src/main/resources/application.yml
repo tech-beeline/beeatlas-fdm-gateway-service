@@ -141,6 +141,7 @@ spring:
             - Path=${path.bpm}/**
           filters:
             - RewritePath=${path.bpm}/status/(?<RID>.*)/(?<ID>.*)/now, /camunda-process/api/v1/status/$\{RID}/$\{ID}/now
+            - RewritePath=${path.bpm}/status/(?<RID>.*)/(?<ID>.*), /camunda-process/api/v1/status/$\{RID}/$\{ID}
 path:
   cx:
     bi: /api-gateway/cx/v1/bi
