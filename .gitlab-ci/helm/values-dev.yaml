@@ -19,3 +19,4 @@ ingress:
     nginx.ingress.kubernetes.io/cors-allow-origin: "*"
     nginx.ingress.kubernetes.io/enable-cors: 'true'
     nginx.ingress.kubernetes.io/cors-expose-headers: "Content-Disposition"
+    nginx.ingress.kubernetes.io/proxy-body-size: 100m
