@@ -12,6 +12,11 @@ logging:
     sun:
       rmi: info
 spring:
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 100MB
+      max-request-size: 100MB
   cache:
     expiration: 604800000
   main:
