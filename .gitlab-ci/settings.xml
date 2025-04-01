@@ -17,6 +17,12 @@
       <id>beeworksNexus</id>
       <repositories>
         <repository>
+          <id>team</id>
+          <name>BeeWorks Team repo</name>
+          <url>https://nexus.vimpelcom.ru/repository/eafdmmart__mvn/</url>
+          <layout>default</layout>
+        </repository>
+        <repository>
           <id>beeworksAll</id>
           <name>BeeWorks Internal repo</name>
           <url>https://nexus.vimpelcom.ru/repository/maven-all-internal/</url>
