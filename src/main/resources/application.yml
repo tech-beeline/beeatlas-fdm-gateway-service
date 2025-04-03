@@ -130,6 +130,7 @@ spring:
             - RewritePath=${path.products}/tech/(?<RID>.*)/product, /api/v1/tech/$\{RID}/product
             - RewritePath=${path.products}/user/product, /api/v1/user/product
             - RewritePath=${path.products}/user/product/admin, /api/v1/user/product/admin
+            - RewritePath=${path.products}/product/(?<RID>.*)/fitness-function, /api/v1/product/$\{RID}/fitness-function
         - id: documentService
           uri: ${integration.document-server-url}
           predicates:
