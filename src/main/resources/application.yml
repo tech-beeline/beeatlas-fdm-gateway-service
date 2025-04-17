@@ -149,6 +149,12 @@ spring:
             - RewritePath=${path.bpm}/status/(?<RID>.*)/(?<ID>.*), /camunda-process/api/v1/status/$\{RID}/$\{ID}
             - RewritePath=${path.bpm}/processes/context/(?<name>.*)/(?<value>.*), /camunda-process/api/v1/processes/context/$\{name}/$\{value}
             - RewritePath=${path.bpm}/processes/(?<RID>.*), /camunda-process/api/v1/processes/$\{RID}
+        - id: structurizr
+          uri: ${integration.arch-server-url}
+          predicates:
+            - Path=${path.structurizr}/**
+          filters:
+            - RewritePath=${path.structurizr}/workspace/terraform/generate, /api/v1/workspace/terraform/generate
 path:
   cx:
     bi: /api-gateway/cx/v1/bi
@@ -167,6 +173,7 @@ path:
   notification: /api-gateway/notify/v1
   document: /api-gateway/document/v1
   bpm: /api-gateway/camunda-process/v1
+  structurizr: /api-gateway/structurizr/v1
 management:
   endpoints:
     web:
