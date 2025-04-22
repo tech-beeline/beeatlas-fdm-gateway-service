@@ -13,6 +13,9 @@ env:
   INTEGRATION_CAMUNDA_SERVER_URL: "vault:eafdmmart/data/dev/fdm#camundaserverurl"
   INTEGRATION_ARCH_SERVER_URL: "vault:eafdmmart/data/dev/fdm#archserverurl"
 
+podAnnotations:
+  vault.security.banzaicloud.io/vault-addr: "https://vault-test.vimpelcom.ru/"
+
 ingress:
   annotations:
     nginx.ingress.kubernetes.io/cors-allow-headers: Content-Type, authorization, Content-Disposition
