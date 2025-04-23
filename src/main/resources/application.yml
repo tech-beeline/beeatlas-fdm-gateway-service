@@ -154,6 +154,8 @@ spring:
             - RewritePath=${path.bpm}/application/(?<businessKey>.*)/executor, /camunda-process/api/v1/application/$\{businessKey}/executor
             - RewritePath=${path.bpm}/application/(?<businessKey>.*)/change-status/(?<statusAlias>.*), /camunda-process/api/v1/application/$\{businessKey}/change-status/$\{statusAlias}
             - RewritePath=${path.bpm}/application/nobody, /camunda-process/api/v1/application/nobody
+            - RewritePath=${path.bpm}/application/author, /camunda-process/api/v1/application/author
+            - RewritePath=${path.bpm}/application/executor, /camunda-process/api/v1/application/executor
         - id: structurizr
           uri: ${integration.arch-server-url}
           predicates:
