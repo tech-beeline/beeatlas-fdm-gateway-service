@@ -104,6 +104,7 @@ spring:
             - RewritePath=${path.capability}/business/tree, /api/v1/business-capability/tree
             - RewritePath=${path.capability}/business/order, /api/v1/business-capability/order
             - RewritePath=${path.capability}/business/order/draft, /api/v1/business-capability/order/draft
+            - RewritePath=${path.capability}/business/order/draft/(?<RID>.*), /api/v1/business-capability/order/draft/$\{RID}
             - RewritePath=${path.capability}/business/order/(?<RID>.*), /api/v1/business-capability/order/$\{RID}
             - RewritePath=${path.capability}/business/tree/(?<RID>.*), /api/v1/business-capability/tree/$\{RID}
             - RewritePath=${path.capability}/business/history/(?<RID>.*), /api/v1/business-capability/history/$\{RID}
