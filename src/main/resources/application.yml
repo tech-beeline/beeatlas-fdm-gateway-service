@@ -146,6 +146,7 @@ spring:
             - RewritePath=${path.document}/documents/export, /api/v1/documents/export
             - RewritePath=${path.document}/export/(?<RID>.*), /api/v1/export/$\{RID}
             - RewritePath=${path.document}/documents/(?<RID>.*), /api/v1/documents/$\{RID}
+            - RewritePath=${path.document}/documents/(?<documentationsTypeId>.*)/(?<targetId>.*), /api/v1/documents/$\{documentationsTypeId}/$\{targetId}
         - id: bpmService
           uri: ${integration.camunda-server-url}
           predicates:
