@@ -155,6 +155,7 @@ spring:
             - RewritePath=${path.bpm}/status/(?<RID>.*)/(?<ID>.*), /camunda-process/api/v1/status/$\{RID}/$\{ID}
             - RewritePath=${path.bpm}/processes/context/(?<name>.*)/(?<value>.*), /camunda-process/api/v1/processes/context/$\{name}/$\{value}
             - RewritePath=${path.bpm}/processes/(?<RID>.*), /camunda-process/api/v1/processes/$\{RID}
+            - RewritePath=${path.bpm}/application/(?<businessKey>.*), /camunda-process/api/v1/application/$\{businessKey}
             - RewritePath=${path.bpm}/application/(?<businessKey>.*)/executor, /camunda-process/api/v1/application/$\{businessKey}/executor
             - RewritePath=${path.bpm}/application/(?<businessKey>.*)/change-status/(?<statusAlias>.*), /camunda-process/api/v1/application/$\{businessKey}/change-status/$\{statusAlias}
             - RewritePath=${path.bpm}/application/nobody, /camunda-process/api/v1/application/nobody
