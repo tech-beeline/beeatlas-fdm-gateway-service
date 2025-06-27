@@ -14,8 +14,8 @@ logging:
 springdoc:
   swagger-ui:
     urls:
-      - name: Gateway
-        url: /v3/api-docs
+#      - name: Gateway
+#        url: /v3/api-docs
       - name: Products
         url: ${path.products}/v3/api-docs
       - name: Dashboard
