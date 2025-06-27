@@ -147,10 +147,8 @@ public class ValidateTokenFilter implements WebFilter {
             throw new UnauthorizedException("Invalid X-Authorization token");
         }
 
-        // Разделяем токен на API key и base64 строку
         String[] parts = token.split(":");
 
-        // Проверяем, что токен содержит ровно две части
         if (parts.length != 2) {
             throw new UnauthorizedException("Invalid X-Authorization token");
         }

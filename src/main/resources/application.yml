@@ -22,6 +22,11 @@ springdoc:
         url: ${path.dashboard}/v3/api-docs
       - name: BPMN
         url: ${path.bpm}/v3/api-docs
+      - name: Cx
+        url: ${path.cx.all}/v3/api-docs
+      - name: Pack loader
+        url: ${path.pack-loader.all}/v3/api-docs
+
 spring:
   servlet:
     multipart:
@@ -35,6 +40,12 @@ spring:
   cloud:
     gateway:
       routes:
+        - id: cxAll
+          uri: ${integration.cx-server-url}
+          predicates:
+            - Path=${path.cx.all}/**
+          filters:
+            - RewritePath=${path.cx.all}/(?<segment>.*), /$\{segment}
         - id: cxBi
           uri: ${integration.cx-server-url}
           predicates:
@@ -91,6 +102,12 @@ spring:
           filters:
             - RewritePath=${path.notification}, /api/v1
             - RewritePath=${path.notification}/business/notify, /api/v1/business/notify
+        - id: packloaderPackageAll
+          uri: ${integration.pack-loader-server-url}
+          predicates:
+            - Path=${path.pack-loader.all}/**
+          filters:
+            - RewritePath=${path.pack-loader.all}/(?<segment>.*), /$\{segment}
         - id: packloaderPackage
           uri: ${integration.pack-loader-server-url}
           predicates:
@@ -184,12 +201,14 @@ spring:
             - RewritePath=${path.structurizr}/workspace/terraform/generate, /api/v1/workspace/terraform/generate
 path:
   cx:
+    all: /api-gateway/cx/v1
     bi: /api-gateway/cx/v1/bi
     references: /api-gateway/cx/v1/references
     cj: /api-gateway/cx/v1/cj
     step: /api-gateway/cx/v1/step
     product: /api-gateway/cx/v1/product
   pack-loader:
+    all: /api-gateway/pack-loader/v1
     package: /api-gateway/pack-loader/v1/package
     packages: /api-gateway/pack-loader/v1/packages
   auth: /api-gateway/auth/v1
