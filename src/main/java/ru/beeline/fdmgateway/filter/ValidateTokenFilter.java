@@ -41,6 +41,7 @@ public class ValidateTokenFilter implements WebFilter {
             "/api-docs",
             "/favicon.ico",
             "/swagger",
+            "/openapi.json",
             "/.well-known",
             "/actuator/prometheus",
             "/cache",
