@@ -19,7 +19,7 @@ springdoc:
       - name: Products
         url: ${path.products}/v3/api-docs
       - name: Dashboard
-        url: ${path.dashboard}/v3/api-docs
+        url: ${path.dashboard}/swagger-ui/summary/swagger.json
       - name: BPMN
         url: ${path.bpm}/v3/api-docs
       - name: Cx
@@ -32,12 +32,12 @@ springdoc:
         url: ${path.techradar}/v3/api-docs
       - name: Capability
         url: ${path.capability}/v3/api-docs
-#      - name: Notification
-#        url: ${path.notification}/v3/api-docs
-#      - name: Document
-#        url: ${path.document}/v3/api-docs
-#      - name: Structurizr
-#        url: ${path.structurizr}/v3/api-docs
+      - name: Notification
+        url: ${path.notification}/v3/api-docs
+      - name: Document
+        url: ${path.document}/v3/api-docs
+      - name: Structurizr
+        url: ${path.structurizr}/v3/api-docs
 spring:
   servlet:
     multipart:
@@ -101,7 +101,7 @@ spring:
           predicates:
             - Path=${path.techradar}/**
           filters:
-            - RewritePath=${path.dashboard}/v3/api-docs, /v3/api-docs
+            - RewritePath=${path.techradar}/v3/api-docs, /v3/api-docs
             - RewritePath=${path.techradar}, /api/v1
             - RewritePath=${path.techradar}, /api/v1/rings
             - RewritePath=${path.techradar}/sectors, /api/v1/sectors
@@ -113,6 +113,7 @@ spring:
           predicates:
             - Path=${path.notification}/**
           filters:
+            - RewritePath=${path.notification}/v3/api-docs, /v3/api-docs
             - RewritePath=${path.notification}, /api/v1
             - RewritePath=${path.notification}/business/notify, /api/v1/business/notify
         - id: packloaderPackageAll
@@ -167,7 +168,7 @@ spring:
           predicates:
             - Path=${path.dashboard}/**
           filters:
-            - RewritePath=${path.dashboard}/v3/api-docs, /v3/api-docs
+            - RewritePath=${path.dashboard}/swagger-ui/summary/swagger.json, /swagger-ui/summary/swagger.json
             - RewritePath=${path.dashboard}/tech/(?<RID>.*), /api/tech-capabilities/$\{RID}
         - id: productsService
           uri: ${integration.products-server-url}
@@ -185,6 +186,7 @@ spring:
           predicates:
             - Path=${path.document}/**
           filters:
+            - RewritePath=${path.document}/v3/api-docs, /v3/api-docs
             - RewritePath=${path.document}/import/(?<RID>.*), /api/v1/import/$\{RID}
             - RewritePath=${path.document}/documents/import, /api/v1/documents/import
             - RewritePath=${path.document}/documents/export, /api/v1/documents/export
@@ -212,6 +214,7 @@ spring:
           predicates:
             - Path=${path.structurizr}/**
           filters:
+            - RewritePath=${path.structurizr}/v3/api-docs, /v3/api-docs
             - RewritePath=${path.structurizr}/workspace/terraform/generate, /api/v1/workspace/terraform/generate
 path:
   cx:
