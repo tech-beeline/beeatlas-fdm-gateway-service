@@ -12,6 +12,7 @@ env:
   INTEGRATION_DOCUMENT_SERVER_URL: "vault:eafdmmart/data/test/func/fdm#documentserverurl"
   INTEGRATION_CAMUNDA_SERVER_URL: "vault:eafdmmart/data/test/func/fdm#camundaserverurl"
   INTEGRATION_ARCH_SERVER_URL: "vault:eafdmmart/data/test/func/fdm#archserverurl"
+  INTEGRATION_GRAPH_SERVER_URL: "vault:eafdmmart/data/test/func/fdm#graphserverurl"
 
 podAnnotations:
   vault.security.banzaicloud.io/vault-addr: "https://vault-test.vimpelcom.ru/"

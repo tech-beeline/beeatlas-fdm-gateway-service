@@ -38,6 +38,8 @@ springdoc:
         url: ${path.document}/v3/api-docs
       - name: Structurizr
         url: ${path.structurizr}/v3/api-docs
+      - name: Graph
+        url: ${path.graph}/v3/api-docs
 spring:
   servlet:
     multipart:
@@ -216,6 +218,12 @@ spring:
           filters:
             - RewritePath=${path.structurizr}/v3/api-docs, /v3/api-docs
             - RewritePath=${path.structurizr}/workspace/terraform/generate, /api/v1/workspace/terraform/generate
+        - id: graph
+          uri: ${integration.graph-server-url}
+          predicates:
+            - Path=${path.graph}/**
+          filters:
+            - RewritePath=${path.graph}/v3/api-docs, /v3/api-docs
 path:
   cx:
     all: /api-gateway/cx/v1
@@ -237,6 +245,7 @@ path:
   document: /api-gateway/document/v1
   bpm: /api-gateway/camunda-process/v1
   structurizr: /api-gateway/structurizr/v1
+  graph: /api-gateway/graph/v1
 management:
   endpoints:
     web:
