@@ -37,7 +37,7 @@ springdoc:
       - name: Document
         url: ${path.document}/v3/api-docs
       - name: Structurizr
-        url: ${path.structurizr}/v3/api-docs
+        url: ${path.structurizr}/openapi.json
       - name: Graph
         url: ${path.graph}/v3/api-docs
 spring:
@@ -218,7 +218,7 @@ spring:
           predicates:
             - Path=${path.structurizr}/**
           filters:
-            - RewritePath=${path.structurizr}/v3/api-docs, /v3/api-docs
+            - RewritePath=${path.structurizr}/openapi.json, /openapi.json
             - RewritePath=${path.structurizr}/workspace/terraform/generate, /api/v1/workspace/terraform/generate
         - id: graph
           uri: ${integration.graph-server-url}
