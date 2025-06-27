@@ -11,6 +11,34 @@ logging:
             net: WARN
     sun:
       rmi: info
+springdoc:
+  swagger-ui:
+    urls:
+      - name: Gateway
+        url: /v3/api-docs
+      - name: Products
+        url: ${path.products}/v3/api-docs
+      - name: Dashboard
+        url: ${path.dashboard}/v3/api-docs
+      - name: BPMN
+        url: ${path.bpm}/v3/api-docs
+      - name: Cx
+        url: ${path.cx.all}/v3/api-docs
+      - name: Pack loader
+        url: ${path.pack-loader.all}/v3/api-docs
+      - name: Auth
+        url: ${path.auth}/v3/api-docs
+      - name: Techradar
+        url: ${path.techradar}/v3/api-docs
+      - name: Capability
+        url: ${path.capability}/v3/api-docs
+      - name: Notification
+        url: ${path.notification}/v3/api-docs
+      - name: Document
+        url: ${path.document}/v3/api-docs
+      - name: Structurizr
+        url: ${path.structurizr}/v3/api-docs
+
 spring:
   servlet:
     multipart:
@@ -29,6 +57,7 @@ spring:
           predicates:
             - Path=${path.cx.bi}/**
           filters:
+            - RewritePath=${path.cx.all}/(?<segment>.*), /$\{segment}
             - RewritePath=${path.cx.bi}, /api/cx/v1/library/business-interactions
         - id: cxRefference
           uri: ${integration.cx-server-url}
@@ -59,6 +88,7 @@ spring:
           predicates:
             - Path=${path.auth}/**
           filters:
+            - RewritePath=${path.auth}/(?<segment>.*), /$\{segment}
             - RewritePath=${path.auth}/user/(?<RID>.*)/product, /api/user/$\{RID}/product
             - RewritePath=${path.auth}, /api/admin/v1
             - RewritePath=${path.auth}/user/(?<RID>.*)/info, /api/admin/v1/user/$\{RID}/info
@@ -67,6 +97,7 @@ spring:
           predicates:
             - Path=${path.techradar}/**
           filters:
+            - RewritePath=${path.techradar}/(?<segment>.*), /$\{segment}
             - RewritePath=${path.techradar}, /api/v1
             - RewritePath=${path.techradar}, /api/v1/rings
             - RewritePath=${path.techradar}/sectors, /api/v1/sectors
@@ -78,6 +109,7 @@ spring:
           predicates:
             - Path=${path.notification}/**
           filters:
+            - RewritePath=${path.notification}/(?<segment>.*), /$\{segment}
             - RewritePath=${path.notification}, /api/v1
             - RewritePath=${path.notification}/business/notify, /api/v1/business/notify
         - id: packloaderPackage
@@ -85,6 +117,7 @@ spring:
           predicates:
             - Path=${path.pack-loader.package}/**
           filters:
+            - RewritePath=${path.pack-loader.all}/(?<segment>.*), /$\{segment}
             - RewritePath=${path.pack-loader.package}/(?<RID>.*), /api/v1/package/$\{RID}
         - id: packloaderPackages
           uri: ${integration.pack-loader-server-url}
@@ -98,6 +131,7 @@ spring:
           predicates:
             - Path=${path.capability}/**
           filters:
+            - RewritePath=${path.capability}/(?<segment>.*), /$\{segment}
             - RewritePath=${path.capability}/business, /api/v1/business-capability
             - RewritePath=${path.capability}/business/(?<RID>.*), /api/v1/business-capability/$\{RID}
             - RewritePath=${path.capability}/business/(?<RID>.*)/parent, /api/v1/business-capability/$\{RID}/parent
@@ -125,12 +159,14 @@ spring:
           predicates:
             - Path=${path.dashboard}/**
           filters:
+            - RewritePath=${path.dashboard}/(?<segment>.*), /$\{segment}
             - RewritePath=${path.dashboard}/tech/(?<RID>.*), /api/tech-capabilities/$\{RID}
         - id: productsService
           uri: ${integration.products-server-url}
           predicates:
             - Path=${path.products}/**
           filters:
+            - RewritePath=${path.products}/(?<segment>.*), /$\{segment}
             - RewritePath=${path.products}/tech/(?<RID>.*)/product, /api/v1/tech/$\{RID}/product
             - RewritePath=${path.products}/user/product, /api/v1/user/product
             - RewritePath=${path.products}/user/product/admin, /api/v1/user/product/admin
@@ -152,6 +188,7 @@ spring:
           predicates:
             - Path=${path.bpm}/**
           filters:
+            - RewritePath=${path.bpm}/(?<segment>.*), /$\{segment}
             - RewritePath=${path.bpm}/status/(?<RID>.*)/(?<ID>.*)/now, /camunda-process/api/v1/status/$\{RID}/$\{ID}/now
             - RewritePath=${path.bpm}/status/(?<RID>.*)/(?<ID>.*), /camunda-process/api/v1/status/$\{RID}/$\{ID}
             - RewritePath=${path.bpm}/processes/context/(?<name>.*)/(?<value>.*), /camunda-process/api/v1/processes/context/$\{name}/$\{value}
@@ -167,15 +204,18 @@ spring:
           predicates:
             - Path=${path.structurizr}/**
           filters:
+            - RewritePath=${path.structurizr}/(?<segment>.*), /$\{segment}
             - RewritePath=${path.structurizr}/workspace/terraform/generate, /api/v1/workspace/terraform/generate
 path:
   cx:
+    all: /api-gateway/cx/v1
     bi: /api-gateway/cx/v1/bi
     references: /api-gateway/cx/v1/references
     cj: /api-gateway/cx/v1/cj
     step: /api-gateway/cx/v1/step
     product: /api-gateway/cx/v1/product
   pack-loader:
+    all: /api-gateway/pack-loader/v1
     package: /api-gateway/pack-loader/v1/package
     packages: /api-gateway/pack-loader/v1/packages
   auth: /api-gateway/auth/v1
