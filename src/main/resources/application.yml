@@ -11,6 +11,13 @@ logging:
             net: WARN
     sun:
       rmi: info
+springdoc:
+  swagger-ui:
+    urls:
+      - name: Gateway
+        url: /v3/api-docs
+      - name: Products
+        url: ${path.products}/v3/api-docs
 spring:
   servlet:
     multipart:
@@ -131,6 +138,7 @@ spring:
           predicates:
             - Path=${path.products}/**
           filters:
+            - RewritePath=${path.products}/v3/api-docs, /v3/api-docs
             - RewritePath=${path.products}/tech/(?<RID>.*)/product, /api/v1/tech/$\{RID}/product
             - RewritePath=${path.products}/user/product, /api/v1/user/product
             - RewritePath=${path.products}/user/product/admin, /api/v1/user/product/admin
