@@ -26,7 +26,18 @@ springdoc:
         url: ${path.cx.all}/v3/api-docs
       - name: Pack loader
         url: ${path.pack-loader.all}/v3/api-docs
-
+      - name: Auth
+        url: ${path.auth}/v3/api-docs
+      - name: Techradar
+        url: ${path.techradar}/v3/api-docs
+      - name: Capability
+        url: ${path.capability}/v3/api-docs
+#      - name: Notification
+#        url: ${path.notification}/v3/api-docs
+#      - name: Document
+#        url: ${path.document}/v3/api-docs
+#      - name: Structurizr
+#        url: ${path.structurizr}/v3/api-docs
 spring:
   servlet:
     multipart:
@@ -81,6 +92,7 @@ spring:
           predicates:
             - Path=${path.auth}/**
           filters:
+            - RewritePath=${path.auth}/(?<segment>.*), /$\{segment}
             - RewritePath=${path.auth}/user/(?<RID>.*)/product, /api/user/$\{RID}/product
             - RewritePath=${path.auth}, /api/admin/v1
             - RewritePath=${path.auth}/user/(?<RID>.*)/info, /api/admin/v1/user/$\{RID}/info
@@ -89,6 +101,7 @@ spring:
           predicates:
             - Path=${path.techradar}/**
           filters:
+            - RewritePath=${path.dashboard}/v3/api-docs, /v3/api-docs
             - RewritePath=${path.techradar}, /api/v1
             - RewritePath=${path.techradar}, /api/v1/rings
             - RewritePath=${path.techradar}/sectors, /api/v1/sectors
@@ -126,6 +139,7 @@ spring:
           predicates:
             - Path=${path.capability}/**
           filters:
+            - RewritePath=${path.capability}/v3/api-docs, /v3/api-docs
             - RewritePath=${path.capability}/business, /api/v1/business-capability
             - RewritePath=${path.capability}/business/(?<RID>.*), /api/v1/business-capability/$\{RID}
             - RewritePath=${path.capability}/business/(?<RID>.*)/parent, /api/v1/business-capability/$\{RID}/parent
