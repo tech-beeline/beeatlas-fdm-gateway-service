@@ -18,6 +18,10 @@ springdoc:
         url: /v3/api-docs
       - name: Products
         url: ${path.products}/v3/api-docs
+      - name: Dashboard
+        url: ${path.dashboard}/v3/api-docs
+      - name: BPMN
+        url: ${path.bpm}/v3/api-docs
 spring:
   servlet:
     multipart:
@@ -132,6 +136,7 @@ spring:
           predicates:
             - Path=${path.dashboard}/**
           filters:
+            - RewritePath=${path.dashboard}/v3/api-docs, /v3/api-docs
             - RewritePath=${path.dashboard}/tech/(?<RID>.*), /api/tech-capabilities/$\{RID}
         - id: productsService
           uri: ${integration.products-server-url}
@@ -160,6 +165,7 @@ spring:
           predicates:
             - Path=${path.bpm}/**
           filters:
+            - RewritePath=${path.bpm}/v3/api-docs, /v3/api-docs
             - RewritePath=${path.bpm}/status/(?<RID>.*)/(?<ID>.*)/now, /camunda-process/api/v1/status/$\{RID}/$\{ID}/now
             - RewritePath=${path.bpm}/status/(?<RID>.*)/(?<ID>.*), /camunda-process/api/v1/status/$\{RID}/$\{ID}
             - RewritePath=${path.bpm}/processes/context/(?<name>.*)/(?<value>.*), /camunda-process/api/v1/processes/context/$\{name}/$\{value}
