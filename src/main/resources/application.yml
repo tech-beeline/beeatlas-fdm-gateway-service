@@ -111,6 +111,7 @@ spring:
             - RewritePath=${path.techradar}/tech/(?<RID>.*)/version, /api/v1/tech/$\{RID}/version
             - RewritePath=${path.techradar}/tech/(?<RID>.*)/version/(?<version>.*)/, /api/v1/tech/$\{RID}/version/$\{version}
             - RewritePath=${path.techradar}/pattern, /api/v1/pattern
+            - RewritePath=${path.techradar}/patterns, /api/v1/patterns
             - RewritePath=${path.techradar}/pattern/(?<RID>.*), /api/v1/pattern/$\{RID}
             - RewritePath=${path.techradar}/pattern/tech/(?<RID>.*), /api/v1/pattern/tech/$\{RID}
         - id: notification
