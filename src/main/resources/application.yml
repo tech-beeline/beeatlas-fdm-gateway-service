@@ -58,7 +58,7 @@ spring:
           predicates:
             - Path=${path.cx.all}/**
           filters:
-            - RewritePath=${path.cx.all}/v3/api-docs, /v3/api-docs
+            - RewritePath=${path.cx.all}/api-docs, /v3/api-docs
         - id: cxBi
           uri: ${integration.cx-server-url}
           predicates:
@@ -228,7 +228,7 @@ spring:
             - RewritePath=${path.graph}/v3/api-docs, /v3/api-docs
 path:
   cx:
-    all: /api-gateway/cx/v1
+    all: /api-gateway/cx/v3
     bi: /api-gateway/cx/v1/bi
     references: /api-gateway/cx/v1/references
     cj: /api-gateway/cx/v1/cj
