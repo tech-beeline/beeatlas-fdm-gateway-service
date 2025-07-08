@@ -114,6 +114,7 @@ spring:
             - RewritePath=${path.techradar}/patterns, /api/v1/patterns
             - RewritePath=${path.techradar}/pattern/(?<RID>.*), /api/v1/pattern/$\{RID}
             - RewritePath=${path.techradar}/patterns/tech/(?<RID>.*), /api/v1/patterns/tech/$\{RID}
+            - RewritePath=${path.techradar}/patterns/auto-check, /api/v1/patterns/auto-check
         - id: notification
           uri: ${integration.notification-server-url}
           predicates:
