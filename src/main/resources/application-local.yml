@@ -1,15 +1,21 @@
 JWKS: https://eauth-dev.ess-test.vimpelcom.ru/.well-known/jwks/
 
 integration:
-  products-server-url: http://localhost:8083
+  products-server-url: http://localhost:8089
   cx-server-url: https://cx-backend-func-eafdmmart.apps.yd-m6-kt22.vimpelcom.ru
-  auth-server-url:  https://fdm-auth-dev-eafdmmart.apps.yd-m6-kt22.vimpelcom.ru
-  techradar-server-url: https://techradar-backend-dev-eafdmmart.apps.yd-m6-kt22.vimpelcom.ru
-  arch-server-url: http://localhost:8086
+#  auth-server-url:  https://fdm-auth-dev-eafdmmart.apps.yd-m6-kt22.vimpelcom.ru
+  auth-server-url: http://localhost:8082
+#  techradar-server-url: https://techradar-backend-dev-eafdmmart.apps.yd-m6-kt22.vimpelcom.ru
+  techradar-server-url: http://localhost:8086
+  arch-server-url: http://localhost:808
   graph-server-url: http://localhost:8086
   pack-loader-server-url: http://localhost:8083
   capability-server-url: http://localhost:8083
   document-server-url: http://localhost:8083
   dashboard-server-url: https://dashboard-dev-eafdmmart.apps.yd-m6-kt22.vimpelcom.ru
   notification-server-url: http://localhost:8082
-  camunda-server-url: http://localhost:8082
+#  document-server-url: http://localhost:8088
+  camunda-server-url: http://localhost:8083
+#  arch-server-url: https://structurizr-backend-dev-eafdmmart.apps.yd-m6-kt22.vimpelcom.ru
+#  camunda-server-url: http://localhost:8082
+#  graph-server-url: http://localhost:8083
