@@ -141,7 +141,6 @@ spring:
             - Path=${path.pack-loader.packages}
           filters:
             - RewritePath=${path.pack-loader.packages}, /api/v1/packages-list
-            - RewritePath=${path.pack-loader.packages}, /api/v2/packages-list
         - id: capabilityService
           uri: ${integration.capability-server-url}
           predicates:
