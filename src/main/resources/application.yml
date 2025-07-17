@@ -128,7 +128,7 @@ spring:
           predicates:
             - Path=${path.pack-loader.all}/**
           filters:
-            - RewritePath=${path.pack-loader.all}/v3/api-docs, /v3/api-docs
+            - RewritePath=${path.pack-loader.all}/api-docs, /api-docs
         - id: packloaderPackage
           uri: ${integration.pack-loader-server-url}
           predicates:
@@ -241,7 +241,7 @@ path:
     step: /api-gateway/cx/v1/step
     product: /api-gateway/cx/v1/product
   pack-loader:
-    all: /api-gateway/pack-loader/v1
+    all: /api-gateway/pack-loader/v1/v3
     package: /api-gateway/pack-loader/v1/package
     packages: /api-gateway/pack-loader/v1/packages
   auth: /api-gateway/auth/v1
