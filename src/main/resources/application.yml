@@ -11,6 +11,35 @@ logging:
             net: WARN
     sun:
       rmi: info
+springdoc:
+  swagger-ui:
+    urls:
+      - name: Gateway
+        url: /v3/api-docs
+      - name: Products
+        url: ${path.products}/v3/api-docs
+      - name: Dashboard
+        url: ${path.dashboard}/swagger-ui/summary/swagger.json
+      - name: BPMN
+        url: ${path.bpm}/v3/api-docs
+      - name: Cx
+        url: ${path.cx.all}/v3/api-docs
+      - name: Pack loader
+        url: ${path.pack-loader.all}/v3/api-docs
+      - name: Auth
+        url: ${path.auth}/v3/api-docs
+      - name: Techradar
+        url: ${path.techradar}/v3/api-docs
+      - name: Capability
+        url: ${path.capability}/v3/api-docs
+      - name: Notification
+        url: ${path.notification}/v3/api-docs
+      - name: Document
+        url: ${path.document}/v3/api-docs
+      - name: Structurizr
+        url: ${path.structurizr}/openapi.json
+      - name: Graph
+        url: ${path.graph}/v3/api-docs
 spring:
   servlet:
     multipart:
@@ -24,6 +53,12 @@ spring:
   cloud:
     gateway:
       routes:
+        - id: cxAll
+          uri: ${integration.cx-server-url}
+          predicates:
+            - Path=${path.cx.all}/**
+          filters:
+            - RewritePath=${path.cx.all}/api-docs, /v3/api-docs
         - id: cxBi
           uri: ${integration.cx-server-url}
           predicates:
@@ -59,6 +94,7 @@ spring:
           predicates:
             - Path=${path.auth}/**
           filters:
+            - RewritePath=${path.auth}/v3/api-docs, /v3/api-docs
             - RewritePath=${path.auth}/user/(?<RID>.*)/product, /api/user/$\{RID}/product
             - RewritePath=${path.auth}, /api/admin/v1
             - RewritePath=${path.auth}/user/(?<RID>.*)/info, /api/admin/v1/user/$\{RID}/info
@@ -67,19 +103,32 @@ spring:
           predicates:
             - Path=${path.techradar}/**
           filters:
+            - RewritePath=${path.techradar}/v3/api-docs, /v3/api-docs
             - RewritePath=${path.techradar}, /api/v1
             - RewritePath=${path.techradar}, /api/v1/rings
             - RewritePath=${path.techradar}/sectors, /api/v1/sectors
             - RewritePath=${path.techradar}/tech/(?<RID>.*), /api/v1/tech/$\{RID}
             - RewritePath=${path.techradar}/tech/(?<RID>.*)/version, /api/v1/tech/$\{RID}/version
             - RewritePath=${path.techradar}/tech/(?<RID>.*)/version/(?<version>.*)/, /api/v1/tech/$\{RID}/version/$\{version}
+            - RewritePath=${path.techradar}/pattern, /api/v1/pattern
+            - RewritePath=${path.techradar}/patterns, /api/v1/patterns
+            - RewritePath=${path.techradar}/pattern/(?<RID>.*), /api/v1/pattern/$\{RID}
+            - RewritePath=${path.techradar}/patterns/tech/(?<RID>.*), /api/v1/patterns/tech/$\{RID}
+            - RewritePath=${path.techradar}/patterns/auto-check, /api/v1/patterns/auto-check
         - id: notification
           uri: ${integration.notification-server-url}
           predicates:
             - Path=${path.notification}/**
           filters:
+            - RewritePath=${path.notification}/v3/api-docs, /v3/api-docs
             - RewritePath=${path.notification}, /api/v1
             - RewritePath=${path.notification}/business/notify, /api/v1/business/notify
+        - id: packloaderPackageAll
+          uri: ${integration.pack-loader-server-url}
+          predicates:
+            - Path=${path.pack-loader.all}/**
+          filters:
+            - RewritePath=${path.pack-loader.all}/api-docs, /api-docs
         - id: packloaderPackage
           uri: ${integration.pack-loader-server-url}
           predicates:
@@ -92,16 +141,20 @@ spring:
             - Path=${path.pack-loader.packages}
           filters:
             - RewritePath=${path.pack-loader.packages}, /api/v1/packages-list
-            - RewritePath=${path.pack-loader.packages}, /api/v2/packages-list
         - id: capabilityService
           uri: ${integration.capability-server-url}
           predicates:
             - Path=${path.capability}/**
           filters:
+            - RewritePath=${path.capability}/v3/api-docs, /v3/api-docs
             - RewritePath=${path.capability}/business, /api/v1/business-capability
             - RewritePath=${path.capability}/business/(?<RID>.*), /api/v1/business-capability/$\{RID}
             - RewritePath=${path.capability}/business/(?<RID>.*)/parent, /api/v1/business-capability/$\{RID}/parent
             - RewritePath=${path.capability}/business/tree, /api/v1/business-capability/tree
+            - RewritePath=${path.capability}/business/order, /api/v1/business-capability/order
+            - RewritePath=${path.capability}/business/order/draft, /api/v1/business-capability/order/draft
+            - RewritePath=${path.capability}/business/order/draft/(?<RID>.*), /api/v1/business-capability/order/draft/$\{RID}
+            - RewritePath=${path.capability}/business/order/(?<RID>.*), /api/v1/business-capability/order/$\{RID}
             - RewritePath=${path.capability}/business/tree/(?<RID>.*), /api/v1/business-capability/tree/$\{RID}
             - RewritePath=${path.capability}/business/history/(?<RID>.*), /api/v1/business-capability/history/$\{RID}
             - RewritePath=${path.capability}/business/history/compare/(?<RID>.*)/(?<version>.*)/, /api/v1/business-capability/history/compare/$\{RID}/$\{version}
@@ -121,48 +174,74 @@ spring:
           predicates:
             - Path=${path.dashboard}/**
           filters:
+            - RewritePath=${path.dashboard}/swagger-ui/summary/swagger.json, /swagger-ui/summary/swagger.json
             - RewritePath=${path.dashboard}/tech/(?<RID>.*), /api/tech-capabilities/$\{RID}
         - id: productsService
           uri: ${integration.products-server-url}
           predicates:
             - Path=${path.products}/**
           filters:
+            - RewritePath=${path.products}/v3/api-docs, /v3/api-docs
             - RewritePath=${path.products}/tech/(?<RID>.*)/product, /api/v1/tech/$\{RID}/product
             - RewritePath=${path.products}/user/product, /api/v1/user/product
             - RewritePath=${path.products}/user/product/admin, /api/v1/user/product/admin
+            - RewritePath=${path.products}/product/(?<RID>.*)/fitness-function, /api/v1/product/$\{RID}/fitness-function
+            - RewritePath=${path.products}/product/(?<RID>.*)/fitness-function/(?<ID>.*), /api/v1/product/$\{RID}/fitness-function/$\{ID}
+            - RewritePath=${path.products}/product/(?<RID>.*)/patterns, /api/v1/product/$\{RID}/patterns
         - id: documentService
           uri: ${integration.document-server-url}
           predicates:
             - Path=${path.document}/**
           filters:
+            - RewritePath=${path.document}/v3/api-docs, /v3/api-docs
             - RewritePath=${path.document}/import/(?<RID>.*), /api/v1/import/$\{RID}
             - RewritePath=${path.document}/documents/import, /api/v1/documents/import
             - RewritePath=${path.document}/documents/export, /api/v1/documents/export
             - RewritePath=${path.document}/export/(?<RID>.*), /api/v1/export/$\{RID}
             - RewritePath=${path.document}/documents/(?<RID>.*), /api/v1/documents/$\{RID}
+            - RewritePath=${path.document}/documentations/(?<RID>.*), /api/v1/documentations/$\{RID}
+            - RewritePath=${path.document}/documents/(?<documentationsTypeId>.*)/(?<targetId>.*), /api/v1/documents/$\{documentationsTypeId}/$\{targetId}
         - id: bpmService
           uri: ${integration.camunda-server-url}
           predicates:
             - Path=${path.bpm}/**
           filters:
+            - RewritePath=${path.bpm}/v3/api-docs, /v3/api-docs
             - RewritePath=${path.bpm}/status/(?<RID>.*)/(?<ID>.*)/now, /camunda-process/api/v1/status/$\{RID}/$\{ID}/now
             - RewritePath=${path.bpm}/status/(?<RID>.*)/(?<ID>.*), /camunda-process/api/v1/status/$\{RID}/$\{ID}
             - RewritePath=${path.bpm}/processes/context/(?<name>.*)/(?<value>.*), /camunda-process/api/v1/processes/context/$\{name}/$\{value}
             - RewritePath=${path.bpm}/processes/(?<RID>.*), /camunda-process/api/v1/processes/$\{RID}
+            - RewritePath=${path.bpm}/application/(?<businessKey>.*), /camunda-process/api/v1/application/$\{businessKey}
+            - RewritePath=${path.bpm}/application/(?<businessKey>.*)/executor, /camunda-process/api/v1/application/$\{businessKey}/executor
+            - RewritePath=${path.bpm}/application/(?<businessKey>.*)/executor/(?<newExecutorId>.*), /camunda-process/api/v1/application/$\{businessKey}/executor/$\{newExecutorId}
+            - RewritePath=${path.bpm}/application/(?<businessKey>.*)/change-status/(?<statusAlias>.*), /camunda-process/api/v1/application/$\{businessKey}/change-status/$\{statusAlias}
+            - RewritePath=${path.bpm}/application, /camunda-process/api/v1/application
+            - RewritePath=${path.bpm}/application/nobody, /camunda-process/api/v1/application/nobody
+            - RewritePath=${path.bpm}/application/author, /camunda-process/api/v1/application/author
+            - RewritePath=${path.bpm}/application/executor, /camunda-process/api/v1/application/executor
         - id: structurizr
           uri: ${integration.arch-server-url}
           predicates:
             - Path=${path.structurizr}/**
           filters:
+            - RewritePath=${path.structurizr}/openapi.json, /openapi.json
             - RewritePath=${path.structurizr}/workspace/terraform/generate, /api/v1/workspace/terraform/generate
+        - id: graph
+          uri: ${integration.graph-server-url}
+          predicates:
+            - Path=${path.graph}/**
+          filters:
+            - RewritePath=${path.graph}/v3/api-docs, /v3/api-docs
 path:
   cx:
+    all: /api-gateway/cx/v1/v3
     bi: /api-gateway/cx/v1/bi
     references: /api-gateway/cx/v1/references
     cj: /api-gateway/cx/v1/cj
     step: /api-gateway/cx/v1/step
     product: /api-gateway/cx/v1/product
   pack-loader:
+    all: /api-gateway/pack-loader/v1/v3
     package: /api-gateway/pack-loader/v1/package
     packages: /api-gateway/pack-loader/v1/packages
   auth: /api-gateway/auth/v1
@@ -174,6 +253,7 @@ path:
   document: /api-gateway/document/v1
   bpm: /api-gateway/camunda-process/v1
   structurizr: /api-gateway/structurizr/v1
+  graph: /api-gateway/graph/v1
 management:
   endpoints:
     web:

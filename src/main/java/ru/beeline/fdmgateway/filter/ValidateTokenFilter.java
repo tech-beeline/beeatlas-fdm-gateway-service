@@ -38,11 +38,14 @@ import static ru.beeline.fdmgateway.utils.jwt.JwtUtils.getUserData;
 @Component
 public class ValidateTokenFilter implements WebFilter {
     private static final Set<String> EXCLUDED_PATHS = Set.of(
+            "/api-docs",
+            "/favicon.ico",
             "/swagger",
+            "/openapi.json",
+            "/.well-known",
+            "/actuator/prometheus",
             "/cache",
             "/api-gateway/capability/v2/tech/",
-            "/api-docs",
-            "/actuator/prometheus",
             "/eauthkey"
     );
 
@@ -145,10 +148,8 @@ public class ValidateTokenFilter implements WebFilter {
             throw new UnauthorizedException("Invalid X-Authorization token");
         }
 
-        // Разделяем токен на API key и base64 строку
         String[] parts = token.split(":");
 
-        // Проверяем, что токен содержит ровно две части
         if (parts.length != 2) {
             throw new UnauthorizedException("Invalid X-Authorization token");
         }
