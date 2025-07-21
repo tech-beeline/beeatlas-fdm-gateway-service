@@ -65,6 +65,12 @@ spring:
             - Path=${path.cx.bi}/**
           filters:
             - RewritePath=${path.cx.bi}, /api/cx/v1/library/business-interactions
+        - id: cxBiV2
+          uri: ${integration.cx-server-url}
+          predicates:
+            - Path=${path.cx.biv2}/**
+          filters:
+            - RewritePath=${path.cx.biv2}/(?<RID>.*), /api/cx/v2/library/business-interactions/$\{RID}
         - id: cxRefference
           uri: ${integration.cx-server-url}
           predicates:
@@ -242,6 +248,7 @@ path:
   cx:
     all: /api-gateway/cx/v1/v3
     bi: /api-gateway/cx/v1/bi
+    biv2: /api-gateway/cx/v2/bi
     references: /api-gateway/cx/v1/references
     cj: /api-gateway/cx/v1/cj
     cjv2: /api-gateway/cx/v2/cj
