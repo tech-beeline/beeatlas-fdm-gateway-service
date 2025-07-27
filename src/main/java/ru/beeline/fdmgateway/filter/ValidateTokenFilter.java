@@ -102,7 +102,7 @@ public class ValidateTokenFilter implements WebFilter {
     }
 
     private JwtUserData createDefaultUserDataFromXAuth(String xAuth) {
-        String apiKey = extractApiKeyFromXAuth(xAuth); 
+        String apiKey = extractApiKeyFromXAuth(xAuth);
         JwtUserData userData = new JwtUserData(new HashMap<>());
         userData.setEmail(apiKey + "@default.local");
         userData.setName("XAuthUser");
@@ -211,6 +211,9 @@ public class ValidateTokenFilter implements WebFilter {
                         );
                     } catch (NoSuchAlgorithmException e) {
                         return writeErrorResponse(exchange, HttpStatus.INTERNAL_SERVER_ERROR, "Error building message");
+                    }
+                    if (apiSecretDto.getApiSecret() == null || apiSecretDto.getApiSecret().isEmpty()) {
+                        return writeErrorResponse(exchange, HttpStatus.NOT_FOUND, "apiSecret is empty");
                     }
                     boolean isValid = AuthUtils.validateAuthorization(message, apiSecretDto.getApiSecret(), base64String);
                     if (!isValid) {
