@@ -30,10 +30,7 @@ import ru.beeline.fdmlib.dto.auth.UserInfoDTO;
 
 import java.nio.charset.StandardCharsets;
 import java.security.NoSuchAlgorithmException;
-import java.util.Arrays;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 import static ru.beeline.fdmgateway.utils.Constants.*;
 import static ru.beeline.fdmgateway.utils.jwt.JwtUtils.getUserData;
@@ -93,19 +90,51 @@ public class ValidateTokenFilter implements WebFilter {
                 return exchange.getResponse().setComplete();
             }
             JwtUserData tokenData = getUserData(auth);
-            return injectUserAndContinue(exchange, tokenData, chain, exchange.getRequest().getId());
+            return injectUserAndContinue(exchange, tokenData, chain, exchange.getRequest().getId(), false);
         } else {
             return validateXAuthorizationToken(exchange, chain)
                     .flatMap(unused -> {
                         String token = exchange.getRequest().getHeaders().getFirst("X-Authorization");
-                        JwtUserData tokenData = getUserData(token);
-                        return injectUserAndContinue(exchange, tokenData, chain, exchange.getRequest().getId());
+                        JwtUserData tokenData = createDefaultUserDataFromXAuth(token);
+                        return injectUserAndContinue(exchange, tokenData, chain, exchange.getRequest().getId(), true);
                     });
         }
     }
 
-    private Mono<Void> injectUserAndContinue(ServerWebExchange exchange, JwtUserData tokenData, WebFilterChain chain, String requestId) {
-        UserInfoDTO userInfo = userService.getUserInfo(tokenData.getEmail(), tokenData.getFullName(), tokenData.getEmployeeNumber());
+    private JwtUserData createDefaultUserDataFromXAuth(String xAuth) {
+        String apiKey = extractApiKeyFromXAuth(xAuth); 
+        JwtUserData userData = new JwtUserData(new HashMap<>());
+        userData.setEmail(apiKey + "@default.local");
+        userData.setName("XAuthUser");
+        userData.setLastName(apiKey);
+        userData.setEmployeeNumber(apiKey);
+        userData.setWinAccountName(apiKey);
+        userData.setSub(apiKey);
+        return userData;
+    }
+
+    private String extractApiKeyFromXAuth(String xAuth) {
+        if (xAuth == null) return null;
+        int colonPos = xAuth.indexOf(":");
+        if (colonPos == -1) return null;
+        return xAuth.substring(0, colonPos);
+    }
+
+    public UserInfoDTO buildDefaultUser() {
+        UserInfoDTO user = new UserInfoDTO();
+        user.setId(0);
+        user.setRoles(List.of("ADMINISTRATOR"));
+        user.setProductsIds(List.of());
+        return user;
+    }
+
+    private Mono<Void> injectUserAndContinue(ServerWebExchange exchange, JwtUserData tokenData, WebFilterChain chain, String requestId, Boolean isXAuth) {
+        UserInfoDTO userInfo;
+        if (isXAuth) {
+            userInfo = buildDefaultUser();
+        } else {
+            userInfo = userService.getUserInfo(tokenData.getEmail(), tokenData.getFullName(), tokenData.getEmployeeNumber());
+        }
         if (userInfo != null) {
             log.info(requestId + " DEBUG: userInfo First: " + "getId:" + userInfo.getId().toString());
             log.info(requestId + " DEBUG: userInfo: " + "getProductsIds:" + userInfo.getProductsIds().stream().map(Objects::toString).toList());
@@ -199,9 +228,9 @@ public class ValidateTokenFilter implements WebFilter {
                     };
                     ServerWebExchange mutatedExchange = exchange.mutate().request(mutatedRequest).build();
                     return chain.filter(mutatedExchange);
+
                 });
     }
-
 
     private void validate(String bearerToken, String requestId) throws InvalidTokenException, TokenExpiredException {
         if (!JwtUtils.isValid(bearerToken)) {
