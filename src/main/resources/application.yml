@@ -244,6 +244,30 @@ spring:
             - Path=${path.graph}/**
           filters:
             - RewritePath=${path.graph}/v3/api-docs, /v3/api-docs
+        - id: architecture
+          uri: ${integration.architecture-server-url}
+          predicates:
+            - Path=${path.architecture}/**
+          filters:
+            - RewritePath=${path.architecture}/(?<segment>.*), /$\{segment}
+        - id: architecture
+          uri: ${integration.architecture-server-url}
+          predicates:
+            - Path=${path.architecture}/**
+          filters:
+            - RewritePath=${path.architecture}/(?<segment>.*), /$\{segment}
+        - id: structurizr2
+          uri: ${integration.structurizr-server-url}
+          predicates:
+            - Path=${path.structurizr2}/**
+          filters:
+            - RewritePath=${path.structurizr2}/(?<segment>.*), /$\{segment}
+        - id: dashboard2
+          uri: ${integration.dashboard-server-url}
+          predicates:
+            - Path=${path.dashboard2}/**
+          filters:
+            - RewritePath=${path.dashboard2}/(?<segment>.*), /$\{segment}
 path:
   cx:
     all: /api-gateway/cx/v1/v3
@@ -268,6 +292,10 @@ path:
   bpm: /api-gateway/camunda-process/v1
   structurizr: /api-gateway/structurizr/v1
   graph: /api-gateway/graph/v1
+  architecture: /architecture-center
+  structurizr2: /structurizr-backend
+  dashboard2: /dashboard
+
 management:
   endpoints:
     web:

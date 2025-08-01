@@ -13,6 +13,7 @@ env:
   INTEGRATION_CAMUNDA_SERVER_URL: "vault:eafdmmart/data/prod/fdm#camundaserverurl"
   INTEGRATION_ARCH_SERVER_URL: "vault:eafdmmart/data/prod/fdm#archserverurl"
   INTEGRATION_GRAPH_SERVER_URL: "vault:eafdmmart/data/prod/fdm#graphserverurl"
+  INTEGRATION_ARCHITECTURE_SERVER_URL: "vault:eafdmmart/data/prod/fdm#architectureserverurl"
 
 ingress:
   annotations:
