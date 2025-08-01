@@ -245,13 +245,7 @@ spring:
           filters:
             - RewritePath=${path.graph}/v3/api-docs, /v3/api-docs
         - id: architecture
-          uri: ${integration.architecture-server-url}
-          predicates:
-            - Path=${path.architecture}/**
-          filters:
-            - RewritePath=${path.architecture}/(?<segment>.*), /$\{segment}
-        - id: architecture
-          uri: ${integration.architecture-server-url}
+          uri: ${integration.arch-server-url}
           predicates:
             - Path=${path.architecture}/**
           filters:
