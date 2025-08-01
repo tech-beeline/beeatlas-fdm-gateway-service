@@ -245,13 +245,13 @@ spring:
           filters:
             - RewritePath=${path.graph}/v3/api-docs, /v3/api-docs
         - id: architecture
-          uri: ${integration.arch-server-url}
+          uri: ${integration.architecture-server-url}
           predicates:
             - Path=${path.architecture}/**
           filters:
             - RewritePath=${path.architecture}/(?<segment>.*), /$\{segment}
         - id: structurizr2
-          uri: ${integration.structurizr-server-url}
+          uri: ${integration.arch-server-url}
           predicates:
             - Path=${path.structurizr2}/**
           filters:
