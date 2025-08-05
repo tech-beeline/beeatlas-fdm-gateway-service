@@ -68,6 +68,11 @@ public class ValidateTokenFilter implements WebFilter {
 
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {
+        for (String excludedPath : EXCLUDED_PATHS) {
+            if (exchange.getRequest().getPath().toString().contains(excludedPath)) {
+                return chain.filter(exchange);
+            }
+        }
         String auth = exchange.getRequest().getHeaders().getFirst("Authorization");
         String xAuth = exchange.getRequest().getHeaders().getFirst("X-Authorization");
         if ((auth != null && !auth.isEmpty()) && (xAuth != null && !xAuth.isEmpty())) {
@@ -75,11 +80,6 @@ public class ValidateTokenFilter implements WebFilter {
         }
         if ((auth == null || auth.isEmpty()) && (xAuth == null || xAuth.isEmpty())) {
             return writeErrorResponse(exchange, HttpStatus.UNAUTHORIZED, "Missing authorization header");
-        }
-        for (String excludedPath : EXCLUDED_PATHS) {
-            if (exchange.getRequest().getPath().toString().contains(excludedPath)) {
-                return chain.filter(exchange);
-            }
         }
         if (auth != null && !auth.isEmpty()) {
             try {
