@@ -190,7 +190,7 @@ public class ValidateTokenFilter implements WebFilter {
             Boolean serviceAuth = Boolean.valueOf(exchange.getRequest().getHeaders().getFirst("Service-Auth"));
             apiSecretDto = serviceAuth ? productClient.getServiceKey(apiKey) : productClient.getProductKey(apiKey);
         } catch (Exception e) {
-            return writeErrorResponse(exchange, HttpStatus.SERVICE_UNAVAILABLE, "Error fetching API secret");
+            return writeErrorResponse(exchange, HttpStatus.UNAUTHORIZED, "Not authorized. Error fetching API secret");
         }
         String contentType = Optional.ofNullable(exchange.getRequest().getHeaders().getFirst("Content-Type")).orElse("");
         return DataBufferUtils.join(exchange.getRequest().getBody())
