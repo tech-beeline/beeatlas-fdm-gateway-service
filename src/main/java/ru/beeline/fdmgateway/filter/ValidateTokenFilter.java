@@ -92,16 +92,17 @@ public class ValidateTokenFilter implements WebFilter {
             JwtUserData tokenData = getUserData(auth);
             return injectUserAndContinue(exchange, tokenData, chain, exchange.getRequest().getId(), false);
         } else {
-            return validateXAuthorizationToken(exchange, chain)
-                    .flatMap(unused -> {
-                        String token = exchange.getRequest().getHeaders().getFirst("X-Authorization");
+            return validateXAuthorizationToken(exchange)
+                    .flatMap(mutatedExchange -> {
+                        String token = mutatedExchange.getRequest().getHeaders().getFirst("X-Authorization");
                         JwtUserData tokenData = createDefaultUserDataFromXAuth(token);
-                        return injectUserAndContinue(exchange, tokenData, chain, exchange.getRequest().getId(), true);
+                        return injectUserAndContinue(mutatedExchange, tokenData, chain, exchange.getRequest().getId(), true);
                     });
         }
     }
 
     private JwtUserData createDefaultUserDataFromXAuth(String xAuth) {
+        log.info("Создание дефолтного юзера");
         String apiKey = extractApiKeyFromXAuth(xAuth);
         JwtUserData userData = new JwtUserData(new HashMap<>());
         userData.setEmail(apiKey + "@default.local");
@@ -110,6 +111,7 @@ public class ValidateTokenFilter implements WebFilter {
         userData.setEmployeeNumber(apiKey);
         userData.setWinAccountName(apiKey);
         userData.setSub(apiKey);
+        log.info(">>>>>>>>>>>UserData: " + userData);
         return userData;
     }
 
@@ -125,6 +127,8 @@ public class ValidateTokenFilter implements WebFilter {
         user.setId(0);
         user.setRoles(List.of("ADMINISTRATOR"));
         user.setProductsIds(List.of());
+        user.setPermissions(new ArrayList<>());
+        log.info(">>>>>>>>>>>>>>>UserInfoDTO: " + user);
         return user;
     }
 
@@ -167,30 +171,36 @@ public class ValidateTokenFilter implements WebFilter {
         return chain.filter(exchange);
     }
 
-    private Mono<Void> validateXAuthorizationToken(ServerWebExchange exchange, WebFilterChain chain) {
+    private Mono<ServerWebExchange> validateXAuthorizationToken(ServerWebExchange exchange) {
         String token = exchange.getRequest().getHeaders().getFirst("X-Authorization");
         if (token == null || token.trim().isEmpty()) {
-            return writeErrorResponse(exchange, HttpStatus.UNAUTHORIZED, "Invalid X-Authorization token");
+            return writeErrorResponse(exchange, HttpStatus.UNAUTHORIZED, "Invalid X-Authorization token")
+                    .then(Mono.empty());
         }
         String[] parts = token.split(":");
         if (parts.length != 2) {
-            return writeErrorResponse(exchange, HttpStatus.UNAUTHORIZED, "Invalid X-Authorization token format");
+            return writeErrorResponse(exchange, HttpStatus.UNAUTHORIZED, "Invalid X-Authorization token format")
+                    .then(Mono.empty());
         }
         String apiKey = parts[0];
         String base64String = parts[1];
+
         if (apiKey.isEmpty() || base64String.isEmpty()) {
-            return writeErrorResponse(exchange, HttpStatus.UNAUTHORIZED, "Invalid X-Authorization token parts");
+            return writeErrorResponse(exchange, HttpStatus.UNAUTHORIZED, "Invalid X-Authorization token parts")
+                    .then(Mono.empty());
         }
         String nonceHeader = exchange.getRequest().getHeaders().getFirst("Nonce");
         if (nonceHeader == null || nonceHeader.trim().isEmpty()) {
-            return writeErrorResponse(exchange, HttpStatus.BAD_REQUEST, "Missing or invalid Nonce header");
+            return writeErrorResponse(exchange, HttpStatus.BAD_REQUEST, "Missing or invalid Nonce header")
+                    .then(Mono.empty());
         }
         ApiSecretDto apiSecretDto;
         try {
             Boolean serviceAuth = Boolean.valueOf(exchange.getRequest().getHeaders().getFirst("Service-Auth"));
             apiSecretDto = serviceAuth ? productClient.getServiceKey(apiKey) : productClient.getProductKey(apiKey);
         } catch (Exception e) {
-            return writeErrorResponse(exchange, HttpStatus.UNAUTHORIZED, "Not authorized. Error fetching API secret");
+            return writeErrorResponse(exchange, HttpStatus.UNAUTHORIZED, "Not authorized. Error fetching API secret")
+                    .then(Mono.empty());
         }
         String contentType = Optional.ofNullable(exchange.getRequest().getHeaders().getFirst("Content-Type")).orElse("");
         return DataBufferUtils.join(exchange.getRequest().getBody())
@@ -210,14 +220,17 @@ public class ValidateTokenFilter implements WebFilter {
                                 nonceHeader
                         );
                     } catch (NoSuchAlgorithmException e) {
-                        return writeErrorResponse(exchange, HttpStatus.INTERNAL_SERVER_ERROR, "Error building message");
+                        return writeErrorResponse(exchange, HttpStatus.INTERNAL_SERVER_ERROR, "Error building message")
+                                .then(Mono.empty());
                     }
                     if (apiSecretDto.getApiSecret() == null || apiSecretDto.getApiSecret().isEmpty()) {
-                        return writeErrorResponse(exchange, HttpStatus.NOT_FOUND, "apiSecret is empty");
+                        return writeErrorResponse(exchange, HttpStatus.NOT_FOUND, "apiSecret is empty")
+                                .then(Mono.empty());
                     }
                     boolean isValid = AuthUtils.validateAuthorization(message, apiSecretDto.getApiSecret(), base64String);
                     if (!isValid) {
-                        return writeErrorResponse(exchange, HttpStatus.UNAUTHORIZED, "Invalid X-Authorization token signature");
+                        return writeErrorResponse(exchange, HttpStatus.UNAUTHORIZED, "Invalid X-Authorization token signature")
+                                .then(Mono.empty());
                     }
                     Flux<DataBuffer> cachedFlux = Flux.defer(() -> {
                         DataBuffer buffer = exchange.getResponse().bufferFactory().wrap(bytes);
@@ -230,8 +243,7 @@ public class ValidateTokenFilter implements WebFilter {
                         }
                     };
                     ServerWebExchange mutatedExchange = exchange.mutate().request(mutatedRequest).build();
-                    return chain.filter(mutatedExchange);
-
+                    return Mono.just(mutatedExchange);
                 });
     }
 
