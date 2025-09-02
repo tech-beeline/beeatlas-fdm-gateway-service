@@ -102,6 +102,12 @@ spring:
             - Path=${path.cx.product}/**
           filters:
             - RewritePath=${path.cx.product}/(?<RID>.*), /api/cx/v1/product/$\{RID}
+        - id: cxBpmn
+          uri: ${integration.cx-server-url}
+          predicates:
+            - Path=${path.cx.product}/**
+          filters:
+            - RewritePath=${path.cx.product}/cj/(?<RID>.*), /api/cx/v1/bpmn/cj/$\{RID}
 
         - id: cxAll2
           uri: ${integration.cx-server-url}
@@ -152,6 +158,12 @@ spring:
             - Path=${path.cx2.product}/**
           filters:
             - RewritePath=${path.cx2.product}/(?<RID>.*), /api/cx/v1/product/$\{RID}
+        - id: cxBpmn
+          uri: ${integration.cx-server-url}
+          predicates:
+            - Path=${path.cx2.product}/**
+          filters:
+            - RewritePath=${path.cx2.product}/cj/(?<RID>.*), /api/cx/v1/bpmn/cj/$\{RID}
 
         - id: userService
           uri: ${integration.auth-server-url}
@@ -462,6 +474,7 @@ path:
     cjv2: /api-gateway/cx/v2/cj
     step: /api-gateway/cx/v1/step
     product: /api-gateway/cx/v1/product
+    bpmn: /api-gateway/cx/v1/bpmn
   pack-loader:
     all: /api-gateway/pack-loader/v1/v3
     package: /api-gateway/pack-loader/v1/package
