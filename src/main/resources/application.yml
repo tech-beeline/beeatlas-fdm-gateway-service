@@ -161,9 +161,9 @@ spring:
         - id: cxBpmn
           uri: ${integration.cx-server-url}
           predicates:
-            - Path=${path.cx2.product}/**
+            - Path=${path.cx2.bpmn}/**
           filters:
-            - RewritePath=${path.cx2.product}/cj/(?<RID>.*), /api/cx/v1/bpmn/cj/$\{RID}
+            - RewritePath=${path.cx2.bpmn}/cj/(?<RID>.*), /api/cx/v1/bpmn/cj/$\{RID}
 
         - id: userService
           uri: ${integration.auth-server-url}
@@ -509,6 +509,7 @@ path:
     cjv2: /cx/v2/cj
     step: /cx/v1/step
     product: /cx/v1/product
+    bpmn: /cx/v1/bpmn
   camunda2: /camunda/v1
   doc2: /doc/v1
   user2: /user/v1
