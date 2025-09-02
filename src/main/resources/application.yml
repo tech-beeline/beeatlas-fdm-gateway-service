@@ -105,9 +105,9 @@ spring:
         - id: cxBpmn
           uri: ${integration.cx-server-url}
           predicates:
-            - Path=${path.cx.product}/**
+            - Path=${path.cx.bpmn}/**
           filters:
-            - RewritePath=${path.cx.product}/cj/(?<RID>.*), /api/cx/v1/bpmn/cj/$\{RID}
+            - RewritePath=${path.cx.bpmn}/cj/(?<RID>.*), /api/cx/v1/bpmn/cj/$\{RID}
 
         - id: cxAll2
           uri: ${integration.cx-server-url}
@@ -158,7 +158,7 @@ spring:
             - Path=${path.cx2.product}/**
           filters:
             - RewritePath=${path.cx2.product}/(?<RID>.*), /api/cx/v1/product/$\{RID}
-        - id: cxBpmn
+        - id: cxBpmn2
           uri: ${integration.cx-server-url}
           predicates:
             - Path=${path.cx2.bpmn}/**
