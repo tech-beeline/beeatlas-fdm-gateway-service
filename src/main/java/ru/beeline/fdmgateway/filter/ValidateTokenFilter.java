@@ -50,6 +50,10 @@ public class ValidateTokenFilter implements WebFilter {
             "/api-gateway/capability/v2/tech/",
             "/eauthkey"
     );
+    private static final Set<String> BLACK_LIST_PATHS = Set.of(
+            "api/v1/tech-capability",
+            "api/v1/business-capability"
+    );
 
     @Autowired
     private Environment environment;
@@ -65,6 +69,12 @@ public class ValidateTokenFilter implements WebFilter {
 
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {
+        for (String path : BLACK_LIST_PATHS) {
+            if (exchange.getRequest().getPath().toString().contains(path)) {
+                log.info("path = " + exchange.getRequest().getPath().toString() + " в блэк листе");
+                return writeErrorResponse(exchange, HttpStatus.NOT_FOUND, "Server not found");
+            }
+        }
         for (String excludedPath : EXCLUDED_PATHS) {
             if (exchange.getRequest().getPath().toString().contains(excludedPath)) {
                 return chain.filter(exchange);
