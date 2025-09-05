@@ -255,6 +255,8 @@ spring:
             - RewritePath=${path.products}/product/(?<RID>.*)/interface/arch, /api/v1/product/$\{RID}/interface/arch
             - RewritePath=${path.products}/product/(?<RID>.*)/interface/mapic, /api/v1/product/$\{RID}/interface/mapic
             - RewritePath=${path.products}/product/(?<RID>.*)/container, /api/v1/product/$\{RID}/container
+            - RewritePath=${path.products}/product/info, /api/v1/product/info
+            - RewritePath=${path.products}/product/(?<RID>.*)/info, /api/v1/product/$\{RID}/info
         - id: productsService2
           uri: ${integration.products-server-url}
           predicates:
