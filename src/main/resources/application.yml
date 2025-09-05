@@ -186,13 +186,13 @@ spring:
         - id: packloaderPackages
           uri: ${integration.pack-loader-server-url}
           predicates:
-            - Path=${path.pack-loader.packages}
+            - Path=${path.pack-loader.packages}/**
           filters:
             - RewritePath=${path.pack-loader.packages}, /api/v1/packages-list
         - id: packloaderPackages2
           uri: ${integration.pack-loader-server-url}
           predicates:
-            - Path=${path.package2}
+            - Path=${path.package2}/**
           filters:
             - RewritePath=${path.package2}/(?<segment>.*), /$\{segment}
 
