@@ -14,6 +14,7 @@ env:
   INTEGRATION_ARCH_SERVER_URL: "vault:eafdmmart/data/prod/fdm#archserverurl"
   INTEGRATION_GRAPH_SERVER_URL: "vault:eafdmmart/data/prod/fdm#graphserverurl"
   INTEGRATION_ARCHITECTURE_SERVER_URL: "vault:eafdmmart/data/prod/fdm#architectureserverurl"
+  OTEL_EXPORTER_OTLP_ENDPOINT: "vault:eafdmmart/data/prod/fdm#opentelemetry"
 
 ingress:
   annotations:
