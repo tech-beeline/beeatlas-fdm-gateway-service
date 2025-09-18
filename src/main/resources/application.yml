@@ -3,6 +3,7 @@ app:
   name: @project.name@
 logging:
   level:
+    io.opentelemetry.exporter.internal.http.HttpExporter: ERROR
     root: debug
     org:
       apache:
