@@ -13,6 +13,8 @@ env:
   INTEGRATION_CAMUNDA_SERVER_URL: "vault:eafdmmart/data/prod/fdm#camundaserverurl"
   INTEGRATION_ARCH_SERVER_URL: "vault:eafdmmart/data/prod/fdm#archserverurl"
   INTEGRATION_GRAPH_SERVER_URL: "vault:eafdmmart/data/prod/fdm#graphserverurl"
+  INTEGRATION_ARCHITECTURE_SERVER_URL: "vault:eafdmmart/data/prod/fdm#architectureserverurl"
+  OTEL_EXPORTER_OTLP_ENDPOINT: "vault:eafdmmart/data/prod/fdm#opentelemetry"
 
 ingress:
   annotations:
@@ -22,3 +24,7 @@ ingress:
     nginx.ingress.kubernetes.io/enable-cors: 'true'
     nginx.ingress.kubernetes.io/cors-expose-headers: "Content-Disposition"
     nginx.ingress.kubernetes.io/proxy-body-size: 100m
+    nginx.ingress.kubernetes.io/proxy-buffer-size: 64k
+    nginx.ingress.kubernetes.io/proxy-connect-timeout: "600"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "600"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "600"

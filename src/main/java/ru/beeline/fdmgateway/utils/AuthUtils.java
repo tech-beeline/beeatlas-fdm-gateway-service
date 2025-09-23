@@ -1,5 +1,8 @@
 package ru.beeline.fdmgateway.utils;
+
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
+import ru.beeline.fdmgateway.exception.BadRequestException;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
@@ -9,27 +12,23 @@ import java.security.NoSuchAlgorithmException;
 import java.util.Base64;
 import java.util.Objects;
 
+@Slf4j
 @Component
 public class AuthUtils {
 
     public static String buildMessage(String method, String path, String body, String contentType, String nonce) throws NoSuchAlgorithmException {
-        StringBuilder message = new StringBuilder();
-        message.append(method).append("\n");
-        message.append(path).append("\n");
-        if (body != null && !body.isEmpty()) {
-            message.append(md5(body)).append("\n");
-        } else {
-            message.append("\n");
-        }
-        message.append(contentType).append("\n");
-        message.append(nonce);
-        return message.toString();
+        String md5Body = md5(body);
+        return method + "\n" + path + "\n" + md5Body + "\n" + contentType + "\n" + nonce + "\n";
     }
 
-    public static String md5(String input) throws NoSuchAlgorithmException {
-        java.security.MessageDigest md = java.security.MessageDigest.getInstance("MD5");
-        byte[] messageDigest = md.digest(input.getBytes(StandardCharsets.UTF_8));
-        return bytesToHex(messageDigest);
+    public static String md5(String input) {
+        try {
+            java.security.MessageDigest md = java.security.MessageDigest.getInstance("MD5");
+            byte[] messageDigest = md.digest(input.getBytes(StandardCharsets.UTF_8));
+            return bytesToHex(messageDigest);
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to compute MD5", e);
+        }
     }
 
     public static String bytesToHex(byte[] bytes) {
@@ -48,8 +47,13 @@ public class AuthUtils {
         return Base64.getEncoder().encodeToString(macData);
     }
 
-    public static boolean validateAuthorization(String message, String apiSecret, String authorizationHeader) throws NoSuchAlgorithmException, InvalidKeyException {
-        String expectedSignature = hmacSha256(message, apiSecret);
-        return Objects.equals(expectedSignature, authorizationHeader);
+    public static boolean validateAuthorization(String message, String apiSecret, String authorizationHeader) {
+        try {
+            String expectedSignature = hmacSha256(message, apiSecret);
+            return Objects.equals(expectedSignature, authorizationHeader);
+        } catch (NoSuchAlgorithmException | InvalidKeyException e) {
+            log.error("Error during HMAC-SHA256 signature validation.");
+            return false;
+        }
     }
 }

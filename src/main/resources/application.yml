@@ -3,6 +3,7 @@ app:
   name: @project.name@
 logging:
   level:
+    io.opentelemetry.exporter.internal.http.HttpExporter: ERROR
     root: debug
     org:
       apache:
@@ -65,6 +66,12 @@ spring:
             - Path=${path.cx.bi}/**
           filters:
             - RewritePath=${path.cx.bi}, /api/cx/v1/library/business-interactions
+        - id: cxBiV2
+          uri: ${integration.cx-server-url}
+          predicates:
+            - Path=${path.cx.biv2}/**
+          filters:
+            - RewritePath=${path.cx.biv2}/(?<RID>.*), /api/cx/v2/library/business-interactions/$\{RID}
         - id: cxRefference
           uri: ${integration.cx-server-url}
           predicates:
@@ -76,7 +83,14 @@ spring:
           predicates:
             - Path=${path.cx.cj}/**
           filters:
+            - RewritePath=${path.cx.cj}/cj, /api/cx/v1/cj
             - RewritePath=${path.cx.cj}, /api/cx/v1/product/cj
+        - id: cxCjV2
+          uri: ${integration.cx-server-url}
+          predicates:
+            - Path=${path.cx.cjv2}/**
+          filters:
+            - RewritePath=${path.cx.cjv2}/(?<RID>.*), /api/cx/v2/product/cj/$\{RID}
         - id: CjStep
           uri: ${integration.cx-server-url}
           predicates:
@@ -89,6 +103,20 @@ spring:
             - Path=${path.cx.product}/**
           filters:
             - RewritePath=${path.cx.product}/(?<RID>.*), /api/cx/v1/product/$\{RID}
+        - id: cxBpmn
+          uri: ${integration.cx-server-url}
+          predicates:
+            - Path=${path.cx.bpmn}/**
+          filters:
+            - RewritePath=${path.cx.bpmn}/cj/(?<RID>.*), /api/cx/v1/bpmn/cj/$\{RID}
+
+        - id: cx2
+          uri: ${integration.cx-server-url}
+          predicates:
+            - Path=${path.cx2}/**
+          filters:
+            - RewritePath=${path.cx2}/(?<segment>.*), /$\{segment}
+
         - id: userService
           uri: ${integration.auth-server-url}
           predicates:
@@ -98,6 +126,13 @@ spring:
             - RewritePath=${path.auth}/user/(?<RID>.*)/product, /api/user/$\{RID}/product
             - RewritePath=${path.auth}, /api/admin/v1
             - RewritePath=${path.auth}/user/(?<RID>.*)/info, /api/admin/v1/user/$\{RID}/info
+        - id: userService2
+          uri: ${integration.auth-server-url}
+          predicates:
+            - Path=${path.user2}/**
+          filters:
+            - RewritePath=${path.user2}/(?<segment>.*), /$\{segment}
+
         - id: technoradar
           uri: ${integration.techradar-server-url}
           predicates:
@@ -115,6 +150,13 @@ spring:
             - RewritePath=${path.techradar}/pattern/(?<RID>.*), /api/v1/pattern/$\{RID}
             - RewritePath=${path.techradar}/patterns/tech/(?<RID>.*), /api/v1/patterns/tech/$\{RID}
             - RewritePath=${path.techradar}/patterns/auto-check, /api/v1/patterns/auto-check
+        - id: technoradar2
+          uri: ${integration.techradar-server-url}
+          predicates:
+            - Path=${path.techradar2}/**
+          filters:
+            - RewritePath=${path.techradar2}/(?<segment>.*), /$\{segment}
+
         - id: notification
           uri: ${integration.notification-server-url}
           predicates:
@@ -123,6 +165,13 @@ spring:
             - RewritePath=${path.notification}/v3/api-docs, /v3/api-docs
             - RewritePath=${path.notification}, /api/v1
             - RewritePath=${path.notification}/business/notify, /api/v1/business/notify
+        - id: notification2
+          uri: ${integration.notification-server-url}
+          predicates:
+            - Path=${path.notification2}/**
+          filters:
+            - RewritePath=${path.notification2}/(?<segment>.*), /$\{segment}
+
         - id: packloaderPackageAll
           uri: ${integration.pack-loader-server-url}
           predicates:
@@ -138,9 +187,16 @@ spring:
         - id: packloaderPackages
           uri: ${integration.pack-loader-server-url}
           predicates:
-            - Path=${path.pack-loader.packages}
+            - Path=${path.pack-loader.packages}/**
           filters:
             - RewritePath=${path.pack-loader.packages}, /api/v1/packages-list
+        - id: packloaderPackages2
+          uri: ${integration.pack-loader-server-url}
+          predicates:
+            - Path=${path.package2}/**
+          filters:
+            - RewritePath=${path.package2}/(?<segment>.*), /$\{segment}
+
         - id: capabilityService
           uri: ${integration.capability-server-url}
           predicates:
@@ -169,6 +225,13 @@ spring:
             - RewritePath=${path.capability}/maps/(?<RID>.*), /api/v1/maps/$\{RID}
             - RewritePath=${path.capability}/maps/groups/(?<RID>.*), /api/v1/maps/groups/$\{RID}
             - RewritePath=${path.capability}/capability/type, /api/v1/capability/type
+        - id: capabilityService2
+          uri: ${integration.capability-server-url}
+          predicates:
+            - Path=${path.capability2}/**
+          filters:
+            - RewritePath=${path.capability2}/(?<segment>.*), /$\{segment}
+
         - id: dashboardService
           uri: ${integration.dashboard-server-url}
           predicates:
@@ -176,6 +239,7 @@ spring:
           filters:
             - RewritePath=${path.dashboard}/swagger-ui/summary/swagger.json, /swagger-ui/summary/swagger.json
             - RewritePath=${path.dashboard}/tech/(?<RID>.*), /api/tech-capabilities/$\{RID}
+
         - id: productsService
           uri: ${integration.products-server-url}
           predicates:
@@ -184,10 +248,23 @@ spring:
             - RewritePath=${path.products}/v3/api-docs, /v3/api-docs
             - RewritePath=${path.products}/tech/(?<RID>.*)/product, /api/v1/tech/$\{RID}/product
             - RewritePath=${path.products}/user/product, /api/v1/user/product
+            - RewritePath=${path.products}/connection/interface, /api/v1/connection/interface
             - RewritePath=${path.products}/user/product/admin, /api/v1/user/product/admin
             - RewritePath=${path.products}/product/(?<RID>.*)/fitness-function, /api/v1/product/$\{RID}/fitness-function
             - RewritePath=${path.products}/product/(?<RID>.*)/fitness-function/(?<ID>.*), /api/v1/product/$\{RID}/fitness-function/$\{ID}
             - RewritePath=${path.products}/product/(?<RID>.*)/patterns, /api/v1/product/$\{RID}/patterns
+            - RewritePath=${path.products}/product/(?<RID>.*)/interface/arch, /api/v1/product/$\{RID}/interface/arch
+            - RewritePath=${path.products}/product/(?<RID>.*)/interface/mapic, /api/v1/product/$\{RID}/interface/mapic
+            - RewritePath=${path.products}/product/(?<RID>.*)/container, /api/v1/product/$\{RID}/container
+            - RewritePath=${path.products}/product/info, /api/v1/product/info
+            - RewritePath=${path.products}/product/(?<RID>.*)/info, /api/v1/product/$\{RID}/info
+        - id: productsService2
+          uri: ${integration.products-server-url}
+          predicates:
+            - Path=${path.product2}/**
+          filters:
+            - RewritePath=${path.product2}/(?<segment>.*), /$\{segment}
+
         - id: documentService
           uri: ${integration.document-server-url}
           predicates:
@@ -201,6 +278,13 @@ spring:
             - RewritePath=${path.document}/documents/(?<RID>.*), /api/v1/documents/$\{RID}
             - RewritePath=${path.document}/documentations/(?<RID>.*), /api/v1/documentations/$\{RID}
             - RewritePath=${path.document}/documents/(?<documentationsTypeId>.*)/(?<targetId>.*), /api/v1/documents/$\{documentationsTypeId}/$\{targetId}
+        - id: documentService2
+          uri: ${integration.document-server-url}
+          predicates:
+            - Path=${path.doc2}/**
+          filters:
+            - RewritePath=${path.doc2}/(?<remaining>.*), /$\{remaining}
+
         - id: bpmService
           uri: ${integration.camunda-server-url}
           predicates:
@@ -219,6 +303,13 @@ spring:
             - RewritePath=${path.bpm}/application/nobody, /camunda-process/api/v1/application/nobody
             - RewritePath=${path.bpm}/application/author, /camunda-process/api/v1/application/author
             - RewritePath=${path.bpm}/application/executor, /camunda-process/api/v1/application/executor
+        - id: bpmService2
+          uri: ${integration.camunda-server-url}
+          predicates:
+            - Path=${path.camunda2}/**
+          filters:
+            - RewritePath=${path.camunda2}/(?<segment>.*), /$\{segment}
+
         - id: structurizr
           uri: ${integration.arch-server-url}
           predicates:
@@ -232,14 +323,35 @@ spring:
             - Path=${path.graph}/**
           filters:
             - RewritePath=${path.graph}/v3/api-docs, /v3/api-docs
+        - id: architecture
+          uri: ${integration.architecture-server-url}
+          predicates:
+            - Path=${path.architecture}/**
+          filters:
+            - RewritePath=${path.architecture}/(?<segment>.*), /$\{segment}
+        - id: structurizr2
+          uri: ${integration.arch-server-url}
+          predicates:
+            - Path=${path.structurizr2}/**
+          filters:
+            - RewritePath=${path.structurizr2}/(?<segment>.*), /$\{segment}
+        - id: dashboard2
+          uri: ${integration.dashboard-server-url}
+          predicates:
+            - Path=${path.dashboard2}/**
+          filters:
+            - RewritePath=${path.dashboard2}/(?<segment>.*), /$\{segment}
 path:
   cx:
     all: /api-gateway/cx/v1/v3
     bi: /api-gateway/cx/v1/bi
+    biv2: /api-gateway/cx/v2/bi
     references: /api-gateway/cx/v1/references
     cj: /api-gateway/cx/v1/cj
+    cjv2: /api-gateway/cx/v2/cj
     step: /api-gateway/cx/v1/step
     product: /api-gateway/cx/v1/product
+    bpmn: /api-gateway/cx/v1/bpmn
   pack-loader:
     all: /api-gateway/pack-loader/v1/v3
     package: /api-gateway/pack-loader/v1/package
@@ -254,6 +366,19 @@ path:
   bpm: /api-gateway/camunda-process/v1
   structurizr: /api-gateway/structurizr/v1
   graph: /api-gateway/graph/v1
+  architecture: /architecture-center
+  structurizr2: /structurizr-backend
+  dashboard2: /dashboard
+  capability2: /capability
+  product2: /product
+  techradar2: /techradar
+  notification2: /notification
+  package2: /package
+  cx2: /cx
+  camunda2: /camunda
+  doc2: /doc
+  user2: /user
+
 management:
   endpoints:
     web:
@@ -261,3 +386,22 @@ management:
         include: '*'
     prometheus:
       enabled: true
+
+otel:
+  exporter:
+    otlp:
+      endpoint: http://otel-collector.opentelemetry:4318
+      protocol: http/protobuf
+  resource:
+    attributes:
+      host:
+        name: @project.name@
+      service:
+        namespace: @project.name@
+  service:
+    name: @project.name@
+  instrumentation:
+    log4j-appender:
+      enabled: true
+  logs:
+    exporter: none

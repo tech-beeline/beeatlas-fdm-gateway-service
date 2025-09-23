@@ -1,5 +1,6 @@
 package ru.beeline.fdmgateway.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -11,5 +12,6 @@ import lombok.Setter;
 @AllArgsConstructor
 public class ApiSecretDto {
     private Integer id;
+    @JsonProperty("api_secret")
     private String apiSecret;
 }

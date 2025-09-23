@@ -13,6 +13,8 @@ env:
   INTEGRATION_CAMUNDA_SERVER_URL: "vault:eafdmmart/data/test/func/fdm#camundaserverurl"
   INTEGRATION_ARCH_SERVER_URL: "vault:eafdmmart/data/test/func/fdm#archserverurl"
   INTEGRATION_GRAPH_SERVER_URL: "vault:eafdmmart/data/test/func/fdm#graphserverurl"
+  INTEGRATION_ARCHITECTURE_SERVER_URL: "vault:eafdmmart/data/test/func/fdm#architectureserverurl"
+  OTEL_EXPORTER_OTLP_ENDPOINT: "vault:eafdmmart/data/test/func/fdm#opentelemetry"
 
 podAnnotations:
   vault.security.banzaicloud.io/vault-addr: "https://vault-test.vimpelcom.ru/"
@@ -25,3 +27,7 @@ ingress:
     nginx.ingress.kubernetes.io/enable-cors: 'true'
     nginx.ingress.kubernetes.io/cors-expose-headers: "Content-Disposition"
     nginx.ingress.kubernetes.io/proxy-body-size: 100m
+    nginx.ingress.kubernetes.io/proxy-buffer-size: 64k
+    nginx.ingress.kubernetes.io/proxy-connect-timeout: "600"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "600"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "600"
