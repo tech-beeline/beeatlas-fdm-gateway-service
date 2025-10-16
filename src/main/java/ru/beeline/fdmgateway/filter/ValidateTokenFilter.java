@@ -51,9 +51,7 @@ public class ValidateTokenFilter implements WebFilter {
             "/eauthkey"
     );
     private static final Set<String> BLACK_LIST_PATHS = Set.of(
-            "api/v1/tech-capabilities",
-            "api/v1/service",
-            "api/v1/business-capability"
+            "api/v1/service"
     );
 
     @Autowired
