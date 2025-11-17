@@ -323,8 +323,14 @@ spring:
             - Path=${path.graph}/**
           filters:
             - RewritePath=${path.graph}/v3/api-docs, /v3/api-docs
+        - id: archgraph
+          uri: ${integration.graph-server-url}
+          predicates:
+            - Path=${path.archgraph}/**
+          filters:
+            - RewritePath=${path.archgraph}/(?<segment>.*), /$\{segment}
             -
-        - id: graph2
+        - id: graphValidator
           uri: ${integration.graph-server-url}
           predicates:
             - Path=${path.graph2}/**
@@ -375,6 +381,7 @@ path:
   bpm: /api-gateway/camunda-process/v1
   structurizr: /api-gateway/structurizr/v1
   graph: /api-gateway/graph/v1
+  archgraph: /arch-graph
   architecture: /architecture-center
   structurizr2: /structurizr-backend
   dashboard2: /dashboard
