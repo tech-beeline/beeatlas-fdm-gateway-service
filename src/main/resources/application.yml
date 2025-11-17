@@ -331,7 +331,7 @@ spring:
             - RewritePath=${path.archgraph}/(?<segment>.*), /$\{segment}
             -
         - id: graphValidator
-          uri: ${integration.graph-server-url}
+          uri: ${integration.graph-validator-server-url}
           predicates:
             - Path=${path.graph2}/**
           filters:
