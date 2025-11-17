@@ -1,6 +1,9 @@
-ARG IMAGE_REGISTRY
-ARG SLIM=''
-FROM ${IMAGE_REGISTRY}/dockerhub/library/openjdk:17${SLIM}-buster
+FROM harbor.vimpelcom.ru/common/library/eclipse-temurin:17-jre
+ENV DEBIAN_FRONTEND=noninteractive
+RUN apt update && apt install -y --no-install-recommends \
+        ca-certificates \
+    && apt-get clean && rm -rf /var/lib/apt/lists/*
+
 WORKDIR /app
 RUN useradd -m -d /app -s /bin/bash -g root -u 1000 app && chown app:root .
 USER app
