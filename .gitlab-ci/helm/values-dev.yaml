@@ -13,6 +13,7 @@ env:
   INTEGRATION_CAMUNDA_SERVER_URL: "vault:eafdmmart/data/dev/fdm#camundaserverurl"
   INTEGRATION_ARCH_SERVER_URL: "vault:eafdmmart/data/dev/fdm#archserverurl"
   INTEGRATION_GRAPH_SERVER_URL: "vault:eafdmmart/data/dev/fdm#graphserverurl"
+  INTEGRATION_GRAPH_VALIDATOR_SERVER_URL: "vault:eafdmmart/data/dev/fdm#graphvalidatorserverurl"
   INTEGRATION_ARCHITECTURE_SERVER_URL: "vault:eafdmmart/data/dev/fdm#architectureserverurl"
   OTEL_EXPORTER_OTLP_ENDPOINT: "vault:eafdmmart/data/dev/fdm#opentelemetry"
 
