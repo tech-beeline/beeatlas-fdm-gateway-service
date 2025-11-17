@@ -323,6 +323,15 @@ spring:
             - Path=${path.graph}/**
           filters:
             - RewritePath=${path.graph}/v3/api-docs, /v3/api-docs
+            -
+        - id: graph2
+          uri: ${integration.graph-server-url}
+          predicates:
+            - Path=${path.graph2}/**
+          filters:
+            - RewritePath=${path.graph2}/(?<segment>.*), /$\{segment}
+
+
         - id: architecture
           uri: ${integration.architecture-server-url}
           predicates:
@@ -378,6 +387,7 @@ path:
   camunda2: /camunda
   doc2: /doc
   user2: /user
+  graph2: /graph-validator
 
 management:
   endpoints:
