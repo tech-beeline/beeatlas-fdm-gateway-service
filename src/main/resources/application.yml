@@ -334,7 +334,7 @@ spring:
           predicates:
             - Path=${path.graphvalidator}/**
           filters:
-            - RewritePath=${path.validator}/(?<segment>.*), /$\{segment}
+            - RewritePath=${path.graphvalidator}/(?<segment>.*), /$\{segment}
         - id: architecture
           uri: ${integration.architecture-server-url}
           predicates:
