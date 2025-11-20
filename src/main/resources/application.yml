@@ -1,6 +1,7 @@
 app:
   version: @project.version@
   name: @project.name@
+  demo-auth: false
 logging:
   level:
     io.opentelemetry.exporter.internal.http.HttpExporter: ERROR
