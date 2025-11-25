@@ -5,6 +5,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.env.Environment;
 import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.core.io.buffer.DataBufferUtils;
@@ -59,11 +60,14 @@ public class ValidateTokenFilter implements WebFilter {
     private final UserService userService;
     private final ProductClient productClient;
     private final AuthUtils authUtils;
+    private final Boolean demoAuth;
 
-    public ValidateTokenFilter(UserService userService, ProductClient productClient, AuthUtils authUtils) {
+    public ValidateTokenFilter(UserService userService, ProductClient productClient, AuthUtils authUtils,
+                               @Value("${app.demo-auth}") Boolean demoAuth) {
         this.userService = userService;
         this.productClient = productClient;
         this.authUtils = authUtils;
+        this.demoAuth = demoAuth;
     }
 
     @Override
@@ -143,6 +147,12 @@ public class ValidateTokenFilter implements WebFilter {
 
     private Mono<Void> injectUserAndContinue(ServerWebExchange exchange, JwtUserData tokenData, WebFilterChain chain, String requestId, Boolean isXAuth) {
         UserInfoDTO userInfo;
+        if (demoAuth) {
+            tokenData.setEmail("default@beeline.ru");
+            tokenData.setLastName("Иван");
+            tokenData.setName("Иванов");
+            tokenData.setEmployeeNumber("1");
+        }
         if (isXAuth) {
             userInfo = buildDefaultUser();
         } else {

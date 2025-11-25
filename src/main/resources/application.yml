@@ -1,6 +1,7 @@
 app:
   version: @project.version@
   name: @project.name@
+  demo-auth: false
 logging:
   level:
     io.opentelemetry.exporter.internal.http.HttpExporter: ERROR
@@ -329,15 +330,12 @@ spring:
             - Path=${path.archgraph}/**
           filters:
             - RewritePath=${path.archgraph}/(?<segment>.*), /$\{segment}
-            -
-        - id: graphValidator
+        - id: graphvalidator
           uri: ${integration.graph-validator-server-url}
           predicates:
-            - Path=${path.graph2}/**
+            - Path=${path.graphvalidator}/**
           filters:
-            - RewritePath=${path.graph2}/(?<segment>.*), /$\{segment}
-
-
+            - RewritePath=${path.graphvalidator}/(?<segment>.*), /$\{segment}
         - id: architecture
           uri: ${integration.architecture-server-url}
           predicates:
@@ -394,7 +392,7 @@ path:
   camunda2: /camunda
   doc2: /doc
   user2: /user
-  graph2: /graph-validator
+  graphvalidator: /graph-validator
 
 management:
   endpoints:
