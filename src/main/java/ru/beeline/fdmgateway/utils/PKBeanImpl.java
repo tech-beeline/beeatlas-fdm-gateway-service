@@ -15,7 +15,7 @@ public class PKBeanImpl {
     @Value("${app.authentic-auth}")
     private Boolean authenticAuth;
 
-    @Value("${app.authentic-aut-url}")
+    @Value("${app.authentic-auth-url}")
     private String authenticAuthUrl;
 
     public void runAfterObjectCreated() {
