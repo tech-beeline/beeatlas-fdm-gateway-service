@@ -15,5 +15,4 @@ public class EAuthKey {
     private String n;
     private String e;
     private String kid;
-
 }

@@ -12,7 +12,17 @@ public class PKBeanImpl {
     @Value("${jwks}")
     private String jwksUrl;
 
+    @Value("${app.authentic-auth}")
+    private Boolean authenticAuth;
+
+    @Value("${app.authentic-aut-url}")
+    private String authenticAuthUrl;
+
     public void runAfterObjectCreated() {
-        getAndSavePublicKey(jwksUrl);
+        if(authenticAuth){
+            getAndSavePublicKey(authenticAuthUrl+ "/application/o/beeatlas/jwks/");
+        } else {
+            getAndSavePublicKey(jwksUrl);
+        }
     }
 }
