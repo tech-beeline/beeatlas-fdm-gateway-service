@@ -1,7 +1,7 @@
 app:
   version: @project.version@
   name: @project.name@
-  demo-auth: true
+  demo-auth: false
   authentic-auth: true
   authentic-auth-url: https://authentik-beeatlas-dev.apps.yd-m6-kt22.vimpelcom.ru/
 logging:
