@@ -15,6 +15,7 @@ env:
   INTEGRATION_GRAPH_SERVER_URL: "vault:eafdmmart/data/test/e2e/fdm#graphserverurl"
   INTEGRATION_GRAPH_VALIDATOR_SERVER_URL: "vault:eafdmmart/data/test/e2e/fdm#graphvalidatorserverurl"
   INTEGRATION_ARCHITECTURE_SERVER_URL: "vault:eafdmmart/data/test/e2e/fdm#architectureserverurl"
+  INTEGRATION_AMBASSADOR_SERVER_URL: "vault:eafdmmart/data/test/e2e/ambassador#stagemapicserverurl"
   OTEL_EXPORTER_OTLP_ENDPOINT: "vault:eafdmmart/data/test/e2e/fdm#opentelemetry"
 
 podAnnotations:

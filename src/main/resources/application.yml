@@ -356,6 +356,12 @@ spring:
             - Path=${path.dashboard2}/**
           filters:
             - RewritePath=${path.dashboard2}/(?<segment>.*), /$\{segment}
+        - id: ambassador
+          uri: ${integration.ambassador-server-url}
+          predicates:
+            - Path=${path.ambassador}/**
+          filters:
+            - RewritePath=${path.ambassador}/(?<segment>.*), /$\{segment}
 path:
   cx:
     all: /api-gateway/cx/v1/v3
@@ -385,6 +391,7 @@ path:
   architecture: /architecture-center
   structurizr2: /structurizr-backend
   dashboard2: /dashboard
+  ambassador: /ambassador
   capability2: /capability
   product2: /product
   techradar2: /techradar
