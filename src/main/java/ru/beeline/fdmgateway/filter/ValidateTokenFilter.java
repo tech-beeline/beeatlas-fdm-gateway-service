@@ -169,6 +169,7 @@ public class ValidateTokenFilter implements WebFilter {
                     .header(USER_PRODUCTS_IDS_HEADER, userInfo.getProductsIds().toString())
                     .header(USER_ROLES_HEADER, userInfo.getRoles().toString())
                     .header(USER_PERMISSION_HEADER, userInfo.getPermissions().toString())
+                    .headers(headers -> headers.remove("authorization"))
                     .build();
             exchange = exchange.mutate().request(request).build();
         }
