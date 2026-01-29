@@ -17,7 +17,7 @@ env:
   INTEGRATION_ARCHITECTURE_SERVER_URL: "vault:eafdmmart/data/prod/fdm#architectureserverurl"
   INTEGRATION_AMBASSADOR_SERVER_URL: "vault:eafdmmart/data/prod/ambassador#stagemapicserverurl"
   OTEL_EXPORTER_OTLP_ENDPOINT: "vault:eafdmmart/data/prod/fdm#opentelemetry"
-
+  AUTHENTIC_AUTH_URL:  "https://authentik-beeatlas-dev.apps.yd-m6-kt22.vimpelcom.ru/"
 ingress:
   annotations:
     nginx.ingress.kubernetes.io/cors-allow-headers: Content-Type, authorization, Content-Disposition

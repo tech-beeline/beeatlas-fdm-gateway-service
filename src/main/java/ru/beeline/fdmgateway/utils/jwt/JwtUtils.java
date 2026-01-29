@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2024 PJSC VimpelCom
+ */
+
 package ru.beeline.fdmgateway.utils.jwt;
 
 import com.auth0.jwt.JWT;

@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2024 PJSC VimpelCom
+ */
+
 package ru.beeline.fdmgateway.filter;
 
 import com.auth0.jwt.exceptions.JWTDecodeException;

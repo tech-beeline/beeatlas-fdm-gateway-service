@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2024 PJSC VimpelCom
+ */
+
 package ru.beeline.fdmgateway.client;
 
 import lombok.extern.slf4j.Slf4j;

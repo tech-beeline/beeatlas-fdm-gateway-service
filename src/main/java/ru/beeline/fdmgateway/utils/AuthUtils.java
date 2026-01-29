@@ -1,8 +1,11 @@
+/*
+ * Copyright (c) 2024 PJSC VimpelCom
+ */
+
 package ru.beeline.fdmgateway.utils;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
-import ru.beeline.fdmgateway.exception.BadRequestException;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
