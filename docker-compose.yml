@@ -1,0 +1,44 @@
+version: "3.9"
+
+services:
+  authentik-server:
+    image: ghcr.io/goauthentik/server:2025.10.2
+    command: server
+    deploy:
+      replicas: 1
+    env_file:
+      - .env
+    environment:
+      AUTHENTIK_POSTGRESQL__HOST: CHANGE_ME
+      AUTHENTIK_POSTGRESQL__NAME: CHANGE_ME
+      AUTHENTIK_POSTGRESQL__USER: CHANGE_ME
+      AUTHENTIK_POSTGRESQL__PASSWORD: CHANGE_ME
+      AUTHENTIK_SECRET_KEY: CHANGE_ME
+    ports:
+      - "${COMPOSE_PORT_HTTP:-5000}:9000"
+      - "${COMPOSE_PORT_HTTPS:-5443}:9443"
+    restart: unless-stopped
+    volumes:
+      - /data/goauthentik/data/media:/media
+      - /data/goauthentik/data/custom-templates:/templates
+
+  authentik-worker:
+    image: ghcr.io/goauthentik/server:2025.10.2
+    command: worker
+    deploy:
+      replicas: 1
+    env_file:
+      - .env
+    environment:
+      AUTHENTIK_POSTGRESQL__HOST: CHANGE_ME
+      AUTHENTIK_POSTGRESQL__NAME: CHANGE_ME
+      AUTHENTIK_POSTGRESQL__USER: CHANGE_ME
+      AUTHENTIK_POSTGRESQL__PASSWORD: CHANGE_ME
+      AUTHENTIK_SECRET_KEY: CHANGE_ME
+    restart: unless-stopped
+    user: root
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /data/goauthentik/data/media:/media
+      - /data/goauthentik/data/certs:/certs
+      - /data/goauthentik/data/custom-templates:/templates

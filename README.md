@@ -1,6 +1,6 @@
 # FDM Gateway
 
-API gateway for the FDM (Federated Data Management) ecosystem, providing a single entry point to FDM microservices. Handles request routing, authentication (JWT and X-Authorization), and aggregation of OpenAPI documentation.
+API gateway for the FDM (Federated Data Management) ecosystem, providing a single entry point to FDM microservices. Handles request routing, authentication (JWT and HMAC-based X-Authorization), and aggregation of OpenAPI documentation.
 
 ## Technologies
 
@@ -19,7 +19,7 @@ API gateway for the FDM (Federated Data Management) ecosystem, providing a singl
 - **Single entry point** — all requests to backends go through the gateway at paths like `/api-gateway/<service>/v1/...`
 - **Two authentication types:**
   - **Authorization (Bearer JWT)** — for users; signature and expiry validation, user data injection from Auth service
-  - **X-Authorization** — for services (API Key + request signature); supports Product Key and Service Key
+  - **X-Authorization (HMAC)** — for services: API Key + HMAC-SHA256 signature of the request (method, path, MD5 body, Content-Type, Nonce); supports Product Key and Service Key
 - **User caching** — user data is cached with configurable TTL; cache management via `DELETE /cache` and `DELETE /cache/{login}`
 - **E-Auth public key** — endpoint `/api/runtime/v1/eauthkey` to retrieve the key
 - **Path blacklist** — block unwanted routes
@@ -63,6 +63,20 @@ Required environment variables (or Spring profiles) include:
 ### Docker
 
 The image is built via GitLab CI (see `.gitlab-ci/Dockerfile`). Uses JRE 17, ports 8080, 8090, 10260.
+
+### authentik IdP (optional)
+
+An example `docker-compose.yml` for running [authentik](https://goauthentik.io/) as an external Identity Provider (IdP) is provided in `authentik/docker-compose.yml`. It starts two services:
+
+- `authentik-server` — main authentik server (HTTP/HTTPS endpoints)
+- `authentik-worker` — background worker
+
+Before using it, configure:
+
+- `AUTHENTIK_POSTGRESQL__HOST/NAME/USER/PASSWORD` — PostgreSQL connection settings
+- `AUTHENTIK_SECRET_KEY` — authentik secret key (must stay stable between restarts)
+- host paths under `/data/goauthentik/...` — adjust to your storage layout
+- `COMPOSE_PORT_HTTP` and `COMPOSE_PORT_HTTPS` — external ports (if you don’t want the defaults `5000` and `5443`)
 
 ## Configuration
 
