@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2024 PJSC VimpelCom
+ */
+
 package ru.beeline.fdmgateway.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;

@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2024 PJSC VimpelCom
+ */
+
 package ru.beeline.fdmgateway.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;

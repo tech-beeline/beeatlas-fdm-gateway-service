@@ -17,7 +17,7 @@ env:
   INTEGRATION_ARCHITECTURE_SERVER_URL: "vault:eafdmmart/data/test/func/fdm#architectureserverurl"
   INTEGRATION_AMBASSADOR_SERVER_URL: "vault:eafdmmart/data/test/func/ambassador#stagemapicserverurl"
   OTEL_EXPORTER_OTLP_ENDPOINT: "vault:eafdmmart/data/test/func/fdm#opentelemetry"
-
+  AUTHENTIC_AUTH_URL:  "https://authentik-beeatlas-dev.apps.yd-m6-kt22.vimpelcom.ru/"
 podAnnotations:
   vault.security.banzaicloud.io/vault-addr: "https://vault-test.vimpelcom.ru/"
 

@@ -3,7 +3,7 @@ app:
   name: @project.name@
   demo-auth: false
   authentic-auth: false
-  authentic-auth-url: https://authentik-beeatlas-dev.apps.yd-m6-kt22.vimpelcom.ru/
+  authentic-auth-url: ${authentic-auth-url}
 logging:
   level:
     io.opentelemetry.exporter.internal.http.HttpExporter: ERROR
@@ -414,7 +414,7 @@ management:
 otel:
   exporter:
     otlp:
-      endpoint: http://otel-collector.opentelemetry:4318
+      endpoint: ${otel-exporter-otlp-endpoint}
       protocol: http/protobuf
   resource:
     attributes:
