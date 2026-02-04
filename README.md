@@ -120,4 +120,3 @@ src/main/java/ru/beeline/fdmgateway/
 ## License
 
 Copyright (c) 2024 PJSC VimpelCom
-
