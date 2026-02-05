@@ -12,7 +12,8 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
-import ru.beeline.fdmlib.dto.auth.UserInfoDTO;
+import ru.beeline.fdmgateway.dto.UserInfoDTO;
+
 
 import static ru.beeline.fdmgateway.utils.RestHelper.getRestTemplate;
 

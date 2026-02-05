@@ -3,7 +3,7 @@ app:
   name: @project.name@
   demo-auth: false
   authentic-auth: false
-  authentic-auth-url: ${authentic-auth-url}
+  authentic-auth-url: ${integration.authentic-auth-url}
 logging:
   level:
     io.opentelemetry.exporter.internal.http.HttpExporter: ERROR
