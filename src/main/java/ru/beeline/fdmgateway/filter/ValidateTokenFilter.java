@@ -25,13 +25,14 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import ru.beeline.fdmgateway.client.ProductClient;
 import ru.beeline.fdmgateway.dto.ApiSecretDto;
+import ru.beeline.fdmgateway.dto.UserInfoDTO;
 import ru.beeline.fdmgateway.exception.InvalidTokenException;
 import ru.beeline.fdmgateway.exception.TokenExpiredException;
 import ru.beeline.fdmgateway.service.UserService;
 import ru.beeline.fdmgateway.utils.AuthUtils;
 import ru.beeline.fdmgateway.utils.jwt.JwtUserData;
 import ru.beeline.fdmgateway.utils.jwt.JwtUtils;
-import ru.beeline.fdmlib.dto.auth.UserInfoDTO;
+
 
 import java.nio.charset.StandardCharsets;
 import java.security.NoSuchAlgorithmException;
