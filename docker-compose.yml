@@ -1,44 +1,77 @@
 version: "3.9"
 
 services:
+  postgres:
+    image: postgres:15-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${AUTHENTIK_POSTGRESQL__USER:-authentik}
+      POSTGRES_PASSWORD: ${AUTHENTIK_POSTGRESQL__PASSWORD:-authentik}
+      POSTGRES_DB: ${AUTHENTIK_POSTGRESQL__NAME:-authentik}
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${AUTHENTIK_POSTGRESQL__USER:-authentik} -d ${AUTHENTIK_POSTGRESQL__NAME:-authentik}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    command: ["redis-server", "--save", "", "--appendonly", "no"]
+
   authentik-server:
     image: ghcr.io/goauthentik/server:2025.10.2
     command: server
-    deploy:
-      replicas: 1
+    restart: unless-stopped
     env_file:
       - .env
     environment:
-      AUTHENTIK_POSTGRESQL__HOST: CHANGE_ME
-      AUTHENTIK_POSTGRESQL__NAME: CHANGE_ME
-      AUTHENTIK_POSTGRESQL__USER: CHANGE_ME
-      AUTHENTIK_POSTGRESQL__PASSWORD: CHANGE_ME
-      AUTHENTIK_SECRET_KEY: CHANGE_ME
+      AUTHENTIK_POSTGRESQL__HOST: postgres
+      AUTHENTIK_POSTGRESQL__NAME: ${AUTHENTIK_POSTGRESQL__NAME:-authentik}
+      AUTHENTIK_POSTGRESQL__USER: ${AUTHENTIK_POSTGRESQL__USER:-authentik}
+      AUTHENTIK_POSTGRESQL__PASSWORD: ${AUTHENTIK_POSTGRESQL__PASSWORD:-authentik}
+      AUTHENTIK_REDIS__HOST: redis
+      AUTHENTIK_SECRET_KEY: ${AUTHENTIK_SECRET_KEY:-secret_key}
     ports:
       - "${COMPOSE_PORT_HTTP:-5000}:9000"
       - "${COMPOSE_PORT_HTTPS:-5443}:9443"
-    restart: unless-stopped
     volumes:
-      - /data/goauthentik/data/media:/media
-      - /data/goauthentik/data/custom-templates:/templates
+      - authentik-media:/media
+      - authentik-templates:/templates
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_started
 
   authentik-worker:
     image: ghcr.io/goauthentik/server:2025.10.2
     command: worker
-    deploy:
-      replicas: 1
+    restart: unless-stopped
+    user: root
     env_file:
       - .env
     environment:
-      AUTHENTIK_POSTGRESQL__HOST: CHANGE_ME
-      AUTHENTIK_POSTGRESQL__NAME: CHANGE_ME
-      AUTHENTIK_POSTGRESQL__USER: CHANGE_ME
-      AUTHENTIK_POSTGRESQL__PASSWORD: CHANGE_ME
-      AUTHENTIK_SECRET_KEY: CHANGE_ME
-    restart: unless-stopped
-    user: root
+      AUTHENTIK_POSTGRESQL__HOST: postgres
+      AUTHENTIK_POSTGRESQL__NAME: ${AUTHENTIK_POSTGRESQL__NAME:-authentik}
+      AUTHENTIK_POSTGRESQL__USER: ${AUTHENTIK_POSTGRESQL__USER:-authentik}
+      AUTHENTIK_POSTGRESQL__PASSWORD: ${AUTHENTIK_POSTGRESQL__PASSWORD:-authentik}
+      AUTHENTIK_REDIS__HOST: redis
+      AUTHENTIK_SECRET_KEY: ${AUTHENTIK_SECRET_KEY:-secret_key}
     volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
-      - /data/goauthentik/data/media:/media
-      - /data/goauthentik/data/certs:/certs
-      - /data/goauthentik/data/custom-templates:/templates
+      - authentik-media:/media
+      - authentik-templates:/templates
+      - authentik-certs:/certs
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_started
+
+volumes:
+  postgres-data:
+  authentik-media:
+  authentik-templates:
+  authentik-certs:
