@@ -29,11 +29,11 @@ services:
       - .env
     environment:
       AUTHENTIK_POSTGRESQL__HOST: postgres
-      AUTHENTIK_POSTGRESQL__NAME: ${AUTHENTIK_POSTGRESQL__NAME:-authentik}
-      AUTHENTIK_POSTGRESQL__USER: ${AUTHENTIK_POSTGRESQL__USER:-authentik}
-      AUTHENTIK_POSTGRESQL__PASSWORD: ${AUTHENTIK_POSTGRESQL__PASSWORD:-authentik}
+      AUTHENTIK_POSTGRESQL__NAME: authentik
+      AUTHENTIK_POSTGRESQL__USER: authentik
+      AUTHENTIK_POSTGRESQL__PASSWORD: authentik
       AUTHENTIK_REDIS__HOST: redis
-      AUTHENTIK_SECRET_KEY: ${AUTHENTIK_SECRET_KEY:-secret_key}
+      AUTHENTIK_SECRET_KEY: my-strong-secret-key
     ports:
       - "${COMPOSE_PORT_HTTP:-5000}:9000"
       - "${COMPOSE_PORT_HTTPS:-5443}:9443"
@@ -55,11 +55,11 @@ services:
       - .env
     environment:
       AUTHENTIK_POSTGRESQL__HOST: postgres
-      AUTHENTIK_POSTGRESQL__NAME: ${AUTHENTIK_POSTGRESQL__NAME:-authentik}
-      AUTHENTIK_POSTGRESQL__USER: ${AUTHENTIK_POSTGRESQL__USER:-authentik}
-      AUTHENTIK_POSTGRESQL__PASSWORD: ${AUTHENTIK_POSTGRESQL__PASSWORD:-authentik}
+      AUTHENTIK_POSTGRESQL__NAME: authentik
+      AUTHENTIK_POSTGRESQL__USER: authentik
+      AUTHENTIK_POSTGRESQL__PASSWORD: authentik
       AUTHENTIK_REDIS__HOST: redis
-      AUTHENTIK_SECRET_KEY: ${AUTHENTIK_SECRET_KEY:-secret_key}
+      AUTHENTIK_SECRET_KEY: my-strong-secret-key
     volumes:
       - authentik-media:/media
       - authentik-templates:/templates
@@ -69,6 +69,44 @@ services:
         condition: service_healthy
       redis:
         condition: service_started
+
+  gateway:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: gateway-app
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+      - "8090:8090"
+      - "10260:10260"
+    environment:
+      JWKS: "jwks"
+      SPRING_PROFILES_ACTIVE: local
+      AUTHENTIK_HOST: http://authentik-server:9000
+      AUTHENTIK_SECRET_KEY: ${AUTHENTIK_SECRET_KEY:-secret_key}
+      INTEGRATION_AUTH_SERVER_URL: http://fdm-auth-backend-app:8080
+      INTEGRATION_AUTHENTIC_AUTH_URL: http://authentik-server:9000/application/o/test/
+      INTEGRATION_TECHRADAR_SERVER_URL: http://techradar-backend-app:8080
+      INTEGRATION_CAPABILITY_SERVER_URL: http://capability-backend-app:8080
+      INTEGRATION_PRODUCTS_SERVER_URL: http://fdm-products-app:8080
+      INTEGRATION_GRAPH_SERVER_URL: "http://graphserverurl"
+      INTEGRATION_CX_SERVER_URL: "http://cxserverurl"
+      INTEGRATION_PACK_LOADER_SERVER_URL: "http://packloaderserver"
+      INTEGRATION_DASHBOARD_SERVER_URL: "http://dashboardserver"
+      INTEGRATION_NOTIFICATION_SERVER_URL: "http://notificationserver"
+      INTEGRATION_DOCUMENT_SERVER_URL: "http://documentserverurl"
+      INTEGRATION_CAMUNDA_SERVER_URL: "http://camundaserverurl"
+      INTEGRATION_ARCH_SERVER_URL: "http://archserverurl"
+      INTEGRATION_GRAPH_VALIDATOR_SERVER_URL: "http://graphvalidatorserverurl"
+      INTEGRATION_ARCHITECTURE_SERVER_URL: "http://architectureserverurl"
+      INTEGRATION_AMBASSADOR_SERVER_URL: "http://stagemapicserverurl"
+      OTEL_EXPORTER_OTLP_ENDPOINT: "http://opentelemetry"
+      INTEGRATION_OBS_DASHBOARD_SERVER_URL: "http://obsdashboardurl"
+      INTEGRATION_SEQUENCE_BACKEND_SERVER_URL: "http://sequencebackendurl"
+    depends_on:
+      authentik-server:
+        condition: service_healthy
 
 volumes:
   postgres-data:
