@@ -1,0 +1,9 @@
+CREATE SCHEMA IF NOT EXISTS product;
+CREATE SCHEMA IF NOT EXISTS capability;
+CREATE SCHEMA IF NOT EXISTS user_auth;
+CREATE SCHEMA IF NOT EXISTS techradar;
+
+DO $$
+BEGIN
+    RAISE NOTICE 'Schemas created successfully';
+END $$;
