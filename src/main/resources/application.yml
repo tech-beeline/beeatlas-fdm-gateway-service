@@ -1,8 +1,8 @@
 app:
   version: @project.version@
   name: @project.name@
-  demo-auth: false
-  authentic-auth: false
+  demo-auth: ${DEMO_AUTH:false}
+  authentic-auth: ${AUTHENTIC_AUTH:false}
   authentic-auth-url: ${integration.authentic-auth-url}
 logging:
   level:

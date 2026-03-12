@@ -33,7 +33,6 @@ import ru.beeline.fdmgateway.utils.AuthUtils;
 import ru.beeline.fdmgateway.utils.jwt.JwtUserData;
 import ru.beeline.fdmgateway.utils.jwt.JwtUtils;
 
-
 import java.nio.charset.StandardCharsets;
 import java.security.NoSuchAlgorithmException;
 import java.util.*;
@@ -108,6 +107,9 @@ public class ValidateTokenFilter implements WebFilter {
                 return exchange.getResponse().setComplete();
             }
             JwtUserData tokenData = getUserData(auth);
+            if (demoAuth) {
+                tokenData = new JwtUserData(new HashMap<>());
+            }
             return injectUserAndContinue(exchange, tokenData, chain, exchange.getRequest().getId(), false);
         } else {
             return validateXAuthorizationToken(exchange)
