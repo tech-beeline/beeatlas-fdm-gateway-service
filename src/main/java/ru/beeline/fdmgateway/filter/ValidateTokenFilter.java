@@ -92,8 +92,10 @@ public class ValidateTokenFilter implements WebFilter {
         if ((auth != null && !auth.isEmpty()) && (xAuth != null && !xAuth.isEmpty())) {
             return writeErrorResponse(exchange, HttpStatus.BAD_REQUEST, "Only one authorization header allowed");
         }
-        if ((auth == null || auth.isEmpty()) && (xAuth == null || xAuth.isEmpty())) {
-            return writeErrorResponse(exchange, HttpStatus.UNAUTHORIZED, "Missing authorization header");
+        if(!demoAuth) {
+            if ((auth == null || auth.isEmpty()) && (xAuth == null || xAuth.isEmpty())) {
+                return writeErrorResponse(exchange, HttpStatus.UNAUTHORIZED, "Missing authorization header");
+            }
         }
         if (auth != null && !auth.isEmpty()) {
             try {
@@ -107,9 +109,9 @@ public class ValidateTokenFilter implements WebFilter {
                 return exchange.getResponse().setComplete();
             }
             JwtUserData tokenData = getUserData(auth);
-            if (demoAuth) {
-                tokenData = new JwtUserData(new HashMap<>());
-            }
+            return injectUserAndContinue(exchange, tokenData, chain, exchange.getRequest().getId(), false);
+        } else if (demoAuth) {
+            JwtUserData tokenData = new JwtUserData(new HashMap<>());
             return injectUserAndContinue(exchange, tokenData, chain, exchange.getRequest().getId(), false);
         } else {
             return validateXAuthorizationToken(exchange)
@@ -156,8 +158,8 @@ public class ValidateTokenFilter implements WebFilter {
         UserInfoDTO userInfo;
         if (demoAuth) {
             tokenData.setEmail("default@beeline.ru");
-            tokenData.setLastName("Иван");
-            tokenData.setName("Иванов");
+            tokenData.setLastName("Ivan");
+            tokenData.setName("Ivanov");
             tokenData.setEmployeeNumber("1");
         }
         if (isXAuth) {
