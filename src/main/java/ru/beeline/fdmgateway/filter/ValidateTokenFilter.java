@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.env.Environment;
 import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.core.io.buffer.DataBufferUtils;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.server.reactive.ServerHttpRequest;
@@ -76,6 +77,10 @@ public class ValidateTokenFilter implements WebFilter {
 
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {
+        if (exchange.getRequest().getMethod() == HttpMethod.OPTIONS) {
+            log.debug("OPTIONS request");
+            return chain.filter(exchange);
+        }
         for (String path : BLACK_LIST_PATHS) {
             if (exchange.getRequest().getPath().toString().contains(path)) {
                 log.info("path = " + exchange.getRequest().getPath().toString() + " в блэк листе");
