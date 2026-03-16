@@ -102,7 +102,7 @@ public class ValidateTokenFilter implements WebFilter {
                 return writeErrorResponse(exchange, HttpStatus.UNAUTHORIZED, "Missing authorization header");
             }
         }
-        if (auth != null && !auth.isEmpty()) {
+        if (auth != null && !auth.isEmpty() && !demoAuth) {
             try {
                 if (Arrays.stream(environment.getActiveProfiles())
                         .noneMatch(env -> env.equalsIgnoreCase("local") || env.equalsIgnoreCase("func") || env.equalsIgnoreCase("e2e"))) {
