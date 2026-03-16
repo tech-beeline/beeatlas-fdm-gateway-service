@@ -56,6 +56,23 @@ spring:
     web-application-type: reactive
   cloud:
     gateway:
+      globalcors:
+        add-to-simple-url-handler-mapping: true
+        cors-configurations:
+          "[/**]":
+            allowedOriginPatterns:
+              - "http://localhost:*"
+              - "http://127.0.0.1:*"
+            allowedMethods:
+              - GET
+              - POST
+              - PUT
+              - PATCH
+              - DELETE
+              - OPTIONS
+            allowedHeaders: "*"
+            allowCredentials: true
+            maxAge: 3600
       routes:
         - id: cxAll
           uri: ${integration.cx-server-url}
@@ -142,10 +159,12 @@ spring:
             - Path=${path.techradar}/**
           filters:
             - RewritePath=${path.techradar}/v3/api-docs, /v3/api-docs
-            - RewritePath=${path.techradar}, /api/v1
-            - RewritePath=${path.techradar}, /api/v1/rings
-            - RewritePath=${path.techradar}/sectors, /api/v1/sectors
+            - RewritePath=${path.techradar}/tech, /api/v1/tech
             - RewritePath=${path.techradar}/tech/(?<RID>.*), /api/v1/tech/$\{RID}
+            - RewritePath=${path.techradar}/sectors, /api/v1/sectors
+            - RewritePath=${path.techradar}/rings, /api/v1/rings
+            - RewritePath=${path.techradar}/category, /api/v1/category
+            - RewritePath=${path.techradar}/category/(?<RID>.*), /api/v1/category/$\{RID}
             - RewritePath=${path.techradar}/tech/(?<RID>.*)/version, /api/v1/tech/$\{RID}/version
             - RewritePath=${path.techradar}/tech/(?<RID>.*)/version/(?<version>.*)/, /api/v1/tech/$\{RID}/version/$\{version}
             - RewritePath=${path.techradar}/pattern, /api/v1/pattern
@@ -253,6 +272,7 @@ spring:
             - RewritePath=${path.products}/user/product, /api/v1/user/product
             - RewritePath=${path.products}/connection/interface, /api/v1/connection/interface
             - RewritePath=${path.products}/user/product/admin, /api/v1/user/product/admin
+            - RewritePath=${path.products}/product/(?<RID>.*)/employee, /api/v1/product/$\{RID}/employee
             - RewritePath=${path.products}/product/(?<RID>.*)/fitness-function, /api/v1/product/$\{RID}/fitness-function
             - RewritePath=${path.products}/product/(?<RID>.*)/fitness-function/(?<ID>.*), /api/v1/product/$\{RID}/fitness-function/$\{ID}
             - RewritePath=${path.products}/product/(?<RID>.*)/patterns, /api/v1/product/$\{RID}/patterns
@@ -261,6 +281,8 @@ spring:
             - RewritePath=${path.products}/product/(?<RID>.*)/container, /api/v1/product/$\{RID}/container
             - RewritePath=${path.products}/product/info, /api/v1/product/info
             - RewritePath=${path.products}/product/(?<RID>.*)/info, /api/v1/product/$\{RID}/info
+            - RewritePath=${path.products}/product$, /api/v1/product
+            - RewritePath=${path.products}/product/(?<RID>.*), /api/v1/product/$\{RID}
         - id: productsService2
           uri: ${integration.products-server-url}
           predicates:
