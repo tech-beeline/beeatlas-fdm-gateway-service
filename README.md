@@ -1,123 +1,106 @@
 # FDM Gateway
 
-API gateway for the FDM (Federated Data Management) ecosystem, providing a single entry point to FDM microservices. Handles request routing, authentication (JWT and HMAC-based X-Authorization), and aggregation of OpenAPI documentation.
+API Gateway для экосистемы FDM. Даёт **единую точку входа** к микросервисам, проксирует запросы по маршрутам Spring Cloud Gateway, умеет проверять авторизацию и собирать единый Swagger.
 
-## Technologies
+## Что делает сервис
 
-- **Java 17**
-- **Spring Boot 2.7.3**
-- **Spring Cloud Gateway** — routing and proxying
-- **Spring WebFlux** — reactive stack
-- **JWT** (jjwt, java-jwt) — Bearer token validation
-- **SpringDoc OpenAPI** — unified Swagger UI for all services
-- **OpenTelemetry** — tracing and metrics
-- **Micrometer + Prometheus** — metrics for monitoring
-- **fdm-lib** — internal FDM library
+- **Роутинг**: входящие запросы на `/api-gateway/...` проксируются в нужный backend (правила в `src/main/resources/application.yml`).
+- **Авторизация**:
+  - **`Authorization: Bearer <JWT>`** — пользовательские запросы.
+  - **`X-Authorization` (HMAC)** — сервис-сервис (API key + HMAC подпись, + `Nonce`).
+- **Инжект пользователя**: из JWT берутся поля (`email`, `given_name`, `family_name`, `Employee-Number`), затем gateway обращается в auth-сервис и добавляет в запрос заголовки:
+  - `user-id`, `user-roles`, `user-permission`, `user-products-ids`.
+- **Кэш пользователя**: кэшируется `UserInfoDTO` с TTL (`spring.cache.expiration`).
 
-## Features
+## Быстрый старт
 
-- **Single entry point** — all requests to backends go through the gateway at paths like `/api-gateway/<service>/v1/...`
-- **Two authentication types:**
-  - **Authorization (Bearer JWT)** — for users; signature and expiry validation, user data injection from Auth service
-  - **X-Authorization (HMAC)** — for services: API Key + HMAC-SHA256 signature of the request (method, path, MD5 body, Content-Type, Nonce); supports Product Key and Service Key
-- **User caching** — user data is cached with configurable TTL; cache management via `DELETE /cache` and `DELETE /cache/{login}`
-- **E-Auth public key** — endpoint `/api/runtime/v1/eauthkey` to retrieve the key
-- **Path blacklist** — block unwanted routes
-- **Token validation exemptions** — e.g. Swagger, actuator, prometheus, eauthkey
+### Локально (Maven/IDE)
 
-## Routed services
-
-| Service       | Base path                      | Purpose                          |
-|---------------|--------------------------------|----------------------------------|
-| CX            | `/api-gateway/cx/...`          | Business interactions, CJ, BPMN  |
-| Auth          | `/api-gateway/auth/v1`         | Users and admin                  |
-| Products      | `/api-gateway/product/v1`      | Products, fitness functions      |
-| Techradar     | `/api-gateway/techradar/v1`    | Tech radar                       |
-| Capability    | `/api-gateway/capability/v1`   | Business/tech capabilities        |
-| Dashboard     | `/api-gateway/capability/v2`   | Dashboard                        |
-| Notification  | `/api-gateway/notify/v1`       | Notifications                    |
-| Document      | `/api-gateway/document/v1`     | Documents                        |
-| BPM (Camunda) | `/api-gateway/camunda-process/v1` | Processes and applications    |
-| Pack Loader   | `/api-gateway/pack-loader/v1`  | Packages                         |
-| Structurizr   | `/api-gateway/structurizr/v1`  | Architecture workspaces          |
-| Graph         | `/api-gateway/graph/v1`        | Graph                            |
-
-Exact paths and rewrites are defined in `application.yml` (sections `spring.cloud.gateway.routes` and `path`).
-
-## Build and run
-
-### Local (Maven)
+Требования: **Java 17**, Maven.
 
 ```bash
-mvn clean package
-java -jar target/fdm-gateway-1.3.4.jar
+mvn -q clean package
+java -jar target/*.jar --spring.profiles.active=local
 ```
 
-Required environment variables (or Spring profiles) include:
+Полезно для отладки:
+- профиль **`local`** отключает крипто-проверку подписи/срока JWT в фильтре (но формат JWT всё равно должен быть корректным).
 
-- `integration.*-server-url` — backend service URLs (auth, products, cx, techradar, etc.)
-- `path.*` — override base paths if needed
-- `authentic-auth-url` — for authentic-auth mode
-- `otel-exporter-otlp-endpoint` — for OpenTelemetry (when SDK is enabled)
+### Docker / Podman Compose (полный стенд)
 
-### Docker
+В репозитории есть несколько compose-файлов:
+- **`infrastructure/docker-compose.yml`** — стенд с БД/очередью/redis/authentik и т.п. (для локальной разработки).
+- **`docker-compose.yml`** — минимальный compose (authentik + gateway) в корне.
 
-The image is built via GitLab CI (see `.gitlab-ci/Dockerfile`). Uses JRE 17, ports 8080, 8090, 10260.
+Запуск стенда:
 
-### authentik IdP (optional)
+```bash
+cd infrastructure
+podman compose up --build
+```
 
-An example `docker-compose.yml` for running [authentik](https://goauthentik.io/) as an external Identity Provider (IdP) is provided in `authentik/docker-compose.yml`. It starts two services:
+Остановка:
 
-- `authentik-server` — main authentik server (HTTP/HTTPS endpoints)
-- `authentik-worker` — background worker
+```bash
+podman compose down
+```
 
-Before using it, configure:
+## Проверка работоспособности
 
-- `AUTHENTIK_POSTGRESQL__HOST/NAME/USER/PASSWORD` — PostgreSQL connection settings
-- `AUTHENTIK_SECRET_KEY` — authentik secret key (must stay stable between restarts)
-- host paths under `/data/goauthentik/...` — adjust to your storage layout
-- `COMPOSE_PORT_HTTP` and `COMPOSE_PORT_HTTPS` — external ports (if you don’t want the defaults `5000` and `5443`)
+- **Gateway welcome**: `GET http://localhost:8080/`
+- **Swagger UI**: обычно `http://localhost:8080/swagger-ui.html` (зависит от настроек SpringDoc)
 
-## Configuration
+### Проверочный запрос на прохождение авторизации (через gateway)
 
-- **`app.demo-auth`** — demo authentication mode (inject test user)
-- **`app.authentic-auth`** — enable authentic-auth
-- **`spring.cache.expiration`** — user cache TTL (ms)
-- **`springdoc.swagger-ui.urls`** — OpenAPI list for Swagger UI (Gateway + all backends)
+Удобный “тестовый” путь, который обрабатывается прямо в фильтре:
 
-Routes and paths are defined in `src/main/resources/application.yml`; Helm values in `.gitlab-ci/helm/` are used for different environments (dev, e2e, func, prod).
+```bash
+curl -v "http://localhost:8080/api-gateway/auth/v1/user/1/info" \
+  -H "Authorization: Bearer <JWT>"
+```
 
-## API Gateway (own endpoints)
+Важно: даже на профиле `local` gateway после чтения JWT идёт в auth-сервис (`INTEGRATION_AUTH_SERVER_URL`). Если auth-сервис не поднят/недоступен по DNS в сети compose — будут ошибки.
 
-| Method | Path                       | Description                          |
-|--------|----------------------------|--------------------------------------|
-| GET    | `/`                        | Welcome (app name and version)       |
-| GET    | `/api/runtime/v1/eauthkey` | E-Auth public key                    |
-| DELETE | `/cache`                   | Clear entire user cache              |
-| DELETE | `/cache/{login}`           | Remove user from cache by login      |
+## Важные переменные окружения
 
-All other requests are proxied to backends according to routing rules.
+Gateway читает URL интеграций из env (см. `docker-compose.yml` / `infrastructure/docker-compose.yml`):
 
-## API documentation
+- **`INTEGRATION_AUTH_SERVER_URL`**: адрес auth-сервиса (где профили/права).
+- **`JWKS`**: URL до JWKS (публичный ключ для проверки RSA JWT), если используется режим загрузки ключа по URL.
+- **`SPRING_PROFILES_ACTIVE`**: активный профиль (`local` / `func` / `e2e` / и т.д.).
 
-After startup, the unified Swagger UI is available at the default SpringDoc path (e.g. `/swagger-ui.html`). It includes specs for the Gateway and all listed backends (Products, Dashboard, BPMN, CX, Auth, Techradar, Capability, Notification, Document, Structurizr, Graph).
+## Authentik (OIDC) — минимальная настройка
 
-## Project structure
+Если вы используете Authentik как IdP:
+
+1. Откройте админку Authentik: `http://localhost:5000`
+2. Создайте **OAuth2/OpenID Provider** (OIDC).
+3. Получите JWKS эндпоинт вида:
+   - `http://authentik-server:9000/application/o/<slug>/jwks/` (внутри compose)
+   - `http://localhost:5000/application/o/<slug>/jwks/` (с хоста)
+4. Убедитесь, что gateway берёт ключ именно оттуда (через `JWKS` или через настройки режима authentic-auth, если он включён в конфиге).
+
+## Типовые проблемы и решения
+
+- **`statfs ... data/media: no such file or directory` при старте Authentik**  
+  В compose используются bind-mount’ы на папки `./data/...`. Создайте их заранее или переключитесь на именованные тома.
+
+- **`PostgreSQL connection failed ... Name or service not known` в Authentik**  
+  Это DNS/сеть: контейнер не может резолвнуть хост БД. Проверьте:
+  - что `AUTHENTIK_POSTGRESQL__HOST` равен имени сервиса БД в compose (например, `authentik-postgres`);
+  - что оба сервиса в одной сети (`fdm-network`);
+  - что вы запускаете сервисы одной командой `podman compose up`, а не отдельно.
+
+- **Gateway отдаёт 500 / NPE при запросе с JWT**  
+  Обычно это недоступный auth-сервис (`UnknownHostException` на `fdm-auth-backend...`). Исправьте `INTEGRATION_AUTH_SERVER_URL` и/или поднимите auth-сервис в той же сети.
+
+## Структура проекта
 
 ```
 src/main/java/ru/beeline/fdmgateway/
-├── FdmGatewayApplication.java   # Entry point, public key bean
-├── client/                      # HTTP clients to backends (User, Product)
-├── config/                      # OpenAPI and other configuration
-├── controller/                  # Gateway endpoints (welcome, eauthkey, cache)
-├── dto/                         # DTOs (ApiSecret, UserInfo, etc.)
-├── exception/                   # Exceptions (InvalidToken, TokenExpired, Unauthorized, etc.)
-├── filter/                      # ValidateTokenFilter, TraceIdResponseFilter
-├── service/                     # UserService (user cache)
-└── utils/                       # JWT, E-Auth, AuthUtils, RestHelper, constants
+├── client/        # HTTP-клиенты к backend-сервисам
+├── controller/    # собственные эндпоинты gateway (welcome, cache, и т.п.)
+├── filter/        # фильтры (ValidateTokenFilter и др.)
+├── service/       # логика кэша пользователя, интеграции
+└── utils/         # JWT/JWKS/E-Auth/HMAC утилиты
 ```
-
-## License
-
-Copyright (c) 2024 PJSC VimpelCom
-
