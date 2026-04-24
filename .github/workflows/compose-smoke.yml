@@ -26,7 +26,7 @@ jobs:
           # Cleanup
           sleep 5
           docker compose -f docker-compose.yml down -v
-      
+
       - name: Publish Test Results
         uses: actions/upload-artifact@v4
         if: always()
