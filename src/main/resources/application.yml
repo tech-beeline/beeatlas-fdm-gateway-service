@@ -378,7 +378,18 @@ spring:
             - Path=${path.sequencebackend}/**
           filters:
             - RewritePath=${path.sequencebackend}/(?<segment>.*), /$\{segment}
-
+        - id: dashboardservice
+          uri: ${integration.dashboard-service-url}
+          predicates:
+            - Path=${path.dashboardservice}/**
+          filters:
+            - RewritePath=${path.dashboardservice}/(?<segment>.*), /$\{segment}
+        - id: stagingsequence
+          uri: ${integration.staging-sequence-server-url}
+          predicates:
+            - Path=${path.stagingsequence}/**
+          filters:
+            - RewritePath=${path.stagingsequence}/(?<segment>.*), /$\{segment}
 path:
   cx:
     all: /api-gateway/cx/v1/v3
@@ -421,6 +432,8 @@ path:
   graphvalidator: /graph-validator
   obsdashboard: /obs-dashboard
   sequencebackend: /sequence-backend
+  dashboardservice: /dashboard-service
+  stagingsequence: /staging-sequence
 management:
   endpoints:
     web:
