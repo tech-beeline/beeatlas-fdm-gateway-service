@@ -385,7 +385,7 @@ spring:
           filters:
             - RewritePath=${path.dashboardservice}/(?<segment>.*), /$\{segment}
         - id: stagingsequence
-          uri: ${integration.staging-sequence-server-url}
+          uri: ${integration.staging-sequence-service-url}
           predicates:
             - Path=${path.stagingsequence}/**
           filters:
