@@ -395,7 +395,8 @@ spring:
           predicates:
             - Path=${path.stagingsequence}/**
           filters:
-            - RewritePath=${path.documentv2}/(?<segment>.*), /$\{segment}
+            - RewritePath=${path.documentv2}/documents/(?<documentationsTypeId>.*)/(?<targetId>.*),
+            - /api/v2/documents/$\{documentationsTypeId}/$\{targetId}
 path:
   cx:
     all: /api-gateway/cx/v1/v3
