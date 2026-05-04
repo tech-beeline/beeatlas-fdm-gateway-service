@@ -393,7 +393,7 @@ spring:
         - id: documentServicev2
           uri: ${integration.document-server-url}
           predicates:
-            - Path=${path.stagingsequence}/**
+            - Path=${path.documentv2}/**
           filters:
             - RewritePath=${path.documentv2}/documents/(?<documentationsTypeId>.*)/(?<targetId>.*),
             - /api/v2/documents/$\{documentationsTypeId}/$\{targetId}
