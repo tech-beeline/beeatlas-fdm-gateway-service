@@ -390,6 +390,12 @@ spring:
             - Path=${path.stagingsequence}/**
           filters:
             - RewritePath=${path.stagingsequence}/(?<segment>.*), /$\{segment}
+        - id: documentServicev2
+          uri: ${integration.document-server-url}
+          predicates:
+            - Path=${path.stagingsequence}/**
+          filters:
+            - RewritePath=${path.documentv2}/(?<segment>.*), /$\{segment}
 path:
   cx:
     all: /api-gateway/cx/v1/v3
@@ -412,6 +418,7 @@ path:
   products: /api-gateway/product/v1
   notification: /api-gateway/notify/v1
   document: /api-gateway/document/v1
+  documentv2: /api-gateway/document/v2
   bpm: /api-gateway/camunda-process/v1
   structurizr: /api-gateway/structurizr/v1
   graph: /api-gateway/graph/v1
