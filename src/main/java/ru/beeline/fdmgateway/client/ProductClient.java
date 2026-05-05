@@ -47,7 +47,7 @@ public class ProductClient {
         } catch (HttpClientErrorException.NotFound e) {
             log.error("API key not found: {}", e.getMessage());
             throw new UnauthorizedException(e.getMessage());
-        } catch (HttpServerErrorException | KeyStoreException | NoSuchAlgorithmException | KeyManagementException e) {
+        } catch (HttpServerErrorException e) {
             log.error("Server error: {}", e.getMessage());
             throw new ServerErrorException(e.getMessage());
         }
@@ -64,7 +64,7 @@ public class ProductClient {
         } catch (HttpClientErrorException.NotFound e) {
             log.error("API key not found: {}", e.getMessage());
             throw new UnauthorizedException(e.getMessage());
-        } catch (HttpServerErrorException | KeyStoreException | NoSuchAlgorithmException | KeyManagementException e) {
+        } catch (HttpServerErrorException e) {
             log.error("Server error: {}", e.getMessage());
             throw new ServerErrorException(e.getMessage());
         }
