@@ -378,6 +378,24 @@ spring:
             - Path=${path.sequencebackend}/**
           filters:
             - RewritePath=${path.sequencebackend}/(?<segment>.*), /$\{segment}
+        - id: dashboardservice
+          uri: ${integration.dashboard-service-url}
+          predicates:
+            - Path=${path.dashboardservice}/**
+          filters:
+            - RewritePath=${path.dashboardservice}/(?<segment>.*), /$\{segment}
+        - id: stagingsequence
+          uri: ${integration.staging-sequence-service-url}
+          predicates:
+            - Path=${path.stagingsequence}/**
+          filters:
+            - RewritePath=${path.stagingsequence}/(?<segment>.*), /$\{segment}
+        - id: documentServicev2
+          uri: ${integration.document-server-url}
+          predicates:
+            - Path=${path.documentv2}/**
+          filters:
+            - RewritePath=${path.documentv2}/documents/(?<documentationsTypeId>.*)/(?<targetId>.*), /api/v2/documents/$\{documentationsTypeId}/$\{targetId}
 
 path:
   cx:
@@ -401,6 +419,7 @@ path:
   products: /api-gateway/product/v1
   notification: /api-gateway/notify/v1
   document: /api-gateway/document/v1
+  documentv2: /api-gateway/document/v2
   bpm: /api-gateway/camunda-process/v1
   structurizr: /api-gateway/structurizr/v1
   graph: /api-gateway/graph/v1
@@ -421,6 +440,8 @@ path:
   graphvalidator: /graph-validator
   obsdashboard: /obs-dashboard
   sequencebackend: /sequence-backend
+  dashboardservice: /dashboard-service
+  stagingsequence: /staging-sequence
 management:
   endpoints:
     web:
