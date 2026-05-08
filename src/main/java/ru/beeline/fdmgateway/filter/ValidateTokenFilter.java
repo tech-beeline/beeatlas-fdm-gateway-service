@@ -104,6 +104,7 @@ public class ValidateTokenFilter implements WebFilter {
         String mcpHeaderToken = exchange.getRequest().getHeaders().getFirst(MCP_TOKEN_HEADER);
 
         if (isMcpAuthorized(mcpHeaderToken) && !demoAuth) {
+            log.info("MCP запрос");
             JwtUserData tokenData = new JwtUserData(new HashMap<>());
             tokenData.setEmail("mcp@default.local");
             tokenData.setName("MCP");
