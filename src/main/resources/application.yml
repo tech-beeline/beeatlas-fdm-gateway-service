@@ -32,7 +32,7 @@ springdoc:
       - name: BPMN
         url: ${path.bpm}/v3/api-docs
       - name: Cx
-        url: ${path.cx.all}/v3/api-docs
+        url: ${path.cx2}/v3/api-docs
       - name: Pack loader
         url: ${path.pack-loader.all}/v3/api-docs
       - name: Auth
