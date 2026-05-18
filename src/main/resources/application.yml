@@ -1,7 +1,7 @@
 app:
   version: @project.version@
   name: @project.name@
-  demo-auth: ${DEMO_AUTH:false}
+  demo-auth: ${DEMO_AUTH:true}
   mcp-token: ${APP_MCP_TOKEN:}
   authentic-auth: ${AUTHENTIC_AUTH:false}
   authentic-auth-url: ${integration.authentic-auth-url}
