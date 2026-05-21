@@ -8,10 +8,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import ru.beeline.fdmgateway.client.UserClient;
+import ru.beeline.fdmgateway.dto.AuthorizeResponseDTO;
 import ru.beeline.fdmgateway.dto.UserInfoDTO;
 
 import java.util.Date;
 import java.util.Hashtable;
+import java.util.Map;
 
 @Slf4j
 @Service
@@ -52,6 +54,11 @@ public class UserService {
             userInfoCache.put(login, userClient.getUserInfo(email, fullName, idExt));
         }
         return userInfoCache.get(login);
+    }
+
+    public AuthorizeResponseDTO authorize(String email, String fullName, String idExt,
+                                          String path, String method, Map<String, String> queryParams) {
+        return userClient.authorize(email, fullName, idExt, path, method, queryParams);
     }
 
     private boolean isExpired() {
