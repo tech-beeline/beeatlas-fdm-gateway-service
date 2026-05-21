@@ -46,6 +46,8 @@ import static ru.beeline.fdmgateway.utils.jwt.JwtUtils.getUserData;
 @Slf4j
 @Component
 public class ValidateTokenFilter implements WebFilter {
+
+    private static final String MCP_TOKEN_HEADER = "MCP-Authorization";
     private static final Set<String> EXCLUDED_PATHS = Set.of(
             "/api-docs",
             "/favicon.ico",
@@ -68,13 +70,16 @@ public class ValidateTokenFilter implements WebFilter {
     private final ProductClient productClient;
     private final AuthUtils authUtils;
     private final Boolean demoAuth;
+    private final String mcpToken;
 
     public ValidateTokenFilter(UserService userService, ProductClient productClient, AuthUtils authUtils,
-                               @Value("${app.demo-auth}") Boolean demoAuth) {
+                               @Value("${app.demo-auth}") Boolean demoAuth,
+                               @Value("${app.mcp-token:}") String mcpToken) {
         this.userService = userService;
         this.productClient = productClient;
         this.authUtils = authUtils;
         this.demoAuth = demoAuth;
+        this.mcpToken = mcpToken;
     }
 
     @Override
@@ -96,6 +101,19 @@ public class ValidateTokenFilter implements WebFilter {
         }
         String auth = exchange.getRequest().getHeaders().getFirst("Authorization");
         String xAuth = exchange.getRequest().getHeaders().getFirst("X-Authorization");
+        String mcpHeaderToken = exchange.getRequest().getHeaders().getFirst(MCP_TOKEN_HEADER);
+
+        if (isMcpAuthorized(mcpHeaderToken) && !demoAuth) {
+            log.info("MCP запрос");
+            JwtUserData tokenData = new JwtUserData(new HashMap<>());
+            tokenData.setEmail("mcp@default.local");
+            tokenData.setName("MCP");
+            tokenData.setLastName("Assistant");
+            tokenData.setEmployeeNumber("mcp");
+            tokenData.setWinAccountName("mcp");
+            tokenData.setSub("mcp");
+            return injectUserAndContinue(exchange, tokenData, chain, exchange.getRequest().getId(), true);
+        }
         if ((auth != null && !auth.isEmpty()) && (xAuth != null && !xAuth.isEmpty())) {
             return writeErrorResponse(exchange, HttpStatus.BAD_REQUEST, "Only one authorization header allowed");
         }
@@ -128,6 +146,12 @@ public class ValidateTokenFilter implements WebFilter {
                         return injectUserAndContinue(mutatedExchange, tokenData, chain, exchange.getRequest().getId(), true);
                     });
         }
+    }
+
+    private boolean isMcpAuthorized(String providedToken) {
+        if (providedToken == null || providedToken.isBlank()) return false;
+        if (mcpToken == null || mcpToken.isBlank()) return false;
+        return providedToken.equals(mcpToken);
     }
 
     private JwtUserData createDefaultUserDataFromXAuth(String xAuth) {
