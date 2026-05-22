@@ -26,6 +26,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import ru.beeline.fdmgateway.client.ProductClient;
 import ru.beeline.fdmgateway.dto.ApiSecretDto;
+import ru.beeline.fdmgateway.dto.AuthorizeResponseDTO;
 import ru.beeline.fdmgateway.dto.UserInfoDTO;
 import ru.beeline.fdmgateway.exception.InvalidTokenException;
 import ru.beeline.fdmgateway.exception.TokenExpiredException;
@@ -37,6 +38,8 @@ import ru.beeline.fdmgateway.utils.jwt.JwtUtils;
 import java.nio.charset.StandardCharsets;
 import java.security.NoSuchAlgorithmException;
 import java.util.*;
+
+import ru.beeline.fdmgateway.dto.PermissionTypeDTO;
 
 import static ru.beeline.fdmgateway.dto.PermissionTypeDTO.DESIGN_ARTIFACT;
 import static ru.beeline.fdmgateway.utils.Constants.*;
@@ -70,16 +73,16 @@ public class ValidateTokenFilter implements WebFilter {
     private final ProductClient productClient;
     private final AuthUtils authUtils;
     private final Boolean demoAuth;
-    private final String mcpToken;
+    private final String mcpTokens;
 
     public ValidateTokenFilter(UserService userService, ProductClient productClient, AuthUtils authUtils,
                                @Value("${app.demo-auth}") Boolean demoAuth,
-                               @Value("${app.mcp-token:}") String mcpToken) {
+                               @Value("${app.mcp-token:}") String mcpTokens) {
         this.userService = userService;
         this.productClient = productClient;
         this.authUtils = authUtils;
         this.demoAuth = demoAuth;
-        this.mcpToken = mcpToken;
+        this.mcpTokens = mcpTokens;
     }
 
     @Override
@@ -150,8 +153,10 @@ public class ValidateTokenFilter implements WebFilter {
 
     private boolean isMcpAuthorized(String providedToken) {
         if (providedToken == null || providedToken.isBlank()) return false;
-        if (mcpToken == null || mcpToken.isBlank()) return false;
-        return providedToken.equals(mcpToken);
+        if (mcpTokens == null || mcpTokens.isBlank()) return false;
+        return Arrays.stream(mcpTokens.split(","))
+                .map(String::trim)
+                .anyMatch(validToken -> validToken.equals(providedToken));
     }
 
     private JwtUserData createDefaultUserDataFromXAuth(String xAuth) {
@@ -196,7 +201,28 @@ public class ValidateTokenFilter implements WebFilter {
         if (isXAuth) {
             userInfo = buildDefaultUser();
         } else {
-            userInfo = userService.getUserInfo(tokenData.getEmail(), tokenData.getFullName(), tokenData.getEmployeeNumber());
+            String path = exchange.getRequest().getPath().toString();
+            String method = exchange.getRequest().getMethodValue();
+            Map<String, String> queryParams = exchange.getRequest().getQueryParams().toSingleValueMap();
+
+            AuthorizeResponseDTO authResponse = userService.authorize(
+                    tokenData.getEmail(), tokenData.getFullName(), tokenData.getEmployeeNumber(),
+                    path, method, queryParams);
+
+            if (authResponse == null) {
+                userInfo = userService.getUserInfo(tokenData.getEmail(), tokenData.getFullName(), tokenData.getEmployeeNumber());
+            } else if ("DENY".equals(authResponse.getDecision())) {
+                return writeErrorResponse(exchange, HttpStatus.FORBIDDEN, "Access denied");
+            } else {
+                userInfo = UserInfoDTO.builder()
+                        .id(authResponse.getUserId())
+                        .productsIds(authResponse.getProductIds())
+                        .roles(authResponse.getRoles())
+                        .permissions(authResponse.getPermissions().stream()
+                                .map(PermissionTypeDTO::valueOf)
+                                .collect(java.util.stream.Collectors.toList()))
+                        .build();
+            }
         }
         if (userInfo != null) {
             log.info(requestId + " DEBUG: userInfo First: " + "getId:" + userInfo.getId().toString());
