@@ -73,16 +73,16 @@ public class ValidateTokenFilter implements WebFilter {
     private final ProductClient productClient;
     private final AuthUtils authUtils;
     private final Boolean demoAuth;
-    private final String mcpToken;
+    private final String mcpTokens;
 
     public ValidateTokenFilter(UserService userService, ProductClient productClient, AuthUtils authUtils,
                                @Value("${app.demo-auth}") Boolean demoAuth,
-                               @Value("${app.mcp-token:}") String mcpToken) {
+                               @Value("${app.mcp-token:}") String mcpTokens) {
         this.userService = userService;
         this.productClient = productClient;
         this.authUtils = authUtils;
         this.demoAuth = demoAuth;
-        this.mcpToken = mcpToken;
+        this.mcpTokens = mcpTokens;
     }
 
     @Override
@@ -153,8 +153,10 @@ public class ValidateTokenFilter implements WebFilter {
 
     private boolean isMcpAuthorized(String providedToken) {
         if (providedToken == null || providedToken.isBlank()) return false;
-        if (mcpToken == null || mcpToken.isBlank()) return false;
-        return providedToken.equals(mcpToken);
+        if (mcpTokens == null || mcpTokens.isBlank()) return false;
+        return Arrays.stream(mcpTokens.split(","))
+                .map(String::trim)
+                .anyMatch(validToken -> validToken.equals(providedToken));
     }
 
     private JwtUserData createDefaultUserDataFromXAuth(String xAuth) {
