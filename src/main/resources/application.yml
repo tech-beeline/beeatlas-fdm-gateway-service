@@ -317,7 +317,12 @@ spring:
             - Path=${path.camunda2}/**
           filters:
             - RewritePath=${path.camunda2}/(?<segment>.*), /$\{segment}
-
+        - id: ffManager
+          uri: ${integration.ff-manager-url}
+          predicates:
+            - Path=${path.ffmanager}/**
+          filters:
+            - RewritePath=${path.ffmanager}/(?<segment>.*), /$\{segment}
         - id: structurizr
           uri: ${integration.arch-server-url}
           predicates:
@@ -443,6 +448,7 @@ path:
   sequencebackend: /sequence-backend
   dashboardservice: /dashboard-service
   stagingsequence: /staging-sequence
+  ffmanager: /ff
 management:
   endpoints:
     web:
