@@ -44,7 +44,7 @@ springdoc:
       - name: Notification
         url: ${path.notification}/v3/api-docs
       - name: Document
-        url: ${EXTERNAL_HOST:}${path.document}/v3/api-docs
+        url: https://${integration.document-server-url}${EXTERNAL_HOST:}${path.document}/v3/api-docs
       - name: Structurizr
         url: ${path.structurizr}/openapi.json
       - name: Graph
