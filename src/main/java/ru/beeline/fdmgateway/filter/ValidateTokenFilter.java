@@ -26,11 +26,9 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import ru.beeline.fdmgateway.client.ProductClient;
 import ru.beeline.fdmgateway.dto.ApiSecretDto;
-import ru.beeline.fdmgateway.dto.AuthorizeResponseDTO;
 import ru.beeline.fdmgateway.dto.UserInfoDTO;
 import ru.beeline.fdmgateway.exception.InvalidTokenException;
 import ru.beeline.fdmgateway.exception.TokenExpiredException;
-import ru.beeline.fdmgateway.service.AuthorizeService;
 import ru.beeline.fdmgateway.service.UserService;
 import ru.beeline.fdmgateway.utils.AuthUtils;
 import ru.beeline.fdmgateway.utils.jwt.JwtUserData;
@@ -69,18 +67,15 @@ public class ValidateTokenFilter implements WebFilter {
     @Autowired
     private Environment environment;
     private final UserService userService;
-    private final AuthorizeService authorizeService;
     private final ProductClient productClient;
     private final AuthUtils authUtils;
     private final Boolean demoAuth;
     private final String mcpTokens;
 
-    public ValidateTokenFilter(UserService userService, AuthorizeService authorizeService,
-                               ProductClient productClient, AuthUtils authUtils,
+    public ValidateTokenFilter(UserService userService, ProductClient productClient, AuthUtils authUtils,
                                @Value("${app.demo-auth}") Boolean demoAuth,
                                @Value("${app.mcp-token:}") String mcpTokens) {
         this.userService = userService;
-        this.authorizeService = authorizeService;
         this.productClient = productClient;
         this.authUtils = authUtils;
         this.demoAuth = demoAuth;
@@ -203,17 +198,7 @@ public class ValidateTokenFilter implements WebFilter {
         if (isXAuth) {
             userInfo = buildDefaultUser();
         } else {
-            String method = exchange.getRequest().getMethod().name();
-            String path = exchange.getRequest().getPath().toString();
-            Map<String, String> queryParams = exchange.getRequest().getQueryParams().toSingleValueMap();
-            AuthorizeResponseDTO authResponse = authorizeService.authorize(tokenData, method, path, queryParams);
-            if (authResponse == null) {
-                userInfo = userService.getUserInfo(tokenData.getEmail(), tokenData.getFullName(), tokenData.getEmployeeNumber());
-            } else if ("DENY".equals(authResponse.getDecision())) {
-                return writeErrorResponse(exchange, HttpStatus.FORBIDDEN, "Forbidden");
-            } else {
-                userInfo = authorizeService.toUserInfo(authResponse);
-            }
+            userInfo = userService.getUserInfo(tokenData.getEmail(), tokenData.getFullName(), tokenData.getEmployeeNumber());
         }
         if (userInfo != null) {
             log.info(requestId + " DEBUG: userInfo First: " + "getId:" + userInfo.getId().toString());
