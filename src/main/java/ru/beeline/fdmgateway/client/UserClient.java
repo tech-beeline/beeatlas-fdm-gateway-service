@@ -12,7 +12,8 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
-import ru.beeline.fdmgateway.dto.UserInfoDTO;
+import ru.beeline.fdmgateway.dto.AuthorizeRequestDTO;
+import ru.beeline.fdmgateway.dto.AuthorizeResponseDTO;
 
 
 import static ru.beeline.fdmgateway.utils.RestHelper.getRestTemplate;
@@ -25,21 +26,19 @@ public class UserClient {
     public UserClient(@Value("${integration.auth-server-url}") String userServerUrl) {
         this.userServerUrl = userServerUrl;
     }
-    public UserInfoDTO getUserInfo(String email, String fullName, String idExt) {
-        String login = email.substring(0, email.indexOf("@"));
-        UserInfoDTO userInfoDto = null;
+
+    public AuthorizeResponseDTO authorize(AuthorizeRequestDTO request) {
         try {
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_JSON);
-
-            HttpEntity<String> entity = new HttpEntity<>(headers);
-
-            final RestTemplate restTemplate = getRestTemplate();
-            userInfoDto = restTemplate.exchange(userServerUrl + "/api/admin/v1/user/" + login + "/info?&email=" + email + "&fullName=" + fullName + "&idExt=" + idExt,
-                    HttpMethod.GET, entity, UserInfoDTO.class).getBody();
+            HttpEntity<AuthorizeRequestDTO> entity = new HttpEntity<>(request, headers);
+            return getRestTemplate()
+                    .exchange(userServerUrl + "/api/v1/authorize",
+                            HttpMethod.POST, entity, AuthorizeResponseDTO.class)
+                    .getBody();
         } catch (Exception e) {
-            log.error(e.getMessage());
+            log.error("authorize call failed: " + e.getMessage());
+            return null;
         }
-        return userInfoDto;
     }
 }

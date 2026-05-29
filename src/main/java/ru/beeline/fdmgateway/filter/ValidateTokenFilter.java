@@ -26,10 +26,11 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import ru.beeline.fdmgateway.client.ProductClient;
 import ru.beeline.fdmgateway.dto.ApiSecretDto;
+import ru.beeline.fdmgateway.dto.AuthorizeResponseDTO;
 import ru.beeline.fdmgateway.dto.UserInfoDTO;
 import ru.beeline.fdmgateway.exception.InvalidTokenException;
 import ru.beeline.fdmgateway.exception.TokenExpiredException;
-import ru.beeline.fdmgateway.service.UserService;
+import ru.beeline.fdmgateway.service.AuthorizeService;
 import ru.beeline.fdmgateway.utils.AuthUtils;
 import ru.beeline.fdmgateway.utils.jwt.JwtUserData;
 import ru.beeline.fdmgateway.utils.jwt.JwtUtils;
@@ -66,16 +67,17 @@ public class ValidateTokenFilter implements WebFilter {
 
     @Autowired
     private Environment environment;
-    private final UserService userService;
+    private final AuthorizeService authorizeService;
     private final ProductClient productClient;
     private final AuthUtils authUtils;
     private final Boolean demoAuth;
     private final String mcpTokens;
 
-    public ValidateTokenFilter(UserService userService, ProductClient productClient, AuthUtils authUtils,
+    public ValidateTokenFilter(AuthorizeService authorizeService,
+                               ProductClient productClient, AuthUtils authUtils,
                                @Value("${app.demo-auth}") Boolean demoAuth,
                                @Value("${app.mcp-token:}") String mcpTokens) {
-        this.userService = userService;
+        this.authorizeService = authorizeService;
         this.productClient = productClient;
         this.authUtils = authUtils;
         this.demoAuth = demoAuth;
@@ -112,7 +114,7 @@ public class ValidateTokenFilter implements WebFilter {
             tokenData.setEmployeeNumber("mcp");
             tokenData.setWinAccountName("mcp");
             tokenData.setSub("mcp");
-            return injectUserAndContinue(exchange, tokenData, chain, exchange.getRequest().getId(), true);
+            return injectUserAndContinue(exchange, tokenData, chain, exchange.getRequest().getId(), true, null);
         }
         if ((auth != null && !auth.isEmpty()) && (xAuth != null && !xAuth.isEmpty())) {
             return writeErrorResponse(exchange, HttpStatus.BAD_REQUEST, "Only one authorization header allowed");
@@ -134,16 +136,20 @@ public class ValidateTokenFilter implements WebFilter {
                 return exchange.getResponse().setComplete();
             }
             JwtUserData tokenData = getUserData(auth);
-            return injectUserAndContinue(exchange, tokenData, chain, exchange.getRequest().getId(), false);
+            String requestId = exchange.getRequest().getId();
+            return readAndCacheBody(exchange).flatMap(pair ->
+                    injectUserAndContinue(pair.getKey(), tokenData, chain, requestId, false, pair.getValue()));
         } else if (demoAuth) {
             JwtUserData tokenData = new JwtUserData(new HashMap<>());
-            return injectUserAndContinue(exchange, tokenData, chain, exchange.getRequest().getId(), false);
+            String requestId = exchange.getRequest().getId();
+            return readAndCacheBody(exchange).flatMap(pair ->
+                    injectUserAndContinue(pair.getKey(), tokenData, chain, requestId, false, pair.getValue()));
         } else {
             return validateXAuthorizationToken(exchange)
                     .flatMap(mutatedExchange -> {
                         String token = mutatedExchange.getRequest().getHeaders().getFirst("X-Authorization");
                         JwtUserData tokenData = createDefaultUserDataFromXAuth(token);
-                        return injectUserAndContinue(mutatedExchange, tokenData, chain, exchange.getRequest().getId(), true);
+                        return injectUserAndContinue(mutatedExchange, tokenData, chain, exchange.getRequest().getId(), true, null);
                     });
         }
     }
@@ -187,7 +193,9 @@ public class ValidateTokenFilter implements WebFilter {
         return user;
     }
 
-    private Mono<Void> injectUserAndContinue(ServerWebExchange exchange, JwtUserData tokenData, WebFilterChain chain, String requestId, Boolean isXAuth) {
+    private Mono<Void> injectUserAndContinue(ServerWebExchange exchange, JwtUserData tokenData,
+                                              WebFilterChain chain, String requestId,
+                                              Boolean isXAuth, String bodyJson) {
         UserInfoDTO userInfo;
         if (demoAuth) {
             tokenData.setEmail("default@beeline.ru");
@@ -198,19 +206,34 @@ public class ValidateTokenFilter implements WebFilter {
         if (isXAuth) {
             userInfo = buildDefaultUser();
         } else {
-            userInfo = userService.getUserInfo(tokenData.getEmail(), tokenData.getFullName(), tokenData.getEmployeeNumber());
+            AuthorizeResponseDTO authResponse = authorizeService.authorize(
+                    tokenData,
+                    exchange.getRequest().getMethod().name(),
+                    exchange.getRequest().getPath().toString(),
+                    exchange.getRequest().getQueryParams().toSingleValueMap(),
+                    bodyJson);
+            if (authResponse == null) {
+                return writeErrorResponse(exchange, HttpStatus.SERVICE_UNAVAILABLE, "Authorization service unavailable");
+            } else if ("ALLOW".equals(authResponse.getDecision())) {
+                userInfo = authorizeService.toUserInfo(authResponse);
+            } else {
+                return writeErrorResponse(exchange, HttpStatus.FORBIDDEN, "Forbidden");
+            }
         }
         if (userInfo != null) {
             log.info(requestId + " DEBUG: userInfo First: " + "getId:" + userInfo.getId().toString());
-            log.info(requestId + " DEBUG: userInfo: " + "getProductsIds:" + userInfo.getProductsIds().stream().map(Objects::toString).toList());
-            log.info(requestId + " DEBUG: userInfo: " + "getRoles:" + userInfo.getRoles().stream().map(Objects::toString).toList());
-            log.info(requestId + " DEBUG: userInfo: " + "getPermissions:" + userInfo.getPermissions().stream().map(Objects::toString).toList());
+            //log.info(requestId + " DEBUG: userInfo: " + "getProductsIds:" + userInfo.getProductsIds().stream().map
+            // (Objects::toString).toList());
+            //log.info(requestId + " DEBUG: userInfo: " + "getRoles:" + userInfo.getRoles().stream().map
+            // (Objects::toString).toList());
+            //log.info(requestId + " DEBUG: userInfo: " + "getPermissions:" + userInfo.getPermissions().stream().map
+            // (Objects::toString).toList());
             ServerHttpRequest request = exchange.getRequest()
                     .mutate()
                     .header(USER_ID_HEADER, userInfo.getId().toString())
-                    .header(USER_PRODUCTS_IDS_HEADER, userInfo.getProductsIds().toString())
-                    .header(USER_ROLES_HEADER, userInfo.getRoles().toString())
-                    .header(USER_PERMISSION_HEADER, userInfo.getPermissions().toString())
+                    //.header(USER_PRODUCTS_IDS_HEADER, userInfo.getProductsIds().toString())
+                    //.header(USER_ROLES_HEADER, userInfo.getRoles().toString())
+                    //.header(USER_PERMISSION_HEADER, userInfo.getPermissions().toString())
                     .headers(headers -> headers.remove("authorization"))
                     .build();
             exchange = exchange.mutate().request(request).build();
@@ -325,6 +348,29 @@ public class ValidateTokenFilter implements WebFilter {
                 throw new InvalidTokenException("Invalid token");
             }
         }
+    }
+
+    private Mono<java.util.AbstractMap.SimpleEntry<ServerWebExchange, String>> readAndCacheBody(ServerWebExchange exchange) {
+        HttpMethod method = exchange.getRequest().getMethod();
+        if (method == HttpMethod.GET || method == HttpMethod.DELETE || method == HttpMethod.HEAD) {
+            return Mono.just(new java.util.AbstractMap.SimpleEntry<>(exchange, (String) null));
+        }
+        return DataBufferUtils.join(exchange.getRequest().getBody())
+                .defaultIfEmpty(exchange.getResponse().bufferFactory().wrap(new byte[0]))
+                .map(dataBuffer -> {
+                    byte[] bytes = new byte[dataBuffer.readableByteCount()];
+                    dataBuffer.read(bytes);
+                    DataBufferUtils.release(dataBuffer);
+                    String bodyJson = bytes.length > 0 ? new String(bytes, StandardCharsets.UTF_8) : null;
+                    Flux<DataBuffer> cachedBody = Flux.defer(() ->
+                            Mono.just(exchange.getResponse().bufferFactory().wrap(bytes)));
+                    ServerHttpRequest mutated = new ServerHttpRequestDecorator(exchange.getRequest()) {
+                        @Override
+                        public Flux<DataBuffer> getBody() { return cachedBody; }
+                    };
+                    return new java.util.AbstractMap.SimpleEntry<>(
+                            exchange.mutate().request(mutated).build(), bodyJson);
+                });
     }
 
     private Mono<Void> writeErrorResponse(ServerWebExchange exchange, HttpStatus status, String message) {
