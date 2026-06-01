@@ -29,7 +29,7 @@ public class OpenApiConfig {
                               .description("Документация API с поддержкой Bearer токена"))
 
                 .servers(List.of(
-                        new Server().url("/").description("API Gateway"),
+//                        new Server().url("/").description("API Gateway"),
                         new Server().url("/api-gateway/product/v1").description("Product")
                 ))
                 .components(new Components()

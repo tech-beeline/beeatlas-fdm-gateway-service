@@ -26,7 +26,6 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import ru.beeline.fdmgateway.client.ProductClient;
 import ru.beeline.fdmgateway.dto.ApiSecretDto;
-import ru.beeline.fdmgateway.dto.AuthorizeResponseDTO;
 import ru.beeline.fdmgateway.dto.UserInfoDTO;
 import ru.beeline.fdmgateway.exception.InvalidTokenException;
 import ru.beeline.fdmgateway.exception.TokenExpiredException;
@@ -38,8 +37,6 @@ import ru.beeline.fdmgateway.utils.jwt.JwtUtils;
 import java.nio.charset.StandardCharsets;
 import java.security.NoSuchAlgorithmException;
 import java.util.*;
-
-import ru.beeline.fdmgateway.dto.PermissionTypeDTO;
 
 import static ru.beeline.fdmgateway.dto.PermissionTypeDTO.DESIGN_ARTIFACT;
 import static ru.beeline.fdmgateway.utils.Constants.*;
@@ -201,28 +198,7 @@ public class ValidateTokenFilter implements WebFilter {
         if (isXAuth) {
             userInfo = buildDefaultUser();
         } else {
-            String path = exchange.getRequest().getPath().toString();
-            String method = exchange.getRequest().getMethodValue();
-            Map<String, String> queryParams = exchange.getRequest().getQueryParams().toSingleValueMap();
-
-            AuthorizeResponseDTO authResponse = userService.authorize(
-                    tokenData.getEmail(), tokenData.getFullName(), tokenData.getEmployeeNumber(),
-                    path, method, queryParams);
-
-            if (authResponse == null) {
-                userInfo = userService.getUserInfo(tokenData.getEmail(), tokenData.getFullName(), tokenData.getEmployeeNumber());
-            } else if ("DENY".equals(authResponse.getDecision())) {
-                return writeErrorResponse(exchange, HttpStatus.FORBIDDEN, "Access denied");
-            } else {
-                userInfo = UserInfoDTO.builder()
-                        .id(authResponse.getUserId())
-                        .productsIds(authResponse.getProductIds())
-                        .roles(authResponse.getRoles())
-                        .permissions(authResponse.getPermissions().stream()
-                                .map(PermissionTypeDTO::valueOf)
-                                .collect(java.util.stream.Collectors.toList()))
-                        .build();
-            }
+            userInfo = userService.getUserInfo(tokenData.getEmail(), tokenData.getFullName(), tokenData.getEmployeeNumber());
         }
         if (userInfo != null) {
             log.info(requestId + " DEBUG: userInfo First: " + "getId:" + userInfo.getId().toString());
