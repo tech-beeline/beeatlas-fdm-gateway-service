@@ -54,14 +54,17 @@ public class AuthorizeService {
             if (isCacheExpired()) {
                 cache.clear();
                 lastInvalidate = new Date();
+                log.info("[PERF] authorize cache cleared (TTL expired)");
             }
             String login = tokenData.getEmail().substring(0, tokenData.getEmail().indexOf("@")).toLowerCase();
             String cacheKey = login + "|" + method + "|" + path;
             AuthorizeResponseDTO cached = cache.get(cacheKey);
             if (cached != null) {
+                log.debug("[PERF] authorize cache HIT login={} {} {}", login, method, path);
                 return cached;
             }
 
+            log.info("[PERF] authorize cache MISS login={} {} {}", login, method, path);
             AuthorizeRequestDTO request = AuthorizeRequestDTO.builder()
                     .email(tokenData.getEmail())
                     .fullName(tokenData.getFullName())
@@ -71,7 +74,11 @@ public class AuthorizeService {
                     .queryParams(queryParams)
                     .build();
 
+            long t0 = System.currentTimeMillis();
             AuthorizeResponseDTO response = userClient.authorize(request);
+            log.info("[PERF] fdm-auth call login={} {} {} took {}ms -> {}",
+                    login, method, path, System.currentTimeMillis() - t0,
+                    response != null ? response.getDecision() : "null(timeout)");
             if (response != null) {
                 if (response.getMessage() != null) {
                     log.warn("fdm-auth authorize: {}", response.getMessage());
@@ -81,6 +88,7 @@ public class AuthorizeService {
             return response;
         }
 
+        String login = tokenData.getEmail().substring(0, tokenData.getEmail().indexOf("@")).toLowerCase();
         AuthorizeRequestDTO request = AuthorizeRequestDTO.builder()
                 .email(tokenData.getEmail())
                 .fullName(tokenData.getFullName())
@@ -91,7 +99,11 @@ public class AuthorizeService {
                 .bodyJson(bodyJson)
                 .build();
 
+        long t0 = System.currentTimeMillis();
         AuthorizeResponseDTO response = userClient.authorize(request);
+        log.info("[PERF] fdm-auth call (no-cache POST) login={} {} {} took {}ms -> {}",
+                login, method, path, System.currentTimeMillis() - t0,
+                response != null ? response.getDecision() : "null(timeout)");
         if (response != null && response.getMessage() != null) {
             log.warn("fdm-auth authorize: {}", response.getMessage());
         }
