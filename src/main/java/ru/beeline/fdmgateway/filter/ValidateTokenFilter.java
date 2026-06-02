@@ -24,6 +24,7 @@ import org.springframework.web.server.WebFilter;
 import org.springframework.web.server.WebFilterChain;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
 import ru.beeline.fdmgateway.client.ProductClient;
 import ru.beeline.fdmgateway.dto.ApiSecretDto;
 import ru.beeline.fdmgateway.dto.AuthorizeResponseDTO;
@@ -196,7 +197,6 @@ public class ValidateTokenFilter implements WebFilter {
     private Mono<Void> injectUserAndContinue(ServerWebExchange exchange, JwtUserData tokenData,
                                               WebFilterChain chain, String requestId,
                                               Boolean isXAuth, String bodyJson) {
-        UserInfoDTO userInfo;
         if (demoAuth) {
             tokenData.setEmail("default@beeline.ru");
             tokenData.setLastName("Ivan");
@@ -204,56 +204,56 @@ public class ValidateTokenFilter implements WebFilter {
             tokenData.setEmployeeNumber("1");
         }
         if (isXAuth) {
-            userInfo = buildDefaultUser();
-        } else {
-            AuthorizeResponseDTO authResponse = authorizeService.authorize(
-                    tokenData,
-                    exchange.getRequest().getMethod().name(),
-                    exchange.getRequest().getPath().toString(),
-                    exchange.getRequest().getQueryParams().toSingleValueMap(),
-                    bodyJson);
-            if (authResponse == null) {
-                return writeErrorResponse(exchange, HttpStatus.SERVICE_UNAVAILABLE, "Authorization service unavailable");
-            } else if ("ALLOW".equals(authResponse.getDecision())) {
-                userInfo = authorizeService.toUserInfo(authResponse);
-            } else {
-                return writeErrorResponse(exchange, HttpStatus.FORBIDDEN, "Forbidden");
-            }
+            return continueWithUserInfo(exchange, buildDefaultUser(), chain, requestId);
         }
-        if (userInfo != null) {
-            log.info(requestId + " DEBUG: userInfo First: " + "getId:" + userInfo.getId().toString());
-            //log.info(requestId + " DEBUG: userInfo: " + "getProductsIds:" + userInfo.getProductsIds().stream().map
-            // (Objects::toString).toList());
-            //log.info(requestId + " DEBUG: userInfo: " + "getRoles:" + userInfo.getRoles().stream().map
-            // (Objects::toString).toList());
-            //log.info(requestId + " DEBUG: userInfo: " + "getPermissions:" + userInfo.getPermissions().stream().map
-            // (Objects::toString).toList());
-            ServerHttpRequest request = exchange.getRequest()
-                    .mutate()
-                    .header(USER_ID_HEADER, userInfo.getId().toString())
-                    //.header(USER_PRODUCTS_IDS_HEADER, userInfo.getProductsIds().toString())
-                    //.header(USER_ROLES_HEADER, userInfo.getRoles().toString())
-                    //.header(USER_PERMISSION_HEADER, userInfo.getPermissions().toString())
-                    .headers(headers -> headers.remove("authorization"))
-                    .build();
-            exchange = exchange.mutate().request(request).build();
-        }
-        String currentPath = exchange.getRequest().getPath().toString();
+        final ServerWebExchange finalExchange = exchange;
+        return Mono.fromCallable(() -> Optional.ofNullable(authorizeService.authorize(
+                        tokenData,
+                        finalExchange.getRequest().getMethod().name(),
+                        finalExchange.getRequest().getPath().toString(),
+                        finalExchange.getRequest().getQueryParams().toSingleValueMap(),
+                        bodyJson)))
+                .subscribeOn(Schedulers.boundedElastic())
+                .flatMap(opt -> {
+                    if (opt.isEmpty()) {
+                        return writeErrorResponse(finalExchange, HttpStatus.SERVICE_UNAVAILABLE, "Authorization service unavailable");
+                    }
+                    AuthorizeResponseDTO authResponse = opt.get();
+                    if (!"ALLOW".equals(authResponse.getDecision())) {
+                        return writeErrorResponse(finalExchange, HttpStatus.FORBIDDEN, "Forbidden");
+                    }
+                    return continueWithUserInfo(finalExchange, authorizeService.toUserInfo(authResponse), chain, requestId);
+                });
+    }
+
+    private Mono<Void> continueWithUserInfo(ServerWebExchange exchange, UserInfoDTO userInfo,
+                                             WebFilterChain chain, String requestId) {
+        log.info(requestId + " DEBUG: userInfo First: " + "getId:" + userInfo.getId().toString());
+        ServerHttpRequest request = exchange.getRequest()
+                .mutate()
+                .header(USER_ID_HEADER, userInfo.getId().toString())
+                //.header(USER_PRODUCTS_IDS_HEADER, userInfo.getProductsIds().toString())
+                .header(USER_ROLES_HEADER, userInfo.getRoles() != null ? userInfo.getRoles().toString() : "[]")
+                //.header(USER_PERMISSION_HEADER, userInfo.getPermissions().toString())
+                .headers(headers -> headers.remove("authorization"))
+                .build();
+        ServerWebExchange mutated = exchange.mutate().request(request).build();
+
+        String currentPath = mutated.getRequest().getPath().toString();
         if (currentPath.matches(".*user/[^/]+/info.*")) {
-            exchange.getResponse().setStatusCode(HttpStatus.OK);
-            exchange.getResponse().getHeaders().setContentType(MediaType.APPLICATION_JSON);
+            mutated.getResponse().setStatusCode(HttpStatus.OK);
+            mutated.getResponse().getHeaders().setContentType(MediaType.APPLICATION_JSON);
             try {
                 byte[] bytes = new ObjectMapper().writeValueAsBytes(userInfo);
-                DataBuffer buffer = exchange.getResponse().bufferFactory().wrap(bytes);
-                return exchange.getResponse().writeWith(Mono.just(buffer));
+                DataBuffer buffer = mutated.getResponse().bufferFactory().wrap(bytes);
+                return mutated.getResponse().writeWith(Mono.just(buffer));
             } catch (JsonProcessingException e) {
                 log.error("Error processing JSON", e);
-                exchange.getResponse().setStatusCode(HttpStatus.INTERNAL_SERVER_ERROR);
-                return exchange.getResponse().setComplete();
+                mutated.getResponse().setStatusCode(HttpStatus.INTERNAL_SERVER_ERROR);
+                return mutated.getResponse().setComplete();
             }
         }
-
-        return chain.filter(exchange);
+        return chain.filter(mutated);
     }
 
     private Mono<ServerWebExchange> validateXAuthorizationToken(ServerWebExchange exchange) {

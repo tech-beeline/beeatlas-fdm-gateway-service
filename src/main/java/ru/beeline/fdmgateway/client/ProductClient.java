@@ -23,17 +23,18 @@ import java.security.KeyManagementException;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 
-import static ru.beeline.fdmgateway.utils.RestHelper.getRestTemplate;
-
 @Slf4j
 @Service
 public class ProductClient {
 
     private final String productServerUrl;
+    private final RestTemplate restTemplate;
 
     @Autowired
-    public ProductClient(@Value("${integration.products-server-url}") String productServerUrl) {
+    public ProductClient(@Value("${integration.products-server-url}") String productServerUrl,
+                         RestTemplate restTemplate) {
         this.productServerUrl = productServerUrl;
+        this.restTemplate = restTemplate;
     }
 
     public ApiSecretDto getServiceKey(String apiKey) {
@@ -41,7 +42,6 @@ public class ProductClient {
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_JSON);
             headers.add("SOURCE", "Sparx");
-            final RestTemplate restTemplate = getRestTemplate();
             return restTemplate.exchange(productServerUrl + "/api/v1/service/api-secret/key/" + apiKey,
                     HttpMethod.GET, new HttpEntity(headers), ApiSecretDto.class).getBody();
         } catch (HttpClientErrorException.NotFound e) {
@@ -58,7 +58,6 @@ public class ProductClient {
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_JSON);
             headers.add("SOURCE", "Sparx");
-            final RestTemplate restTemplate = getRestTemplate();
             return restTemplate.exchange(productServerUrl + "/api/v1/product/api-secret/" + apiKey,
                     HttpMethod.GET, new HttpEntity(headers), ApiSecretDto.class).getBody();
         } catch (HttpClientErrorException.NotFound e) {
@@ -68,6 +67,5 @@ public class ProductClient {
             log.error("Server error: {}", e.getMessage());
             throw new ServerErrorException(e.getMessage());
         }
-
     }
 }

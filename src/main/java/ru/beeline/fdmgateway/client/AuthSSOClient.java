@@ -13,19 +13,20 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.Map;
 
-import static ru.beeline.fdmgateway.utils.RestHelper.getRestTemplate;
-
 @Slf4j
 @Service
 public class AuthSSOClient {
 
     private final String serverUrl;
+    private final RestTemplate restTemplate;
 
     private static String accessToken;
     private static ZonedDateTime expiresAt;
 
-    public AuthSSOClient(@Value("${integration.authsso-server-url}") String serverUrl) {
+    public AuthSSOClient(@Value("${integration.authsso-server-url}") String serverUrl,
+                         RestTemplate restTemplate) {
         this.serverUrl = serverUrl;
+        this.restTemplate = restTemplate;
     }
 
     public String getToken() {
@@ -51,14 +52,12 @@ public class AuthSSOClient {
             }
 
             expiresAt = Instant.ofEpochSecond(epochSeconds).atZone(ZoneId.of("UTC"));
-            // -------------------------------------------------
         }
         return accessToken;
     }
 
     public String obtainAccessToken() {
         try {
-            RestTemplate restTemplate = getRestTemplate();
             ResponseEntity<String> response = restTemplate.postForEntity(serverUrl, null, String.class);
 
             ObjectMapper objectMapper = new ObjectMapper();

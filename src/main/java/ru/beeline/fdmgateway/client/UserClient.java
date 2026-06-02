@@ -16,15 +16,16 @@ import ru.beeline.fdmgateway.dto.AuthorizeRequestDTO;
 import ru.beeline.fdmgateway.dto.AuthorizeResponseDTO;
 
 
-import static ru.beeline.fdmgateway.utils.RestHelper.getRestTemplate;
-
 @Slf4j
 @Service
 public class UserClient {
     private final String userServerUrl;
+    private final RestTemplate restTemplate;
 
-    public UserClient(@Value("${integration.auth-server-url}") String userServerUrl) {
+    public UserClient(@Value("${integration.auth-server-url}") String userServerUrl,
+                      RestTemplate restTemplate) {
         this.userServerUrl = userServerUrl;
+        this.restTemplate = restTemplate;
     }
 
     public AuthorizeResponseDTO authorize(AuthorizeRequestDTO request) {
@@ -32,7 +33,7 @@ public class UserClient {
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_JSON);
             HttpEntity<AuthorizeRequestDTO> entity = new HttpEntity<>(request, headers);
-            return getRestTemplate()
+            return restTemplate
                     .exchange(userServerUrl + "/api/v1/authorize",
                             HttpMethod.POST, entity, AuthorizeResponseDTO.class)
                     .getBody();
