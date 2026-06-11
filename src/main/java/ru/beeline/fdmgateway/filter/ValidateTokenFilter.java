@@ -220,7 +220,7 @@ public class ValidateTokenFilter implements WebFilter {
                     }
                     AuthorizeResponseDTO authResponse = opt.get();
                     if (!"ALLOW".equals(authResponse.getDecision())) {
-                        return writeErrorResponse(finalExchange, HttpStatus.FORBIDDEN, "Forbidden");
+                        return writeErrorResponse(finalExchange, HttpStatus.FORBIDDEN, "Нет прав доступа");
                     }
                     return continueWithUserInfo(finalExchange, authorizeService.toUserInfo(authResponse), chain, requestId);
                 });
@@ -376,7 +376,7 @@ public class ValidateTokenFilter implements WebFilter {
     private Mono<Void> writeErrorResponse(ServerWebExchange exchange, HttpStatus status, String message) {
         exchange.getResponse().setStatusCode(status);
         exchange.getResponse().getHeaders().setContentType(MediaType.APPLICATION_JSON);
-        String body = String.format("{\"message\": \"%s\"}", message);
+        String body = String.format("{\"errorMessage\": \"%s\"}", message);
         DataBuffer buffer = exchange.getResponse()
                 .bufferFactory()
                 .wrap(body.getBytes(StandardCharsets.UTF_8));
