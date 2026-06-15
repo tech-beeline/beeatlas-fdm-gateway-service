@@ -56,30 +56,32 @@ springdoc:
       - name: Gateway
         url: /v3/api-docs
       - name: Products
-        url: ${path.products}/v3/api-docs
+        url: ${path.product2}/v3/api-docs
       - name: Dashboard
-        url: ${path.dashboard}/swagger-ui/summary/swagger.json
+        url: ${path.dashboard2}/swagger-ui/summary/swagger.json
       - name: BPMN
-        url: ${path.bpm}/v3/api-docs
+        url: ${path.camunda2}/v3/api-docs
       - name: Cx
         url: ${path.cx2}/v3/api-docs
       - name: Pack loader
-        url: ${path.pack-loader.all}/v3/api-docs
+        url: ${path.package2}/v3/api-docs
       - name: Auth
-        url: ${path.auth}/v3/api-docs
+        url: ${path.user2}/v3/api-docs
       - name: Techradar
-        url: ${path.techradar}/v3/api-docs
+        url: ${path.techradar2}/v3/api-docs
       - name: Capability
-        url: ${path.capability}/v3/api-docs
+        url: ${path.capability2}/v3/api-docs
       - name: Notification
-        url: ${path.notification}/v3/api-docs
+        url: ${path.notification2}/v3/api-docs
       - name: Document
-        url: https://${integration.document-server-url}${EXTERNAL_HOST:}${path.document}/v3/api-docs
+        url: ${path.doc2}/v3/api-docs
       - name: Structurizr
-        url: ${path.structurizr}/openapi.json
+        url: ${path.structurizr2}/openapi.json
       - name: Graph
-        url: ${path.graph}/v3/api-docs
+        url: ${path.archgraph}/v3/api-docs
 spring:
+  codec:
+    max-in-memory-size: 16MB
   servlet:
     multipart:
       enabled: true
@@ -215,7 +217,8 @@ spring:
           predicates:
             - Path=${path.pack-loader.all}/**
           filters:
-            - RewritePath=${path.pack-loader.all}/api-docs, /api-docs
+            - RewritePath=${path.pack-loader.all}/api-docs, /v3/api-docs
+            - RewritePath=${path.pack-loader.all}/v3/api-docs, /v3/api-docs
         - id: packloaderPackage
           uri: ${integration.pack-loader-server-url}
           predicates:
