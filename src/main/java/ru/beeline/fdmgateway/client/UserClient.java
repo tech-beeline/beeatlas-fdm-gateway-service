@@ -12,34 +12,34 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
-import ru.beeline.fdmgateway.dto.UserInfoDTO;
+import ru.beeline.fdmgateway.dto.AuthorizeRequestDTO;
+import ru.beeline.fdmgateway.dto.AuthorizeResponseDTO;
 
-
-import static ru.beeline.fdmgateway.utils.RestHelper.getRestTemplate;
 
 @Slf4j
 @Service
 public class UserClient {
     private final String userServerUrl;
+    private final RestTemplate restTemplate;
 
-    public UserClient(@Value("${integration.auth-server-url}") String userServerUrl) {
+    public UserClient(@Value("${integration.auth-server-url}") String userServerUrl,
+                      RestTemplate restTemplate) {
         this.userServerUrl = userServerUrl;
+        this.restTemplate = restTemplate;
     }
-    public UserInfoDTO getUserInfo(String email, String fullName, String idExt) {
-        String login = email.substring(0, email.indexOf("@"));
-        UserInfoDTO userInfoDto = null;
+
+    public AuthorizeResponseDTO authorize(AuthorizeRequestDTO request) {
         try {
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_JSON);
-
-            HttpEntity<String> entity = new HttpEntity<>(headers);
-
-            final RestTemplate restTemplate = getRestTemplate();
-            userInfoDto = restTemplate.exchange(userServerUrl + "/api/admin/v1/user/" + login + "/info?&email=" + email + "&fullName=" + fullName + "&idExt=" + idExt,
-                    HttpMethod.GET, entity, UserInfoDTO.class).getBody();
+            HttpEntity<AuthorizeRequestDTO> entity = new HttpEntity<>(request, headers);
+            return restTemplate
+                    .exchange(userServerUrl + "/api/v1/authorize",
+                            HttpMethod.POST, entity, AuthorizeResponseDTO.class)
+                    .getBody();
         } catch (Exception e) {
-            log.error(e.getMessage());
+            log.error("authorize call failed: " + e.getMessage());
+            return null;
         }
-        return userInfoDto;
     }
 }

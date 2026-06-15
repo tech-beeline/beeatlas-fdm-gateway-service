@@ -13,21 +13,21 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
-import ru.beeline.fdmgateway.service.UserService;
+import ru.beeline.fdmgateway.service.AuthorizeService;
 import ru.beeline.fdmgateway.utils.eauth.EAuthHelper;
 import ru.beeline.fdmgateway.utils.eauth.EAuthKey;
 
 @RestController
 public class ApplicationController {
+
     @Autowired
-    UserService userService;
+    AuthorizeService authorizeService;
 
     @Value("${app.version}")
     private String appVersion;
 
     @Value("${app.name}")
     private String appName;
-
 
     @GetMapping("/")
     public Mono<String> getData() {
@@ -42,14 +42,14 @@ public class ApplicationController {
 
     @DeleteMapping("/cache")
     public Mono<ResponseEntity<Void>> clearCache() {
-        return Mono.fromRunnable(() -> userService.removeFromCache())
+        return Mono.fromRunnable(() -> authorizeService.invalidateAll())
                 .subscribeOn(Schedulers.boundedElastic())
                 .then(Mono.just(ResponseEntity.ok().build()));
     }
 
     @DeleteMapping("/cache/{login}")
     public Mono<ResponseEntity<Void>> removeFromCacheByLogin(@PathVariable String login) {
-        return Mono.fromRunnable(() -> userService.removeFromCache(login))
+        return Mono.fromRunnable(() -> authorizeService.invalidateUser(login))
                 .subscribeOn(Schedulers.boundedElastic())
                 .then(Mono.just(ResponseEntity.ok().build()));
     }
