@@ -233,7 +233,7 @@ public class ValidateTokenFilter implements WebFilter {
                 .mutate()
                 .header(USER_ID_HEADER, userInfo.getId().toString())
                 //.header(USER_PRODUCTS_IDS_HEADER, userInfo.getProductsIds().toString())
-                .header(USER_ROLES_HEADER, userInfo.getRoles() != null ? userInfo.getRoles().toString() : "[]")
+                //.header(USER_ROLES_HEADER, userInfo.getRoles() != null ? userInfo.getRoles().toString() : "[]")
                 //.header(USER_PERMISSION_HEADER, userInfo.getPermissions().toString())
                 .headers(headers -> headers.remove("authorization"))
                 .build();
