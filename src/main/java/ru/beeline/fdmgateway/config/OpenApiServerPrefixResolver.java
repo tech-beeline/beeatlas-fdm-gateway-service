@@ -20,6 +20,7 @@ public class OpenApiServerPrefixResolver {
     public OpenApiServerPrefixResolver(
             @Value("${path.products}") String products,
             @Value("${path.product2}") String product2,
+            @Value("${path.project}") String project,
             @Value("${path.capability}") String capability,
             @Value("${path.capability2}") String capability2,
             @Value("${path.auth}") String auth,
@@ -47,6 +48,7 @@ public class OpenApiServerPrefixResolver {
         var list = new ArrayList<Mapping>();
         add(list, products, product2);
         add(list, product2, product2);
+        add(list, project, project);
         add(list, capability, capability2);
         add(list, capability2, capability2);
         add(list, auth, user2);
