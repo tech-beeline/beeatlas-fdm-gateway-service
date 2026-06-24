@@ -79,6 +79,8 @@ springdoc:
         url: ${path.structurizr2}/openapi.json
       - name: Graph
         url: ${path.archgraph}/v3/api-docs
+      - name: Project
+        url: ${path.project}/v3/api-docs
 spring:
   codec:
     max-in-memory-size: 16MB
@@ -435,6 +437,12 @@ spring:
             - Path=${path.documentv2}/**
           filters:
             - RewritePath=${path.documentv2}/documents/(?<documentationsTypeId>.*)/(?<targetId>.*), /api/v2/documents/$\{documentationsTypeId}/$\{targetId}
+        - id: projectService
+          uri: ${integration.project-server-url}
+          predicates:
+            - Path=${path.project}/**
+          filters:
+            - RewritePath=${path.project}/(?<segment>.*), /$\{segment}
 
 path:
   cx:
@@ -482,6 +490,7 @@ path:
   dashboardservice: /dashboard-service
   stagingsequence: /staging-sequence
   ffmanager: /ff
+  project: /project
 management:
   endpoints:
     web:
