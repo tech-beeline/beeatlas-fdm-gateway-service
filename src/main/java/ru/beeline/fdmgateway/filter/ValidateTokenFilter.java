@@ -173,7 +173,7 @@ public class ValidateTokenFilter implements WebFilter {
         userData.setEmployeeNumber(apiKey);
         userData.setWinAccountName(apiKey);
         userData.setSub(apiKey);
-        log.info(">>>>>>>>>>>UserData: " + userData);
+        log.debug("Default user created from X-Auth");
         return userData;
     }
 
@@ -190,7 +190,6 @@ public class ValidateTokenFilter implements WebFilter {
         user.setRoles(List.of("ADMINISTRATOR"));
         user.setProductsIds(List.of());
         user.setPermissions(List.of(DESIGN_ARTIFACT));
-        log.info(">>>>>>>>>>>>>>>UserInfoDTO: " + user);
         return user;
     }
 
@@ -228,7 +227,7 @@ public class ValidateTokenFilter implements WebFilter {
 
     private Mono<Void> continueWithUserInfo(ServerWebExchange exchange, UserInfoDTO userInfo,
                                              WebFilterChain chain, String requestId) {
-        log.info(requestId + " DEBUG: userInfo First: " + "getId:" + userInfo.getId().toString());
+        log.debug("{} userInfo id: {}", requestId, userInfo.getId());
         ServerHttpRequest request = exchange.getRequest()
                 .mutate()
                 .header(USER_ID_HEADER, userInfo.getId().toString())
