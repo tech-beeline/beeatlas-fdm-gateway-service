@@ -50,18 +50,7 @@ import static ru.beeline.fdmgateway.utils.jwt.JwtUtils.getUserData;
 public class ValidateTokenFilter implements WebFilter {
 
     private static final String MCP_TOKEN_HEADER = "MCP-Authorization";
-    private static final Set<String> EXCLUDED_PATHS = Set.of(
-            "/api-docs",
-            "/favicon.ico",
-            "/swagger",
-            "/openapi.json",
-            "/.well-known",
-            "/actuator/prometheus",
-            "/actuator/health",
-            "/cache",
-            "/api-gateway/capability/v2/tech/",
-            "/eauthkey"
-    );
+    private static final Set<String> EXCLUDED_PATHS = GATEWAY_INTERNAL_PATHS;
     private static final Set<String> BLACK_LIST_PATHS = Set.of(
             "api/v1/service"
     );
