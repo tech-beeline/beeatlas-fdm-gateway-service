@@ -47,7 +47,6 @@ public class AuthorizeService {
 
     public AuthorizeResponseDTO authorize(JwtUserData tokenData, String method, String path,
                                           Map<String, String> queryParams, String bodyJson) {
-        // requests with body content are not cached — body can differ across calls to the same path
         boolean cacheable = bodyJson == null;
 
         if (cacheable) {

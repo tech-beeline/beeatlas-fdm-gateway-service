@@ -20,6 +20,7 @@ public class OpenApiServerPrefixResolver {
     public OpenApiServerPrefixResolver(
             @Value("${path.products}") String products,
             @Value("${path.product2}") String product2,
+            @Value("${path.project}") String project,
             @Value("${path.capability}") String capability,
             @Value("${path.capability2}") String capability2,
             @Value("${path.auth}") String auth,
@@ -42,11 +43,14 @@ public class OpenApiServerPrefixResolver {
             @Value("${path.pack-loader.all}") String packLoaderAll,
             @Value("${path.package2}") String package2,
             @Value("${path.cx.all}") String cxAll,
-            @Value("${path.cx2}") String cx2
+            @Value("${path.cx2}") String cx2,
+            @Value("${path.chat}") String chat,
+            @Value("${path.search}") String search
     ) {
         var list = new ArrayList<Mapping>();
         add(list, products, product2);
         add(list, product2, product2);
+        add(list, project, project);
         add(list, capability, capability2);
         add(list, capability2, capability2);
         add(list, auth, user2);
@@ -70,6 +74,8 @@ public class OpenApiServerPrefixResolver {
         add(list, package2, package2);
         add(list, cxAll, cx2);
         add(list, cx2, cx2);
+        add(list, chat, chat);
+        add(list, search, search);
         list.sort(Comparator.comparingInt((Mapping m) -> m.source.length()).reversed());
         this.mappings = List.copyOf(list);
     }

@@ -50,18 +50,7 @@ import static ru.beeline.fdmgateway.utils.jwt.JwtUtils.getUserData;
 public class ValidateTokenFilter implements WebFilter {
 
     private static final String MCP_TOKEN_HEADER = "MCP-Authorization";
-    private static final Set<String> EXCLUDED_PATHS = Set.of(
-            "/api-docs",
-            "/favicon.ico",
-            "/swagger",
-            "/openapi.json",
-            "/.well-known",
-            "/actuator/prometheus",
-            "/actuator/health",
-            "/cache",
-            "/api-gateway/capability/v2/tech/",
-            "/eauthkey"
-    );
+    private static final Set<String> EXCLUDED_PATHS = GATEWAY_INTERNAL_PATHS;
     private static final Set<String> BLACK_LIST_PATHS = Set.of(
             "api/v1/service"
     );
@@ -173,7 +162,7 @@ public class ValidateTokenFilter implements WebFilter {
         userData.setEmployeeNumber(apiKey);
         userData.setWinAccountName(apiKey);
         userData.setSub(apiKey);
-        log.info(">>>>>>>>>>>UserData: " + userData);
+        log.debug("Default user created from X-Auth");
         return userData;
     }
 
@@ -190,7 +179,6 @@ public class ValidateTokenFilter implements WebFilter {
         user.setRoles(List.of("ADMINISTRATOR"));
         user.setProductsIds(List.of());
         user.setPermissions(List.of(DESIGN_ARTIFACT));
-        log.info(">>>>>>>>>>>>>>>UserInfoDTO: " + user);
         return user;
     }
 
@@ -228,12 +216,12 @@ public class ValidateTokenFilter implements WebFilter {
 
     private Mono<Void> continueWithUserInfo(ServerWebExchange exchange, UserInfoDTO userInfo,
                                              WebFilterChain chain, String requestId) {
-        log.info(requestId + " DEBUG: userInfo First: " + "getId:" + userInfo.getId().toString());
+        log.debug("{} userInfo id: {}", requestId, userInfo.getId());
         ServerHttpRequest request = exchange.getRequest()
                 .mutate()
                 .header(USER_ID_HEADER, userInfo.getId().toString())
                 //.header(USER_PRODUCTS_IDS_HEADER, userInfo.getProductsIds().toString())
-                .header(USER_ROLES_HEADER, userInfo.getRoles() != null ? userInfo.getRoles().toString() : "[]")
+                //.header(USER_ROLES_HEADER, userInfo.getRoles() != null ? userInfo.getRoles().toString() : "[]")
                 //.header(USER_PERMISSION_HEADER, userInfo.getPermissions().toString())
                 .headers(headers -> headers.remove("authorization"))
                 .build();

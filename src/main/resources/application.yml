@@ -79,6 +79,12 @@ springdoc:
         url: ${path.structurizr2}/openapi.json
       - name: Graph
         url: ${path.archgraph}/v3/api-docs
+      - name: Project
+        url: ${path.project}/v3/api-docs
+      - name: Ai chat
+        url: ${path.chat}/openapi.json
+      - name: Search
+        url: ${path.search}/openapi.json
 spring:
   codec:
     max-in-memory-size: 16MB
@@ -435,6 +441,24 @@ spring:
             - Path=${path.documentv2}/**
           filters:
             - RewritePath=${path.documentv2}/documents/(?<documentationsTypeId>.*)/(?<targetId>.*), /api/v2/documents/$\{documentationsTypeId}/$\{targetId}
+        - id: projectService
+          uri: ${integration.project-server-url}
+          predicates:
+            - Path=${path.project}/**
+          filters:
+            - RewritePath=${path.project}/(?<segment>.*), /$\{segment}
+        - id: aiChat
+          uri: ${integration.ai-chat-server-url}
+          predicates:
+            - Path=${path.chat}/**
+          filters:
+            - RewritePath=${path.chat}/(?<segment>.*), /$\{segment}
+        - id: search
+          uri: ${integration.search-server-url}
+          predicates:
+            - Path=${path.search}/**
+          filters:
+            - RewritePath=${path.search}/(?<segment>.*), /$\{segment}
 
 path:
   cx:
@@ -482,6 +506,9 @@ path:
   dashboardservice: /dashboard-service
   stagingsequence: /staging-sequence
   ffmanager: /ff
+  project: /project
+  chat: /ai-chat
+  search: /search
 management:
   endpoints:
     web:
