@@ -81,6 +81,12 @@ springdoc:
         url: ${path.archgraph}/v3/api-docs
       - name: Project
         url: ${path.project}/v3/api-docs
+      - name: Ai chat
+        url: ${path.chat}/openapi.json
+      - name: Search
+        url: ${path.search}/openapi.json
+server:
+  max-http-header-size: 16KB
 spring:
   codec:
     max-in-memory-size: 16MB
@@ -449,6 +455,18 @@ spring:
             - Path=${path.project}/**
           filters:
             - RewritePath=${path.project}/(?<segment>.*), /$\{segment}
+        - id: aiChat
+          uri: ${integration.ai-chat-server-url}
+          predicates:
+            - Path=${path.chat}/**
+          filters:
+            - RewritePath=${path.chat}/(?<segment>.*), /$\{segment}
+        - id: search
+          uri: ${integration.search-server-url}
+          predicates:
+            - Path=${path.search}/**
+          filters:
+            - RewritePath=${path.search}/(?<segment>.*), /$\{segment}
 
 path:
   cx:
@@ -498,6 +516,8 @@ path:
   stagingservice: /staging-service
   ffmanager: /ff
   project: /project
+  chat: /ai-chat
+  search: /search
 management:
   endpoints:
     web:
