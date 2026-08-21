@@ -48,7 +48,84 @@ podman compose down
 ## Проверка работоспособности
 
 - **Gateway welcome**: `GET http://localhost:8080/`
-- **Swagger UI**: обычно `http://localhost:8080/swagger-ui.html` (зависит от настроек SpringDoc)
+- **Swagger UI**: `http://localhost:8080/swagger-ui.html` — единый UI со списком сервисов (dropdown)
+
+## Как добавить новый сервис в Swagger gateway
+
+Единый Swagger UI собирает спеки бэкендов через `springdoc.swagger-ui.urls`. Чтобы сервис появился в dropdown и «Try it out» ходил через gateway, правки делаются в `src/main/resources/application.yml` и в `OpenApiServerPrefixResolver`.
+
+Ориентир — уже подключённые сервисы вроде Products / Graph / Document (`path.*2` + route `*2` + запись в `urls`).
+
+### 1. Путь в `path:` (`application.yml`)
+
+Добавьте префикс, по которому gateway будет отдавать OpenAPI-спеку наружу (обычно короткий путь без `/api-gateway`):
+
+```yaml
+path:
+  # ...
+  myservice2: /myservice
+```
+
+И URL бэкенда в `integration.*` (если его ещё нет) — его же использует route.
+
+### 2. Запись в Swagger UI (`springdoc.swagger-ui.urls`)
+
+В том же `application.yml`:
+
+```yaml
+springdoc:
+  swagger-ui:
+    urls:
+      # ...
+      - name: My Service
+        url: ${path.myservice2}/v3/api-docs
+```
+
+`url` — путь **через gateway**, не прямой URL сервиса. Типичные варианты спеки:
+
+| Тип бэкенда | Пример `url` |
+|-------------|--------------|
+| SpringDoc / OpenAPI 3 | `${path.xxx2}/v3/api-docs` |
+| FastAPI и т.п. | `${path.xxx2}/openapi.json` |
+| Старый Swagger 2 | `${path.xxx2}/swagger-ui/summary/swagger.json` |
+
+### 3. Route, который проксирует спеку и API
+
+Нужен маршрут, который отдаёт `api-docs` (и обычно всё API) с префикса `path.myservice2` на бэкенд:
+
+```yaml
+spring.cloud.gateway.routes:
+  - id: myService2
+    uri: ${integration.myservice-server-url}
+    predicates:
+      - Path=${path.myservice2}/**
+    filters:
+      - RewritePath=${path.myservice2}/(?<segment>.*), /$\{segment}
+```
+
+Так запрос `GET /myservice/v3/api-docs` уходит в сервис как `GET /v3/api-docs`.
+
+### 4. Префикс для «Try it out» (`OpenApiServerPrefixResolver`)
+
+Gateway переписывает `servers` в скачанной спеке, чтобы кнопки Swagger ходили через gateway, а не напрямую в сервис.
+
+В файле `config/OpenApiServerPrefixResolver.java` в конструктор добавьте параметр и вызов `add` по аналогии с соседними сервисами:
+
+1. параметр: `@Value("${path.myservice2}") String myservice2`
+2. в теле: `add(list, myservice2, myservice2);`
+
+Без этого спека в UI появится, но вызовы из Swagger могут уходить не туда.
+
+### Чеклист
+
+1. `path.myservice2` (+ `integration.*`, если нужно)
+2. пункт в `springdoc.swagger-ui.urls`
+3. gateway route на `${path.myservice2}/**`
+4. запись в `OpenApiServerPrefixResolver`
+5. у самого сервиса должен быть доступен OpenAPI (`/v3/api-docs` или аналог)
+6. перезапуск gateway → в Swagger UI выбрать сервис в dropdown
+
+> Маршруты «боевого» API (`/api-gateway/...`) и swagger-маршрут (`/myservice/...`) часто разделены: первый — для клиентов, второй — для агрегации документации. Для появления в Swagger UI достаточно второго контура (`*2` + `urls` + resolver).
 
 ### Проверочный запрос на прохождение авторизации (через gateway)
 
@@ -76,8 +153,8 @@ Gateway читает URL интеграций из env (см. `docker-compose.ym
 1. Откройте админку Authentik: `http://localhost:5000`
 2. Создайте **OAuth2/OpenID Provider** (OIDC).
 3. Получите JWKS эндпоинт вида:
-   - `http://authentik-server:9000/application/o/<slug>/jwks/` (внутри compose)
-   - `http://localhost:5000/application/o/<slug>/jwks/` (с хоста)
+  - `http://authentik-server:9000/application/o/<slug>/jwks/` (внутри compose)
+  - `http://localhost:5000/application/o/<slug>/jwks/` (с хоста)
 4. Убедитесь, что gateway берёт ключ именно оттуда (через `JWKS` или через настройки режима authentic-auth, если он включён в конфиге).
 
 ## Типовые проблемы и решения
