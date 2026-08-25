@@ -85,6 +85,8 @@ springdoc:
         url: ${path.chat}/openapi.json
       - name: Search
         url: ${path.search}/openapi.json
+      - name: ff-manager
+        url: ${path.ffmanager}/openapi.json
 server:
   max-http-header-size: 16KB
 spring:
