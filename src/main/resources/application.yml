@@ -85,6 +85,8 @@ springdoc:
         url: ${path.chat}/openapi.json
       - name: Search
         url: ${path.search}/openapi.json
+      - name: ff-manager
+        url: ${path.ffmanager}/openapi.json
 server:
   max-http-header-size: 16KB
 spring:
@@ -437,6 +439,12 @@ spring:
             - Path=${path.stagingsequence}/**
           filters:
             - RewritePath=${path.stagingsequence}/(?<segment>.*), /$\{segment}
+        - id: stagingservice
+          uri: ${integration.staging-service-url}
+          predicates:
+            - Path=${path.stagingservice}/**
+          filters:
+            - RewritePath=${path.stagingservice}/(?<segment>.*), /$\{segment}
         - id: documentServicev2
           uri: ${integration.document-server-url}
           predicates:
@@ -507,6 +515,7 @@ path:
   sequencebackend: /sequence-backend
   dashboardservice: /dashboard-service
   stagingsequence: /staging-sequence
+  stagingservice: /staging-service
   ffmanager: /ff
   project: /project
   chat: /ai-chat
