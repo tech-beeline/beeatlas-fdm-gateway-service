@@ -10,6 +10,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cloud.gateway.route.Route;
 import org.springframework.core.env.Environment;
 import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.core.io.buffer.DataBufferUtils;
@@ -39,7 +40,9 @@ import ru.beeline.fdmgateway.utils.jwt.JwtUtils;
 import java.nio.charset.StandardCharsets;
 import java.security.NoSuchAlgorithmException;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicBoolean;
 
+import static org.springframework.cloud.gateway.support.ServerWebExchangeUtils.GATEWAY_ROUTE_ATTR;
 import static ru.beeline.fdmgateway.dto.PermissionTypeDTO.DESIGN_ARTIFACT;
 import static ru.beeline.fdmgateway.utils.Constants.*;
 import static ru.beeline.fdmgateway.utils.jwt.JwtUtils.getUserData;
@@ -50,6 +53,9 @@ import static ru.beeline.fdmgateway.utils.jwt.JwtUtils.getUserData;
 public class ValidateTokenFilter implements WebFilter {
 
     private static final String MCP_TOKEN_HEADER = "MCP-Authorization";
+    private static final String MCP_REQUEST_ATTR = "mcp.request";
+    private static final String MCP_LOGGED_ATTR = "mcp.logged";
+    private static final String MCP_PATH_ATTR = "mcp.path";
     private static final Set<String> EXCLUDED_PATHS = GATEWAY_INTERNAL_PATHS;
     private static final Set<String> BLACK_LIST_PATHS = Set.of(
             "api/v1/service"
@@ -96,7 +102,10 @@ public class ValidateTokenFilter implements WebFilter {
         String mcpHeaderToken = exchange.getRequest().getHeaders().getFirst(MCP_TOKEN_HEADER);
 
         if (isMcpAuthorized(mcpHeaderToken) && !demoAuth) {
-            log.info("MCP запрос");
+            ServerHttpRequest mcpRequest = exchange.getRequest();
+            exchange.getAttributes().put(MCP_REQUEST_ATTR, Boolean.TRUE);
+            exchange.getAttributes().put(MCP_LOGGED_ATTR, new AtomicBoolean(false));
+            exchange.getAttributes().put(MCP_PATH_ATTR, requestPath(mcpRequest));
             JwtUserData tokenData = new JwtUserData(new HashMap<>());
             tokenData.setEmail("mcp@default.local");
             tokenData.setName("MCP");
@@ -104,7 +113,8 @@ public class ValidateTokenFilter implements WebFilter {
             tokenData.setEmployeeNumber("mcp");
             tokenData.setWinAccountName("mcp");
             tokenData.setSub("mcp");
-            return injectUserAndContinue(exchange, tokenData, chain, exchange.getRequest().getId(), true, null);
+            return injectUserAndContinue(exchange, tokenData, chain, mcpRequest.getId(), true, null)
+                    .doFinally(signal -> logMcpDestination(exchange));
         }
         if ((auth != null && !auth.isEmpty()) && (xAuth != null && !xAuth.isEmpty())) {
             return writeErrorResponse(exchange, HttpStatus.BAD_REQUEST, "Only one authorization header allowed");
@@ -142,6 +152,29 @@ public class ValidateTokenFilter implements WebFilter {
                         return injectUserAndContinue(mutatedExchange, tokenData, chain, exchange.getRequest().getId(), true, null);
                     });
         }
+    }
+
+    private void logMcpDestination(ServerWebExchange exchange) {
+        if (!Boolean.TRUE.equals(exchange.getAttribute(MCP_REQUEST_ATTR))) {
+            return;
+        }
+        AtomicBoolean logged = exchange.getAttribute(MCP_LOGGED_ATTR);
+        if (logged == null || !logged.compareAndSet(false, true)) {
+            return;
+        }
+        String path = Objects.toString(exchange.getAttribute(MCP_PATH_ATTR), "");
+        Route route = exchange.getAttribute(GATEWAY_ROUTE_ATTR);
+        if (route != null) {
+            log.info("MCP запрос {} -> route={}, backend={}", path, route.getId(), route.getUri());
+        } else {
+            log.info("MCP запрос {}", path);
+        }
+    }
+
+    private static String requestPath(ServerHttpRequest request) {
+        String path = request.getURI().getRawPath();
+        String query = request.getURI().getRawQuery();
+        return (query == null || query.isBlank()) ? path : path + "?" + query;
     }
 
     private boolean isMcpAuthorized(String providedToken) {
@@ -234,14 +267,16 @@ public class ValidateTokenFilter implements WebFilter {
             try {
                 byte[] bytes = new ObjectMapper().writeValueAsBytes(userInfo);
                 DataBuffer buffer = mutated.getResponse().bufferFactory().wrap(bytes);
-                return mutated.getResponse().writeWith(Mono.just(buffer));
+                return mutated.getResponse().writeWith(Mono.just(buffer))
+                        .doFinally(signal -> logMcpDestination(mutated));
             } catch (JsonProcessingException e) {
                 log.error("Error processing JSON", e);
                 mutated.getResponse().setStatusCode(HttpStatus.INTERNAL_SERVER_ERROR);
-                return mutated.getResponse().setComplete();
+                return mutated.getResponse().setComplete()
+                        .doFinally(signal -> logMcpDestination(mutated));
             }
         }
-        return chain.filter(mutated);
+        return chain.filter(mutated).doFinally(signal -> logMcpDestination(mutated));
     }
 
     private Mono<ServerWebExchange> validateXAuthorizationToken(ServerWebExchange exchange) {
