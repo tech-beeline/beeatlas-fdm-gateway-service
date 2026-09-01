@@ -46,7 +46,8 @@ public class OpenApiServerPrefixResolver {
             @Value("${path.cx2}") String cx2,
             @Value("${path.chat}") String chat,
             @Value("${path.search}") String search,
-            @Value("${path.ffmanager}") String ffManager
+            @Value("${path.ffmanager}") String ffManager,
+            @Value("${path.solutionchecker}") String solutionChecker
     ) {
         var list = new ArrayList<Mapping>();
         add(list, products, product2);
@@ -78,6 +79,7 @@ public class OpenApiServerPrefixResolver {
         add(list, chat, chat);
         add(list, search, search);
         add(list, ffManager, ffManager);
+        add(list, solutionChecker, solutionChecker);
         list.sort(Comparator.comparingInt((Mapping m) -> m.source.length()).reversed());
         this.mappings = List.copyOf(list);
     }
