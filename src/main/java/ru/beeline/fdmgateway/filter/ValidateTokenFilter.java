@@ -41,7 +41,8 @@ import java.security.NoSuchAlgorithmException;
 import java.util.*;
 
 import static ru.beeline.fdmgateway.dto.PermissionTypeDTO.DESIGN_ARTIFACT;
-import static ru.beeline.fdmgateway.utils.Constants.*;
+import static ru.beeline.fdmgateway.utils.Constants.GATEWAY_INTERNAL_PATHS;
+import static ru.beeline.fdmgateway.utils.Constants.USER_ID_HEADER;
 import static ru.beeline.fdmgateway.utils.jwt.JwtUtils.getUserData;
 
 
@@ -82,7 +83,7 @@ public class ValidateTokenFilter implements WebFilter {
         }
         for (String path : BLACK_LIST_PATHS) {
             if (exchange.getRequest().getPath().toString().contains(path)) {
-                log.info("path = " + exchange.getRequest().getPath().toString() + " в блэк листе");
+                log.info("путь={} в чёрном списке", exchange.getRequest().getPath().toString());
                 return writeErrorResponse(exchange, HttpStatus.NOT_FOUND, "Server not found");
             }
         }
@@ -94,44 +95,49 @@ public class ValidateTokenFilter implements WebFilter {
         String auth = exchange.getRequest().getHeaders().getFirst("Authorization");
         String xAuth = exchange.getRequest().getHeaders().getFirst("X-Authorization");
         String mcpHeaderToken = exchange.getRequest().getHeaders().getFirst(MCP_TOKEN_HEADER);
+        String requestId = exchange.getRequest().getId();
+        String path = exchange.getRequest().getPath().toString();
 
-        if (isMcpAuthorized(mcpHeaderToken) && !demoAuth) {
-            log.info("MCP запрос");
-            JwtUserData tokenData = new JwtUserData(new HashMap<>());
-            tokenData.setEmail("mcp@default.local");
-            tokenData.setName("MCP");
-            tokenData.setLastName("Assistant");
-            tokenData.setEmployeeNumber("mcp");
-            tokenData.setWinAccountName("mcp");
-            tokenData.setSub("mcp");
-            return injectUserAndContinue(exchange, tokenData, chain, exchange.getRequest().getId(), true, null);
+        if (!demoAuth && isMcpAuthorized(mcpHeaderToken)) {
+            log.info("{} MCP-запрос принят (заголовок MCP-Authorization), путь={}", requestId, path);
+            return continueAsMcp(exchange, chain);
+        }
+        if (mcpHeaderToken != null && !mcpHeaderToken.isBlank()) {
+            log.warn("{} заголовок MCP-Authorization передан, но не совпал с APP_MCP_TOKEN, путь={}",
+                    requestId, path);
+        }
+        if (!demoAuth && isMcpAuthorizedFromAuthorization(auth)) {
+            log.info("{} MCP-запрос принят (заголовок Authorization, префикс Bearer={}), путь={}",
+                    requestId, hasBearerPrefix(auth), path);
+            return continueAsMcp(exchange, chain);
         }
         if ((auth != null && !auth.isEmpty()) && (xAuth != null && !xAuth.isEmpty())) {
+            log.warn("{} 400 разрешён только один заголовок авторизации, путь={}", requestId, path);
             return writeErrorResponse(exchange, HttpStatus.BAD_REQUEST, "Only one authorization header allowed");
         }
-        if(!demoAuth) {
+        if (!demoAuth) {
             if ((auth == null || auth.isEmpty()) && (xAuth == null || xAuth.isEmpty())) {
+                log.warn("{} 401 отсутствует заголовок авторизации, путь={}", requestId, path);
                 return writeErrorResponse(exchange, HttpStatus.UNAUTHORIZED, "Missing authorization header");
             }
         }
         if (auth != null && !auth.isEmpty() && !demoAuth) {
+            log.info("{} JWT-запрос (заголовок Authorization), путь={}", requestId, path);
             try {
                 if (Arrays.stream(environment.getActiveProfiles())
                         .noneMatch(env -> env.equalsIgnoreCase("local") || env.equalsIgnoreCase("func") || env.equalsIgnoreCase("e2e"))) {
-                    validate(auth, exchange.getRequest().getId());
+                    validate(auth, requestId);
                 }
             } catch (Exception e) {
-                log.error(e.getMessage());
+                log.error("{} JWT отклонён: {}, путь={}", requestId, e.getMessage(), path);
                 exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
                 return exchange.getResponse().setComplete();
             }
             JwtUserData tokenData = getUserData(auth);
-            String requestId = exchange.getRequest().getId();
             return readAndCacheBody(exchange).flatMap(pair ->
                     injectUserAndContinue(pair.getKey(), tokenData, chain, requestId, false, pair.getValue()));
         } else if (demoAuth) {
             JwtUserData tokenData = new JwtUserData(new HashMap<>());
-            String requestId = exchange.getRequest().getId();
             return readAndCacheBody(exchange).flatMap(pair ->
                     injectUserAndContinue(pair.getKey(), tokenData, chain, requestId, false, pair.getValue()));
         } else {
@@ -144,12 +150,35 @@ public class ValidateTokenFilter implements WebFilter {
         }
     }
 
+    private Mono<Void> continueAsMcp(ServerWebExchange exchange, WebFilterChain chain) {
+        JwtUserData tokenData = new JwtUserData(new HashMap<>());
+        tokenData.setEmail("mcp@default.local");
+        tokenData.setName("MCP");
+        tokenData.setLastName("Assistant");
+        tokenData.setEmployeeNumber("mcp");
+        tokenData.setWinAccountName("mcp");
+        tokenData.setSub("mcp");
+        return injectUserAndContinue(exchange, tokenData, chain, exchange.getRequest().getId(), true, null);
+    }
+
+    private boolean isMcpAuthorizedFromAuthorization(String authorization) {
+        return isMcpAuthorized(authorization) || isMcpAuthorized(JwtUtils.extractToken(authorization));
+    }
+
     private boolean isMcpAuthorized(String providedToken) {
         if (providedToken == null || providedToken.isBlank()) return false;
         if (mcpTokens == null || mcpTokens.isBlank()) return false;
         return Arrays.stream(mcpTokens.split(","))
                 .map(String::trim)
                 .anyMatch(validToken -> validToken.equals(providedToken));
+    }
+
+    private static boolean hasBearerPrefix(String headerValue) {
+        if (headerValue == null || headerValue.isBlank()) {
+            return false;
+        }
+        String trimmed = headerValue.trim();
+        return trimmed.length() >= 6 && trimmed.regionMatches(true, 0, "Bearer", 0, 6);
     }
 
     private JwtUserData createDefaultUserDataFromXAuth(String xAuth) {
@@ -162,7 +191,7 @@ public class ValidateTokenFilter implements WebFilter {
         userData.setEmployeeNumber(apiKey);
         userData.setWinAccountName(apiKey);
         userData.setSub(apiKey);
-        log.debug("Default user created from X-Auth");
+        log.debug("Создан дефолтный пользователь из X-Authorization");
         return userData;
     }
 
@@ -183,8 +212,8 @@ public class ValidateTokenFilter implements WebFilter {
     }
 
     private Mono<Void> injectUserAndContinue(ServerWebExchange exchange, JwtUserData tokenData,
-                                              WebFilterChain chain, String requestId,
-                                              Boolean isXAuth, String bodyJson) {
+                                             WebFilterChain chain, String requestId,
+                                             Boolean isXAuth, String bodyJson) {
         if (demoAuth) {
             tokenData.setEmail("default@beeline.ru");
             tokenData.setLastName("Ivan");
@@ -215,8 +244,8 @@ public class ValidateTokenFilter implements WebFilter {
     }
 
     private Mono<Void> continueWithUserInfo(ServerWebExchange exchange, UserInfoDTO userInfo,
-                                             WebFilterChain chain, String requestId) {
-        log.debug("{} userInfo id: {}", requestId, userInfo.getId());
+                                            WebFilterChain chain, String requestId) {
+        log.debug("{} id пользователя: {}", requestId, userInfo.getId());
         ServerHttpRequest request = exchange.getRequest()
                 .mutate()
                 .header(USER_ID_HEADER, userInfo.getId().toString())
@@ -236,7 +265,7 @@ public class ValidateTokenFilter implements WebFilter {
                 DataBuffer buffer = mutated.getResponse().bufferFactory().wrap(bytes);
                 return mutated.getResponse().writeWith(Mono.just(buffer));
             } catch (JsonProcessingException e) {
-                log.error("Error processing JSON", e);
+                log.error("Ошибка обработки JSON", e);
                 mutated.getResponse().setStatusCode(HttpStatus.INTERNAL_SERVER_ERROR);
                 return mutated.getResponse().setComplete();
             }
@@ -322,17 +351,17 @@ public class ValidateTokenFilter implements WebFilter {
 
     private void validate(String bearerToken, String requestId) throws InvalidTokenException, TokenExpiredException {
         if (!JwtUtils.isValid(bearerToken)) {
-            log.info(requestId + " DEBUG: Invalid token");
+            log.warn("{} JWT невалиден", requestId);
             throw new InvalidTokenException("Invalid token");
         } else {
             try {
                 if (JwtUtils.isExpired(bearerToken)) {
-                    log.info(requestId + " DEBUG: Bearer token is expired");
+                    log.warn("{} JWT просрочен", requestId);
                     throw new TokenExpiredException("Bearer token is expired");
                 }
+                log.debug("{} JWT валиден", requestId);
             } catch (JWTDecodeException e) {
-                log.error(e.getMessage());
-                log.info(requestId + " DEBUG: Something with token: " + e.getMessage());
+                log.error("{} ошибка разбора JWT: {}", requestId, e.getMessage());
                 throw new InvalidTokenException("Invalid token");
             }
         }
@@ -354,7 +383,9 @@ public class ValidateTokenFilter implements WebFilter {
                             Mono.just(exchange.getResponse().bufferFactory().wrap(bytes)));
                     ServerHttpRequest mutated = new ServerHttpRequestDecorator(exchange.getRequest()) {
                         @Override
-                        public Flux<DataBuffer> getBody() { return cachedBody; }
+                        public Flux<DataBuffer> getBody() {
+                            return cachedBody;
+                        }
                     };
                     return new java.util.AbstractMap.SimpleEntry<>(
                             exchange.mutate().request(mutated).build(), bodyJson);

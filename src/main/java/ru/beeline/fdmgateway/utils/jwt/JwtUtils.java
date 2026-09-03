@@ -46,6 +46,18 @@ public class JwtUtils {
         return null;
     }
 
+    public static String extractToken(String authorization) {
+        if (authorization == null || authorization.isBlank()) {
+            return authorization;
+        }
+        String trimmed = authorization.trim();
+        if (trimmed.length() >= 6 && trimmed.regionMatches(true, 0, "Bearer", 0, 6)) {
+            String rest = trimmed.substring(6).trim();
+            return rest.isEmpty() ? trimmed : rest;
+        }
+        return trimmed;
+    }
+
     public static JwtUserData getUserData(String token) {
         Map<String, String> data = JwtUtils.encodeJWT(token.substring(token.indexOf(" ")));
         return data != null ? new JwtUserData(data) : null;
@@ -68,11 +80,11 @@ public class JwtUtils {
                         .parseSignedClaims(token);
                 return true;
             } catch (Exception e) {
-                log.error("Token validation failed: " + e.getMessage());
+                log.error("Проверка токена не прошла: " + e.getMessage());
                 return false;
             }
         } else {
-            log.error("EAuthKey is null");
+            log.error("EAuthKey пустой");
             return false;
         }
     }
@@ -82,7 +94,7 @@ public class JwtUtils {
         Date expiresAt = decodedJWT.getExpiresAt();
         boolean isExpired = expiresAt.before(new Date());
         if (isExpired) {
-            log.error("Token is expired, expired date: " + expiresAt);
+            log.error("Токен просрочен, дата истечения: " + expiresAt);
         }
         return isExpired;
     }

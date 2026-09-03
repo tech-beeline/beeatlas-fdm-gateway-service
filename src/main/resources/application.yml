@@ -87,6 +87,8 @@ springdoc:
         url: ${path.search}/openapi.json
       - name: ff-manager
         url: ${path.ffmanager}/openapi.json
+      - name: solution-checker
+        url: ${path.solutionchecker}/openapi.json
 server:
   max-http-header-size: 16KB
 spring:
@@ -469,6 +471,12 @@ spring:
             - Path=${path.search}/**
           filters:
             - RewritePath=${path.search}/(?<segment>.*), /$\{segment}
+        - id: solutionchecker
+          uri: ${integration.solution-checker-url}
+          predicates:
+            - Path=${path.solutionchecker}/**
+          filters:
+            - RewritePath=${path.solutionchecker}/(?<segment>.*), /$\{segment}
 
 path:
   cx:
@@ -520,6 +528,7 @@ path:
   project: /project
   chat: /ai-chat
   search: /search
+  solutionchecker: /solution-checker
 management:
   endpoints:
     web:
